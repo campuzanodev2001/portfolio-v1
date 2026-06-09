@@ -8,6 +8,63 @@ import StaggerGrid from "./animations/StaggerGrid";
 const projects = [
   {
     id: "TS_01",
+    badge: "DEMO",
+    title: "NZ Automotores",
+    description:
+      "Website for a used car dealership in Mar del Plata. Conversion-focused landing with team, location, and featured cars; catalog with search, filters by category, price, and mileage, and WhatsApp CTAs with pre-filled messages per car. Admin panel for stock management without touching code.",
+    mobileDescription:
+      "Conversion-focused dealership site with catalog, WhatsApp CTAs per car, and a no-code stock admin panel.",
+    stack: ["Next.js 16", "TypeScript", "Tailwind CSS", "Firebase", "Cloudinary"],
+    mobileStack: ["NEXT.JS", "FIREBASE", "CLOUDINARY", "WHATSAPP"],
+    image: "/nz.png",
+    deploy: "https://nzautomotores.vercel.app/",
+    glowColor: "bg-[#00dddd]/20",
+  },
+  {
+    id: "TS_02",
+    badge: "E-COMM",
+    title: "The Box",
+    description:
+      "E-commerce for a premium women's footwear and accessories brand based in Mar del Plata. Built on Tiendanube with MercadoPago integration and a mobile-first shopping experience designed around the brand's aesthetic.",
+    mobileDescription:
+      "Mobile-first e-commerce for a premium women's fashion brand, built on Tiendanube with MercadoPago.",
+    stack: ["Tiendanube", "Liquid", "MercadoPago", "CSS"],
+    mobileStack: ["TIENDANUBE", "LIQUID", "MERCADOPAGO"],
+    image: "/thebox.png",
+    deploy: "https://theboxmdp.com.ar/",
+    glowColor: "bg-[#28ff1d]/10",
+  },
+  {
+    id: "TS_03",
+    badge: "E-COMM",
+    title: "Portal Store",
+    description:
+      "Online store for the first gaming and tech culture hub in Mar del Plata. Multi-category catalog featuring brands like ASUS, developed on Rubicom with a layout built to handle large inventories and diverse product lines.",
+    mobileDescription:
+      "Multi-category gaming store for Mar del Plata's first tech hub, featuring ASUS and more.",
+    stack: ["Rubicom", "CSS"],
+    mobileStack: ["RUBICOM", "CSS"],
+    image: "/portal.png",
+    deploy: "https://portalstore.com.ar/",
+    glowColor: "bg-[#00dddd]/20",
+  },
+  {
+    id: "TS_04",
+    badge: "PORTFOLIO",
+    title: "Tom Martorello",
+    description:
+      "Portfolio and booking site for a Mar del Plata DJ. Features an animated hero, photo gallery, venue carousel, and embedded sets via SoundCloud and YouTube. Built with GSAP and Framer Motion to match the energy of live performance.",
+    mobileDescription:
+      "Animated DJ portfolio with booking, photo gallery, venue carousel, and SoundCloud/YouTube sets.",
+    stack: ["Next.js", "TypeScript", "Tailwind CSS v4", "Framer Motion", "GSAP"],
+    mobileStack: ["NEXT.JS", "FRAMER", "GSAP"],
+    image: "/tom.png",
+    deploy: "https://portfolio-tom-phi.vercel.app/",
+    repo: "https://github.com/campuzanodev2001/portfolio-tom",
+    glowColor: "bg-[#28ff1d]/10",
+  },
+  {
+    id: "TS_05",
     badge: "SAAS",
     title: "Tailor AI",
     description:
@@ -22,7 +79,7 @@ const projects = [
     glowColor: "bg-[#00dddd]/20",
   },
   {
-    id: "TS_02",
+    id: "TS_06",
     badge: "PWA",
     title: "Nuestros Planes",
     description:
@@ -37,46 +94,16 @@ const projects = [
     glowColor: "bg-[#28ff1d]/10",
   },
   {
-    id: "TS_03",
-    badge: "E-COMM",
-    title: "The Box",
+    id: "TS_07",
+    badge: "WIP",
+    title: "Moreno Herramientas",
     description:
-      "E-commerce for a premium women's footwear and accessories brand based in Mar del Plata. Built on Tiendanube with MercadoPago integration and a mobile-first shopping experience designed around the brand's aesthetic.",
+      "Custom e-commerce being built from the ground up for a hardware store in Argentina with 14,000+ products. The owner gets a custom admin panel — no third-party platforms, no code to touch. Full stack: payments via MercadoPago, shipping via Andreani and Correo Argentino, and integration with their existing Eleventa management system.",
     mobileDescription:
-      "Mobile-first e-commerce for a premium women's fashion brand, built on Tiendanube with MercadoPago.",
-    stack: ["Tiendanube", "Liquid", "MercadoPago", "CSS"],
-    mobileStack: ["TIENDANUBE", "LIQUID", "MERCADOPAGO"],
-    image: "/thebox.png",
-    deploy: "https://theboxmdp.com.ar/",
-    glowColor: "bg-[#00dddd]/20",
-  },
-  {
-    id: "TS_04",
-    badge: "E-COMM",
-    title: "Portal Store",
-    description:
-      "Online store for the first gaming and tech culture hub in Mar del Plata. Multi-category catalog featuring brands like ASUS, developed on Rubicom with a layout built to handle large inventories and diverse product lines.",
-    mobileDescription:
-      "Multi-category gaming store for Mar del Plata's first tech hub, featuring ASUS and more.",
-    stack: ["Rubicom", "CSS"],
-    mobileStack: ["RUBICOM", "CSS"],
-    image: "/portal.png",
-    deploy: "https://portalstore.com.ar/",
-    glowColor: "bg-[#28ff1d]/10",
-  },
-  {
-    id: "TS_05",
-    badge: "PORTFOLIO",
-    title: "Tom Martorello",
-    description:
-      "Portfolio and booking site for a Mar del Plata DJ. Features an animated hero, photo gallery, venue carousel, and embedded sets via SoundCloud and YouTube. Built with GSAP and Framer Motion to match the energy of live performance.",
-    mobileDescription:
-      "Animated DJ portfolio with booking, photo gallery, venue carousel, and SoundCloud/YouTube sets.",
-    stack: ["Next.js", "TypeScript", "Tailwind CSS v4", "Framer Motion", "GSAP"],
-    mobileStack: ["NEXT.JS", "FRAMER", "GSAP"],
-    image: "/tom.png",
-    deploy: "https://portfolio-tom-phi.vercel.app/",
-    repo: "https://github.com/campuzanodev2001/portfolio-tom",
+      "Custom e-commerce and admin panel for an Argentine hardware store with 14,000+ products. No Shopify, no Tiendanube — the client owns the code.",
+    stack: ["Next.js 15", "TypeScript", "Tailwind CSS v4", "Supabase", "Drizzle ORM", "MercadoPago"],
+    mobileStack: ["NEXT.JS", "SUPABASE", "DRIZZLE", "MERCADOPAGO"],
+    image: "",
     glowColor: "bg-[#00dddd]/20",
   },
 ];
@@ -95,7 +122,7 @@ export default function ProjectsSection() {
             </h2>
           </div>
           <div className="text-[10px] text-[#b9cac9]/40 text-right hidden sm:block">
-            ENTRIES_FOUND: 05
+            ENTRIES_FOUND: 07
             <br />
             FILTER: PRODUCTION
           </div>
@@ -122,13 +149,25 @@ export default function ProjectsSection() {
               {/* Image */}
               <div className="relative aspect-video bg-[#353534] overflow-hidden">
                 <div className="absolute inset-0 bg-[#00dddd]/5 group-hover:bg-transparent transition-colors z-10" />
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+                {project.image ? (
+                  <Image
+                    src={project.image}
+                    alt={project.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                    <span className="text-[10px] text-[#00dddd]/40 tracking-[0.4em] uppercase">
+                      PREVIEW_PENDING
+                    </span>
+                    <div className="w-12 h-px bg-[#00dddd]/20" />
+                    <span className="text-[9px] text-[#b9cac9]/20 tracking-widest uppercase">
+                      IN_DEVELOPMENT
+                    </span>
+                  </div>
+                )}
                 <div
                   className="absolute inset-0 z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{
