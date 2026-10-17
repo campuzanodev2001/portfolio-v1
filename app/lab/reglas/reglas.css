@@ -1,0 +1,317 @@
+/* Las Reglas — todo cuelga de .rg y de sus data-attrs:
+   data-stage (loader), data-persona, data-theme, data-honest, data-read. */
+
+.rg {
+  --paper: #f2eee4;
+  --ink: #16140f;
+  --mute: #5b564c;
+  --line: rgb(22 20 15 / 0.18);
+  --acc: #ff4b1f;
+  --acc-ink: #16140f;
+  --wd: 100%;
+  --wg: 820;
+  --gap: 6px;
+  --rad: 8px;
+  --sans: var(--font-archivo), system-ui, sans-serif;
+  --mono: var(--font-mono), ui-monospace, monospace;
+  min-height: 100dvh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  transition: background-color 0.45s ease, color 0.45s ease;
+  overflow-x: clip;
+}
+.rg[data-theme="oscura"] {
+  --paper: #11100d;
+  --ink: #eee8da;
+  --mute: #a8a194;
+  --line: rgb(238 232 218 / 0.2);
+}
+.rg[data-persona="voley"] { --acc: #ffcf2e; --wd: 112%; --wg: 880; }
+.rg[data-persona="musica"] { --acc: #b993ff; --wd: 125%; --wg: 560; }
+.rg[data-persona="profe"] { --acc: #2e7d50; --acc-ink: #ffffff; --wd: 90%; --wg: 700; }
+.rg[data-persona="gamer"] { --acc: #39ff6a; --acc-ink: #0b0b0b; --wd: 100%; --wg: 900; --rad: 0px; }
+.rg[data-persona="nada"] { --acc: #9a948a; --wd: 62%; --wg: 200; }
+.rg[data-persona="claude"] { --acc: #e08a6a; --wd: 80%; --wg: 500; }
+
+.rg ::selection { background: var(--acc); color: var(--acc-ink); }
+.rg a { color: inherit; }
+.rg :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.rg-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---------- header ---------- */
+.rg-top {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--paper);
+  transition: background-color 0.45s ease;
+}
+.rg-home {
+  display: inline-flex; align-items: center; gap: 10px;
+  font: 500 13px/1 var(--mono); text-decoration: none; color: var(--mute);
+}
+.rg-mark {
+  display: grid; place-items: center; width: 30px; height: 30px;
+  background: var(--ink); color: var(--paper);
+  font: 800 12px/1 var(--sans); border-radius: 4px;
+}
+.rg-read {
+  min-height: 44px; padding: 0 14px;
+  border: 2px solid var(--ink); border-radius: var(--rad);
+  background: var(--paper); color: var(--ink);
+  font: 700 13px/1 var(--mono); cursor: pointer;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.rg-read:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
+/* ---------- hero ---------- */
+.rg-hero {
+  display: grid; gap: 22px;
+  padding: 8px 16px 32px;
+}
+.rg-copy { display: grid; gap: 14px; align-content: start; }
+.rg-role { margin: 0; font: 500 13px/1.3 var(--mono); color: var(--mute); }
+.rg-name {
+  margin: 0;
+  font-size: clamp(2.6rem, 13vw, 6.6rem);
+  line-height: 0.88; letter-spacing: -0.02em;
+  font-weight: var(--wg); font-stretch: var(--wd);
+  transition: font-weight 0.5s ease, font-stretch 0.5s ease, opacity 0.4s;
+}
+.rg-name span { display: block; }
+.rg-name:focus { outline: none; }
+.rg-lede { margin: 0; max-width: 34ch; font-size: 1.05rem; line-height: 1.45; }
+
+.rg-persona { display: flex; gap: 12px; align-items: center; min-height: 56px; }
+.rg-ill {
+  flex: none; width: 56px; height: 56px; display: grid; place-items: center;
+  border: 2px solid var(--ink); border-radius: var(--rad);
+  background: var(--acc); color: var(--acc-ink);
+  box-shadow: 0 3px 0 var(--ink);
+  transition: background-color 0.4s ease;
+}
+.rg-ill svg { display: none; width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: square; }
+.rg-ill .rg-fill { fill: currentColor; stroke: none; }
+.rg-pl { margin: 0; font-size: 0.95rem; line-height: 1.4; max-width: 38ch; }
+.rg-pl span { display: none; }
+.rg-pl b { font-weight: 800; }
+.rg[data-persona="solver"] [data-p="solver"],
+.rg[data-persona="voley"] [data-p="voley"],
+.rg[data-persona="musica"] [data-p="musica"],
+.rg[data-persona="profe"] [data-p="profe"],
+.rg[data-persona="gamer"] [data-p="gamer"],
+.rg[data-persona="nada"] [data-p="nada"],
+.rg[data-persona="claude"] [data-p="claude"] { display: block; }
+.rg-eq { transform-box: fill-box; transform-origin: 50% 100%; animation: rg-eq 0.7s ease-in-out calc(var(--d) * -0.23s) infinite alternate; }
+
+.rg-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.rg-links a {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px;
+  border: 1.5px solid var(--ink); border-radius: var(--rad);
+  font: 500 13px/1 var(--mono); text-decoration: none;
+}
+.rg-links a:hover { background: var(--acc); color: var(--acc-ink); border-color: var(--acc); }
+
+/* persona: tipografía y movimiento */
+.rg[data-persona="nada"] .rg-name { opacity: 0.4; }
+.rg[data-persona="profe"] .rg-name,
+.rg[data-persona="gamer"] .rg-name { font-family: var(--mono); letter-spacing: -0.04em; font-size: clamp(2.3rem, 11.5vw, 5.8rem); }
+.rg[data-persona="voley"] .rg-name { animation: rg-hop 0.6s cubic-bezier(.3, 1.6, .5, 1); }
+.rg[data-persona="gamer"] .rg-name { animation: rg-glitch 0.4s steps(4); }
+.rg[data-persona="musica"] .rg-name { animation: rg-beat 0.5s ease-out; }
+
+/* ---------- tablero ---------- */
+.rg-play { display: grid; gap: 12px; justify-items: center; }
+.rg-board { position: relative; width: 100%; max-width: 420px; user-select: none; -webkit-user-select: none; }
+.rg-grid, .rg-slots {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap);
+}
+.rg-cell {
+  aspect-ratio: 1; border: 1.5px dashed var(--line); border-radius: var(--rad);
+}
+.rg-blocks, .rg-slots { position: absolute; inset: 0; }
+.rg-slots { grid-template-rows: repeat(5, 1fr); z-index: 3; }
+.rg-slot {
+  appearance: none; margin: 0; padding: 0; border: 0;
+  background: transparent; border-radius: var(--rad);
+  cursor: pointer; touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.rg-slot[data-has="1"] { cursor: grab; touch-action: none; }
+.rg-slot[data-has="fixed"] { cursor: not-allowed; }
+.rg-slot:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.rg-board[data-picking] .rg-slot:not([aria-pressed="true"]):not([data-has="fixed"]):hover,
+.rg-board[data-picking] .rg-slot:not([aria-pressed="true"]):focus-visible {
+  box-shadow: inset 0 0 0 3px var(--acc), 0 0 0 1px var(--ink);
+}
+
+.rg-b, .rg-hintarrow {
+  position: absolute; left: 0; top: 0;
+  width: calc((100% - 3 * var(--gap)) / 4); aspect-ratio: 1;
+  transform: translate(
+    calc(var(--c) * (100% + var(--gap)) + var(--dx, 0px)),
+    calc(var(--row) * (100% + var(--gap)) + var(--dy, 0px))
+  );
+  container-type: inline-size;
+}
+.rg-b { transition: transform 0.28s cubic-bezier(.3, 1.35, .5, 1); }
+.rg-b[data-drag] { transition: none; z-index: 5; }
+.rg-b-in {
+  box-sizing: border-box; width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4%;
+  border: 2px solid var(--ink); border-radius: var(--rad);
+  background: var(--paper); color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink);
+  font-weight: 800; font-stretch: 72%; font-size: 21cqi; line-height: 0.92; letter-spacing: 0.01em;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+.rg-two .rg-b-in { font-size: 17cqi; font-stretch: 64%; }
+.rg-k-noun .rg-b-in { background: var(--ink); color: var(--paper); }
+.rg-k-op .rg-b-in { background: transparent; box-shadow: none; border-style: dashed; font-size: 30cqi; }
+.rg-arrow { width: 44%; fill: none; stroke: currentColor; stroke-width: 2; }
+.rg-k-prop.rg-on .rg-b-in { background: var(--acc); color: var(--acc-ink); }
+.rg-on .rg-b-in { box-shadow: 0 4px 0 var(--acc), 0 4px 0 2px var(--ink); }
+.rg-k-op.rg-on .rg-b-in { border-style: solid; color: var(--ink); box-shadow: none; }
+.rg-up .rg-b-in { transform: translateY(-8%) scale(1.06); box-shadow: 0 10px 0 var(--ink); }
+.rg-b[data-drag] .rg-b-in { transform: scale(1.1) rotate(-3deg); box-shadow: 0 14px 0 var(--ink); }
+
+.rg[data-persona="gamer"] .rg-b-in { font-family: var(--mono); font-stretch: normal; font-weight: 700; font-size: 15cqi; }
+.rg[data-persona="gamer"] .rg-two .rg-b-in { font-size: 12cqi; }
+.rg[data-persona="voley"] .rg-on:not(.rg-up):not([data-drag]) .rg-b-in { animation: rg-hop 0.55s cubic-bezier(.3, 1.6, .5, 1) calc(var(--i) * 40ms) backwards; }
+.rg[data-persona="musica"] .rg-on:not(.rg-up):not([data-drag]) .rg-b-in { animation: rg-beat 0.48s ease-in-out infinite alternate; }
+
+/* pista: VOLEY amaga hacia el slot de la propiedad */
+.rg-hintarrow { display: grid; place-items: center; opacity: 0; pointer-events: none; z-index: 2; }
+.rg-hintarrow svg { width: 42%; fill: none; stroke: var(--ink); stroke-width: 3; }
+.rg-board[data-hint] .rg-b[data-id="voley"] .rg-b-in { animation: rg-nudge 1.25s ease-in-out 4; }
+.rg-board[data-hint] .rg-hintarrow { animation: rg-ghost 1.25s ease-in-out 4; }
+
+/* readout */
+.rg-readout { width: 100%; max-width: 420px; font: 500 12.5px/1.45 var(--mono); }
+.rg-rules { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.rg-rules li { font-weight: 700; }
+.rg-rules .rg-idle { font-weight: 500; color: var(--mute); text-decoration: line-through; }
+.rg-msg { margin: 6px 0 0; min-height: 2.9em; color: var(--mute); }
+
+/* pelota (PELOTA ES SAQUE) */
+.rg-ball {
+  position: fixed; left: 0; top: 12vh; z-index: 50; width: 52px; pointer-events: none;
+  animation: rg-bx 2.3s linear both;
+}
+.rg-ball-y { animation: rg-by 2.3s both; }
+.rg-ball svg { display: block; width: 100%; animation: rg-spin 0.6s linear infinite; }
+.rg-ball circle { fill: #ffcf2e; stroke: #16140f; stroke-width: 2.5; }
+.rg-ball path { fill: none; stroke: #1f4fd8; stroke-width: 2.5; }
+
+/* ---------- modo lectura ---------- */
+.rg-plain { display: none; max-width: 62ch; padding: 16px 16px 40px; font-size: 1.05rem; line-height: 1.55; }
+.rg-plain h2 { font-size: 1.6rem; margin: 0 0 12px; }
+.rg-plain h2:focus { outline: none; }
+.rg[data-read="1"] .rg-plain { display: block; }
+.rg[data-read="1"] .rg-hero,
+.rg[data-read="1"] .rg-next,
+.rg[data-read="1"] .rg-ball { display: none; }
+
+/* ---------- borde de sección + stub ---------- */
+.rg-next { padding: 0 0 48px; }
+.rg-strip { overflow: hidden; border-block: 2px solid var(--ink); padding: 8px 0; }
+.rg-track { display: flex; width: max-content; animation: rg-slide 16s linear infinite; }
+.rg-run { display: flex; gap: 6px; padding-right: 6px; }
+.rg-sb {
+  display: grid; place-items: center; min-width: 40px; height: 40px; padding: 0 10px;
+  background: var(--ink); color: var(--paper); border-radius: var(--rad);
+  font: 800 14px/1 var(--sans); font-stretch: 75%; white-space: nowrap;
+}
+.rg-sb-op { background: transparent; color: var(--ink); border: 2px dashed var(--ink); }
+.rg-next-h { margin: 24px 16px 4px; font-size: 1.8rem; font-weight: 800; font-stretch: 80%; }
+.rg-next-p { margin: 0 16px; color: var(--mute); font: 500 13px/1.4 var(--mono); }
+
+/* ---------- créditos (CLAUDE ES DANIEL los da vuelta) ---------- */
+.rg-credits { padding: 0 16px 32px; perspective: 600px; font: 500 12.5px/1.45 var(--mono); color: var(--mute); }
+.rg-cr-in { display: grid; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(.3, 1.3, .5, 1); }
+.rg-cr { grid-area: 1 / 1; margin: 0; backface-visibility: hidden; transition: visibility 0s 0.35s; }
+.rg-cr-back { transform: rotateX(180deg); visibility: hidden; color: var(--ink); }
+.rg[data-honest="1"] .rg-cr-in { transform: rotateX(180deg); }
+.rg[data-honest="1"] .rg-cr-front { visibility: hidden; }
+.rg[data-honest="1"] .rg-cr-back { visibility: visible; }
+
+/* ---------- loader: los bloques caen y arman la primera regla ---------- */
+.rg[data-stage="boot"] .rg-b-in,
+.rg[data-stage="boot"] .rg-fade,
+.rg[data-stage="boot"] .rg-cell { opacity: 0; }
+.rg[data-stage="run"] .rg-cell { animation: rg-pop 0.26s ease-out both; }
+.rg[data-stage="run"] .rg-b-in { animation: rg-drop 0.42s cubic-bezier(.25, 1.35, .5, 1) calc(120ms + var(--i) * 48ms) both; }
+.rg[data-stage="run"] .rg-on .rg-b-in {
+  animation: rg-drop 0.42s cubic-bezier(.25, 1.35, .5, 1) calc(120ms + var(--i) * 48ms) both,
+    rg-light 0.3s ease-out 1s both;
+}
+.rg[data-stage="run"] .rg-fade { animation: rg-up 0.38s ease-out calc(480ms + var(--d) * 110ms) both; }
+.rg[data-stage="enter"] .rg-b-in,
+.rg[data-stage="enter"] .rg-fade { animation: rg-in 0.4s ease-out both; }
+.rg[data-stage="calm"] .rg-b-in,
+.rg[data-stage="calm"] .rg-fade,
+.rg[data-stage="calm"] .rg-cell { animation: rg-fadein 0.4s ease-out both; }
+
+@keyframes rg-drop {
+  0% { transform: translateY(-70vh); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: none; }
+}
+@keyframes rg-light { from { background-color: var(--paper); color: var(--ink); } }
+@keyframes rg-pop { from { transform: scale(0.6); opacity: 0; } }
+@keyframes rg-up { from { transform: translateY(14px); opacity: 0; } }
+@keyframes rg-in { from { transform: translateY(6px); opacity: 0; } }
+@keyframes rg-fadein { from { opacity: 0; } }
+@keyframes rg-nudge {
+  0%, 100% { transform: none; }
+  35% { transform: translateX(-22%) rotate(-3deg); }
+  50% { transform: translateX(-16%); }
+  65% { transform: translateX(-22%) rotate(-3deg); }
+}
+@keyframes rg-ghost { 0%, 100% { opacity: 0; } 40%, 70% { opacity: 1; } }
+@keyframes rg-hop { 0% { transform: none; } 35% { transform: translateY(-14%); } 65% { transform: translateY(3%); } 100% { transform: none; } }
+@keyframes rg-beat { from { transform: scale(1); } to { transform: scale(1.05); } }
+@keyframes rg-glitch { 0% { transform: translate(3px, 0); } 25% { transform: translate(-3px, 1px); } 50% { transform: translate(2px, -1px); } 100% { transform: none; } }
+@keyframes rg-eq { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
+@keyframes rg-slide { to { transform: translateX(-50%); } }
+@keyframes rg-spin { to { transform: rotate(360deg); } }
+@keyframes rg-bx { from { transform: translateX(-70px); } to { transform: translateX(calc(100vw + 70px)); } }
+@keyframes rg-by {
+  0% { transform: translateY(0); animation-timing-function: ease-in; }
+  28% { transform: translateY(62vh); animation-timing-function: ease-out; }
+  48% { transform: translateY(24vh); animation-timing-function: ease-in; }
+  66% { transform: translateY(62vh); animation-timing-function: ease-out; }
+  80% { transform: translateY(42vh); animation-timing-function: ease-in; }
+  92% { transform: translateY(62vh); animation-timing-function: ease-out; }
+  100% { transform: translateY(54vh); }
+}
+
+/* ---------- desktop ---------- */
+@media (min-width: 900px) {
+  .rg { --gap: 8px; }
+  .rg-top { padding: 14px 5vw; }
+  .rg-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(380px, 460px);
+    align-items: center; gap: 5vw;
+    min-height: calc(100dvh - 72px);
+    padding: 0 5vw 40px;
+  }
+  .rg-lede { font-size: 1.2rem; }
+  .rg-board, .rg-readout { max-width: 460px; }
+  .rg-next-h, .rg-next-p { margin-inline: 5vw; }
+  .rg-credits { padding-inline: 5vw; }
+}
+
+/* ---------- versión calma ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .rg *, .rg { transition-duration: 0.01ms !important; }
+  .rg .rg-b-in, .rg .rg-name, .rg .rg-eq, .rg .rg-track, .rg .rg-ball svg, .rg .rg-ball-y { animation: none !important; }
+  .rg-board[data-hint] .rg-hintarrow { animation: none; opacity: 1; }
+  .rg-ball { left: calc(50% - 26px); top: auto; bottom: 24px; animation: rg-fadeout 2.3s both; }
+  .rg[data-stage="calm"] .rg-b-in { animation: rg-fadein 0.4s ease-out both !important; }
+}
+@keyframes rg-fadeout { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }

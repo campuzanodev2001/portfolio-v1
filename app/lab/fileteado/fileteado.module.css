@@ -1,0 +1,736 @@
+/* ==========================================================================
+   Fileteado — loader + hero
+   Paleta: negro laca, crema de filete, esmaltes planos (bermellón, oro,
+   celeste, verde) en tres tonos cada uno (ver geometry.ts).
+   ========================================================================== */
+
+.root {
+  --fil-bg: #0c0a09;
+  --fil-crema: #f3e6c8;
+  --fil-crema-hi: #fff1d2;
+  --fil-rojo: #c9322a;
+  --fil-oro: #e0a02e;
+  --fil-celeste: #57a4dc;
+  --fil-celeste-dk: #2c6a9c;
+  --fil-verde: #2c8650;
+  --inset: clamp(10px, 2.6vmin, 28px);
+  --S: clamp(112px, 35vmin, 260px);
+  --cw: clamp(86px, 15vmin, 150px);
+
+  background: var(--fil-bg);
+  color: var(--fil-crema);
+  font-family: var(--fil-serif), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.gotica {
+  font-family: var(--fil-gotica), var(--fil-serif), serif;
+  font-weight: 600;
+}
+.romana {
+  font-family: var(--fil-serif), Georgia, serif;
+  font-weight: 900;
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  overflow: hidden;
+  background:
+    linear-gradient(118deg, transparent 32%, rgb(255 240 210 / 0.035) 46%, transparent 60%),
+    radial-gradient(120% 85% at 50% 40%, #1c1411 0%, #120d0b 48%, var(--fil-bg) 82%);
+}
+
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 760px;
+  padding: calc(var(--S) * 0.62) calc(var(--inset) + 26px) calc(var(--S) * 0.56);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.name {
+  margin: 0;
+  width: min(100%, 680px);
+  line-height: 0;
+}
+
+.nameSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.ribbonWrap {
+  margin: clamp(2px, 1vw, 10px) 0 0;
+  width: min(84%, 420px);
+  line-height: 0;
+}
+
+.ribbon {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  clip-path: inset(-10% -2% -10% -2%);
+}
+
+.ribbonText {
+  font-family: var(--fil-serif), Georgia, serif;
+  font-weight: 900;
+}
+
+.statement {
+  margin: clamp(14px, 3vw, 26px) 0 0;
+  max-width: 34ch;
+  font-size: clamp(1.02rem, 0.9rem + 0.7vw, 1.3rem);
+  line-height: 1.5;
+  text-wrap: balance;
+  color: var(--fil-crema);
+}
+
+.links {
+  list-style: none;
+  margin: clamp(16px, 3vw, 24px) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 1.02rem;
+}
+
+.links a {
+  position: relative;
+  display: inline-block;
+  padding: 6px 2px;
+  color: var(--fil-crema-hi);
+  text-decoration: none;
+}
+
+/* subrayado = un filete que se pinta desde el centro */
+.links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 1.5px;
+  background: var(--fil-oro);
+  transform: scaleX(0.28);
+  transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1), background-color 300ms;
+}
+.links a:hover::after,
+.links a:focus-visible::after {
+  transform: scaleX(1);
+  background: var(--fil-rojo);
+}
+
+.sep {
+  width: 9px;
+  line-height: 0;
+}
+.sep svg {
+  width: 100%;
+  height: auto;
+}
+
+.clock {
+  margin: 14px 0 0;
+  font-size: 0.86rem;
+  color: rgb(243 230 200 / 0.66);
+  font-variant-numeric: tabular-nums;
+}
+
+.firma {
+  align-self: flex-end;
+  margin: 10px 0 0;
+  padding: 4px 6px;
+  background: none;
+  border: 0;
+  font-family: var(--fil-gotica), serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: rgb(243 230 200 / 0.5);
+  cursor: pointer;
+  rotate: -4deg;
+  transition: color 300ms;
+}
+.firma:hover {
+  color: var(--fil-crema-hi);
+}
+
+.hero :focus-visible {
+  outline: 2px solid var(--fil-oro);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- marco ---------- */
+
+.frame {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.line {
+  position: absolute;
+}
+
+.lineH {
+  height: 6px;
+  width: calc(50% - var(--inset) - var(--S) * 0.5 - var(--cw) * 0.4);
+}
+.lineV {
+  width: 6px;
+  height: calc(50% - var(--inset) - var(--S) * 0.5 - 17px);
+}
+
+.topL,
+.topR {
+  top: var(--inset);
+  background: linear-gradient(to bottom, var(--fil-crema-hi) 0 1.5px, transparent 1.5px 3.5px, var(--fil-rojo) 3.5px 4.5px, transparent 4.5px);
+}
+.botL,
+.botR {
+  bottom: var(--inset);
+  background: linear-gradient(to top, var(--fil-crema-hi) 0 1.5px, transparent 1.5px 3.5px, var(--fil-rojo) 3.5px 4.5px, transparent 4.5px);
+}
+.leftT,
+.leftB {
+  left: var(--inset);
+  background: linear-gradient(to right, var(--fil-crema-hi) 0 1.5px, transparent 1.5px 3.5px, var(--fil-rojo) 3.5px 4.5px, transparent 4.5px);
+}
+.rightT,
+.rightB {
+  right: var(--inset);
+  background: linear-gradient(to left, var(--fil-crema-hi) 0 1.5px, transparent 1.5px 3.5px, var(--fil-rojo) 3.5px 4.5px, transparent 4.5px);
+}
+.topL,
+.botL {
+  left: calc(var(--inset) + var(--S) * 0.5);
+  transform-origin: left center;
+}
+.topR,
+.botR {
+  right: calc(var(--inset) + var(--S) * 0.5);
+  transform-origin: right center;
+}
+.leftT,
+.rightT {
+  top: calc(var(--inset) + var(--S) * 0.5);
+  transform-origin: center top;
+}
+.leftB,
+.rightB {
+  bottom: calc(var(--inset) + var(--S) * 0.5);
+  transform-origin: center bottom;
+}
+
+.crest {
+  position: absolute;
+  left: 50%;
+  width: var(--cw);
+  aspect-ratio: 120 / 48;
+  translate: -50% 0;
+  line-height: 0;
+}
+.crestTop {
+  top: calc(var(--inset) + 3px - var(--cw) * 0.2);
+}
+.crestBottom {
+  bottom: calc(var(--inset) + 3px - var(--cw) * 0.2);
+}
+.crest svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.sideGem {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 24px;
+  translate: 0 -50%;
+  line-height: 0;
+}
+.sideL {
+  left: calc(var(--inset) + 3px - 7px);
+}
+.sideR {
+  right: calc(var(--inset) + 3px - 7px);
+}
+.sideGem svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- esquineros (el click que no debería existir) ---------- */
+
+.corner {
+  position: absolute;
+  z-index: 3;
+  width: var(--S);
+  height: var(--S);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+  transition: filter 400ms;
+}
+.tl {
+  top: calc(var(--inset) + 3px - var(--S) * 0.11);
+  left: calc(var(--inset) + 3px - var(--S) * 0.11);
+}
+.tr {
+  top: calc(var(--inset) + 3px - var(--S) * 0.11);
+  right: calc(var(--inset) + 3px - var(--S) * 0.11);
+}
+.bl {
+  bottom: calc(var(--inset) + 3px - var(--S) * 0.11);
+  left: calc(var(--inset) + 3px - var(--S) * 0.11);
+}
+.br {
+  bottom: calc(var(--inset) + 3px - var(--S) * 0.11);
+  right: calc(var(--inset) + 3px - var(--S) * 0.11);
+}
+.cornerArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.tl .cornerArt {
+  transform-origin: 12% 12%;
+}
+.tr .cornerArt {
+  transform-origin: 88% 12%;
+}
+.bl .cornerArt {
+  transform-origin: 12% 88%;
+}
+.br .cornerArt {
+  transform-origin: 88% 88%;
+}
+
+@media (hover: hover) {
+  .corner:hover {
+    filter: brightness(1.12) saturate(1.06);
+  }
+}
+
+/* ---------- easter egg: la frase en su cinta ---------- */
+
+.fraseWrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: 0 18px;
+  pointer-events: none;
+}
+
+.frase {
+  position: relative;
+  pointer-events: auto;
+  max-width: 580px;
+  filter: drop-shadow(0 12px 22px rgb(0 0 0 / 0.55));
+}
+
+.fraseBand {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 13px 40px 11px;
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  color: #16110d;
+  background: linear-gradient(
+    to bottom,
+    var(--fil-celeste) 0 9px,
+    #fbf6ea 9px calc(100% - 9px),
+    var(--fil-celeste) calc(100% - 9px)
+  );
+  box-shadow: 0 0 0 1.5px var(--fil-crema-hi);
+  clip-path: inset(-4px -4px -4px -4px);
+  animation: filUnfurlBand 520ms cubic-bezier(0.3, 0.7, 0.2, 1) both;
+}
+
+.fraseText {
+  font-family: var(--fil-gotica), serif;
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1rem + 1.6vw, 1.9rem);
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.fraseSign {
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8e1a14;
+}
+
+.fraseTail {
+  position: absolute;
+  top: 16px;
+  bottom: -10px;
+  width: 34px;
+  background: var(--fil-celeste-dk);
+  box-shadow: inset 0 0 0 1.5px var(--fil-crema-hi);
+  animation: filTail 360ms ease-out 300ms both;
+}
+.fraseTailL {
+  left: -24px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 46% 50%);
+}
+.fraseTailR {
+  right: -24px;
+  clip-path: polygon(0 0, 100% 0, 54% 50%, 100% 100%, 0 100%);
+}
+
+.fraseClose {
+  position: absolute;
+  z-index: 2;
+  top: -12px;
+  right: -12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--fil-crema-hi);
+  background: var(--fil-rojo);
+  color: var(--fil-crema-hi);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* ---------- stub: preview de guardas ---------- */
+
+.stub {
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  padding: 0 0 64px;
+  text-align: center;
+  background: var(--fil-bg);
+}
+
+.guarda {
+  width: 100%;
+  height: 48px;
+  line-height: 0;
+}
+.guardaFlip {
+  scale: 1 -1;
+}
+.guardaSvg {
+  width: 100%;
+  height: 100%;
+}
+
+.stubTitle {
+  margin: 28px 0 0;
+  font-family: var(--fil-gotica), serif;
+  font-weight: 600;
+  font-size: clamp(2rem, 1.4rem + 3vw, 3.2rem);
+  line-height: 1;
+  color: var(--fil-oro);
+  text-shadow: 3px 4px 0 #4d0f0a;
+}
+
+.stubText,
+.stubNote {
+  margin: 0;
+  padding: 0 22px;
+  max-width: 54ch;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+.stubNote {
+  margin-bottom: 28px;
+  font-size: 0.86rem;
+  color: rgb(243 230 200 / 0.62);
+}
+
+/* ==========================================================================
+   Intro: el loader ES el hero pintándose. Todo CSS: arranca sin esperar JS.
+   0      marco sale de los esquineros · rombo de esquina
+   60     voluta madre (pincelada enmascarada)
+   260    hoja de acanto · 480 contra-voluta
+   250+   contorno del nombre letra por letra (34ms entre letras)
+   560    guardas de los remates · 640 rombos de los lados
+   780    "pintura" del nombre (relleno + calle + luz)
+   820    perlas · 980 sombra proyectada · 980 cinta
+   1080+  bajada, links, hora, firma
+   ~1450  listo
+   ========================================================================== */
+
+.grow {
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 0;
+  animation: filGrow var(--t, 600ms) cubic-bezier(0.45, 0.05, 0.3, 1) var(--d, 0ms) both;
+}
+.sprout {
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 0;
+  animation: filGrow var(--t, 560ms) cubic-bezier(0.3, 0.1, 0.25, 1) var(--d, 0ms) both;
+}
+.popMask {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: filPopMask 520ms cubic-bezier(0.3, 0.9, 0.3, 1) var(--d, 0ms) both;
+}
+
+.lineH {
+  animation: filLineX 680ms cubic-bezier(0.6, 0, 0.2, 1) 60ms both;
+}
+.lineV {
+  animation: filLineY 680ms cubic-bezier(0.6, 0, 0.2, 1) 60ms both;
+}
+.pop {
+  animation: filPop 460ms cubic-bezier(0.3, 1.5, 0.5, 1) 600ms both;
+}
+
+.trace {
+  animation: filTrace 560ms cubic-bezier(0.5, 0, 0.3, 1) calc(250ms + var(--i, 0) * 34ms) both;
+}
+.flourish path {
+  stroke-dasharray: 1 2;
+  animation: filGrow 420ms ease-out 360ms both;
+}
+.flourishGem {
+  animation: filFade 300ms ease-out 700ms both;
+}
+.paint {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: filPaint 440ms cubic-bezier(0.6, 0, 0.2, 1) 780ms both;
+}
+.nameShadow {
+  animation: filShadow 380ms cubic-bezier(0.2, 0.7, 0.2, 1) 980ms both;
+}
+.ribbon {
+  animation: filUnfurl 440ms cubic-bezier(0.3, 0.7, 0.2, 1) 980ms both;
+}
+.rise {
+  animation: filRise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(1080ms + var(--r, 0) * 70ms) both;
+}
+
+.sheen {
+  opacity: 0;
+  transform: translateX(calc(var(--sx, 0.5) * 640px));
+  transition:
+    opacity 500ms ease,
+    transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  pointer-events: none;
+}
+.hero[data-sheen] .sheen {
+  opacity: 0.45;
+}
+
+.hero .corner .cornerArt.spring {
+  animation: filSpring 680ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+/* saltear: todo a su estado final, ya */
+.hero[data-state="done"] :is(.grow, .popMask, .lineH, .lineV, .pop, .trace, .flourish path, .flourishGem, .paint, .nameShadow, .ribbon, .rise) {
+  animation: none;
+}
+
+/* ya lo viste en esta sesión: entrada calma, solo fundidos escalonados */
+.hero[data-state="calm"] :is(.grow, .popMask, .trace, .flourish path, .paint) {
+  animation: none;
+}
+.hero[data-state="calm"] :is(.lineH, .lineV, .pop, .flourishGem, .nameShadow, .ribbon, .rise, .cornerArt, .nameSvg) {
+  animation: filFade 700ms ease calc(var(--r, 0) * 90ms + 80ms) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero :is(.grow, .sprout, .popMask, .trace, .flourish path, .paint) {
+    animation: none;
+  }
+  .hero :is(.lineH, .lineV, .pop, .flourishGem, .nameShadow, .ribbon, .rise, .cornerArt, .nameSvg) {
+    animation: filFade 900ms ease calc(var(--r, 0) * 120ms + 100ms) both;
+  }
+  .hero[data-state="done"] :is(.lineH, .lineV, .pop, .flourishGem, .nameShadow, .ribbon, .rise, .cornerArt, .nameSvg) {
+    animation: none;
+  }
+  .hero .corner .cornerArt.spring {
+    animation: none;
+  }
+  .sheen {
+    display: none;
+  }
+  .fraseBand,
+  .fraseTail {
+    animation: filFade 300ms ease both;
+  }
+  .links a::after {
+    transition: none;
+  }
+}
+
+/* la guarda se pinta al entrar en pantalla (donde el navegador lo soporte) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .guardaSvg {
+      animation: filWipe linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+  }
+}
+
+/* ---------- desktop ---------- */
+
+@media (min-width: 768px) {
+  .content {
+    padding-top: calc(var(--S) * 0.5);
+    padding-bottom: calc(var(--S) * 0.45);
+  }
+  .links {
+    gap: 4px 18px;
+    font-size: 1.1rem;
+  }
+  .clock {
+    font-size: 0.92rem;
+  }
+}
+
+@media (min-width: 768px) and (max-height: 640px) {
+  .root {
+    --S: clamp(104px, 26vmin, 200px);
+  }
+}
+
+/* ---------- keyframes ---------- */
+
+@keyframes filGrow {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@keyframes filPopMask {
+  from {
+    transform: scale(0);
+  }
+}
+@keyframes filLineX {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes filLineY {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes filPop {
+  from {
+    opacity: 0;
+    transform: scale(0.2) rotate(-25deg);
+  }
+}
+@keyframes filTrace {
+  from {
+    stroke-dasharray: 0 1400;
+  }
+  to {
+    stroke-dasharray: 1400 0;
+  }
+}
+@keyframes filPaint {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes filShadow {
+  from {
+    opacity: 0;
+    transform: translate(-5px, -6px);
+  }
+}
+@keyframes filUnfurl {
+  from {
+    clip-path: inset(-10% 50% -10% 50%);
+  }
+}
+@keyframes filUnfurlBand {
+  from {
+    clip-path: inset(-4px 50% -4px 50%);
+  }
+}
+@keyframes filTail {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@keyframes filRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes filFade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes filSpring {
+  35% {
+    transform: scale(1.06) rotate(-1.2deg);
+  }
+}
+@keyframes filWipe {
+  from {
+    clip-path: inset(0 50% 0 50%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}

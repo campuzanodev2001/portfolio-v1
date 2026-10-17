@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Lab base: neutral reset only. Each prototype owns its look. */
+html, body {
+  margin: 0;
+  min-height: 100%;
+}

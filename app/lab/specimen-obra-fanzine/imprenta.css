@@ -1,0 +1,2255 @@
+/* ==========================================================================
+   IMPRENTA CAMPUZANO — Specimen × La Obra × Fanzine.
+   The page is a sheet run through a two-drum riso in a small print shop.
+   The type (Roboto Flex) and the inks (pink + blue) are the PRINT; the
+   pixel crew, the floor and the machine are the SHOP that makes it.
+   Two shapes only: el ESCALÓN (pixel stairs in --u) and el PUNTO (dot).
+   Everything is scoped under .imp (lab.css is shared by every prototype).
+   ========================================================================== */
+
+/* misregistration of the pink plate — re-rolled by the registration marks */
+@property --mx {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 3px;
+}
+@property --my {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: -2px;
+}
+@property --mr {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: -0.15deg;
+}
+
+.imp {
+  --paper: #f2ecdf;
+  --pink: #ff48b0; /* Fluorescent Pink: decoration only, never text alone */
+  --blue: #3d5588; /* Federal Blue: all text, 6.2:1 on paper */
+  --violet: #3d185e; /* pink × blue: the free third ink */
+  --yellow: #ffe800; /* the hidden drum */
+  --helmet: #ff48b0;
+  --helmet2: #c43997;
+
+  --u: 2px; /* one pixel of the crew's world */
+  --gut: 16px;
+  --mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+  --ease-drum: cubic-bezier(0.55, 0.06, 0.45, 0.96);
+  --spring: cubic-bezier(0.3, 1.7, 0.5, 1);
+  --out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --noise-stamp: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.4 0 0 0 -.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .24 0 0 0 0 .18 1.2 0 0 0 -.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E")
+    0 0 / 180px 180px;
+  --tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'%3E%3Cpath fill='%23E7DCC4' d='M0 0h8v8H0z'/%3E%3Cpath fill='%23C9B994' d='M0 0h8v1H0zM0 0h1v8H0z'/%3E%3Cpath fill='%23F6EEDC' d='M2 2h1v1H2zM4 2h1v1H4zM6 2h1v1H6zM2 4h1v1H2zM4 4h1v1H4zM6 4h1v1H6zM2 6h1v1H2zM4 6h1v1H4zM6 6h1v1H6z'/%3E%3Cpath fill='%23D3C4A3' d='M2 3h1v1H2zM4 3h1v1H4zM6 3h1v1H6zM2 5h1v1H2zM4 5h1v1H4zM6 5h1v1H6zM2 7h1v1H2zM4 7h1v1H4zM6 7h1v1H6z'/%3E%3C/svg%3E");
+  --cursor-stamp: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='%233D5588'%3E%3Ccircle cx='16' cy='6' r='5'/%3E%3Crect x='13' y='10' width='6' height='9'/%3E%3Crect x='6' y='19' width='20' height='5' rx='1'/%3E%3C/g%3E%3Crect x='5' y='25' width='22' height='4' fill='%23FF48B0'/%3E%3C/svg%3E");
+
+  position: relative;
+  min-height: 100svh;
+  overflow-x: clip;
+  background: var(--paper);
+  color: var(--blue);
+  font-family: var(--font-flex), system-ui, sans-serif;
+  font-variation-settings: "wght" 420, "wdth" 100;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    --mx 0.75s var(--spring),
+    --my 0.75s var(--spring),
+    --mr 0.75s var(--spring);
+}
+@media (min-width: 480px) {
+  .imp {
+    --u: 3px;
+  }
+}
+@media (min-width: 720px) {
+  .imp {
+    --u: 4px;
+  }
+}
+@media (min-width: 1360px) {
+  .imp {
+    --u: 5px;
+  }
+}
+
+.imp[data-yellow] {
+  --helmet: #ffe800;
+  --helmet2: #c9a800;
+}
+
+.imp ::selection {
+  background: var(--pink);
+  color: var(--violet);
+}
+.imp :focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+.imp-blog :focus-visible,
+.imp-colofon :focus-visible {
+  outline-color: var(--paper);
+}
+.imp-bio :focus-visible {
+  outline-color: var(--violet);
+}
+.imp main {
+  display: block;
+  outline: none;
+}
+.imp-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.imp-skip {
+  position: absolute;
+  z-index: 50;
+  left: 8px;
+  top: 8px;
+  padding: 8px 12px;
+  background: var(--blue);
+  color: var(--paper);
+  font: 600 14px/1 var(--mono);
+  translate: 0 -200%;
+}
+.imp-skip:focus-visible {
+  translate: 0 0;
+}
+.imp-hm {
+  fill: var(--helmet);
+}
+.imp-hm2 {
+  fill: var(--helmet2);
+}
+
+/* ========================================================== the two plates */
+/* A word = blue text (plate 2) + its own pink copy (plate 1) pulled a few
+   px off register, multiplied: where they overlap the paper turns violet. */
+
+.imp-ch,
+.imp-gw {
+  position: relative;
+}
+.imp-gw {
+  display: inline-block;
+}
+.imp-ch::after,
+.imp-gw::after {
+  content: attr(data-c);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--pink);
+  mix-blend-mode: multiply;
+  translate: var(--mx) var(--my);
+  rotate: var(--mr);
+  pointer-events: none;
+  white-space: inherit;
+}
+
+/* ===================================================================== HERO */
+
+.imp-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+  background: var(--grain), var(--paper);
+}
+
+.imp-sheet {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 14px var(--gut) 0;
+}
+
+/* the recurring dot, at planet scale */
+.imp-sun,
+.imp-ysun {
+  position: absolute;
+  pointer-events: none;
+}
+.imp-sun {
+  width: 100vw;
+  right: -52vw;
+  top: 11svh;
+  color: var(--pink);
+}
+.imp-ysun {
+  width: 80vw;
+  right: -10vw;
+  top: 34svh;
+  color: var(--yellow);
+  mix-blend-mode: multiply;
+  display: none;
+}
+.imp[data-yellow] .imp-ysun {
+  display: block;
+  animation: imp-drum 620ms var(--ease-drum) both;
+}
+.imp-sun svg,
+.imp-ysun svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.imp-top {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-left: 26px;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.imp-top p {
+  margin: 0;
+  /* knockout: the masthead never prints over the pink sun */
+  padding: 0 4px;
+  background: var(--paper);
+}
+.imp-clock {
+  display: inline-block;
+  min-width: 5ch;
+  font-variant-numeric: tabular-nums;
+}
+
+.imp-name {
+  position: relative;
+  margin: clamp(44px, 11svh, 140px) 0 0;
+  display: flex;
+  flex-direction: column;
+  font-weight: 400;
+  line-height: 0.8;
+}
+.imp-wordbox {
+  display: block;
+}
+.imp-word {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: max(4.25rem, min(24vw, 44svh));
+  line-height: 0.8;
+  user-select: none;
+  -webkit-user-select: none;
+  /* letters multiply over the pink sun: violet dots inside the blue */
+  mix-blend-mode: multiply;
+}
+
+.imp-ch {
+  --w: 860;
+  --d: calc(var(--fit, 100) * (1 + 0.4 * (var(--lens, 0) - var(--lm, 0))));
+  display: inline-block;
+  color: var(--blue);
+  font-variation-settings:
+    "wght" calc(var(--w) + 140 * var(--lens, 0)),
+    "wdth" var(--d);
+  transition:
+    font-variation-settings 0.5s var(--out),
+    opacity 0.2s;
+  touch-action: manipulation;
+  cursor: grab;
+}
+.imp-word[data-fitting] .imp-ch,
+.imp:not([data-stage="done"]) .imp-ch {
+  transition: none;
+}
+.imp-ch[data-fallen] {
+  z-index: 3;
+}
+.imp-ch[data-alt] {
+  --w: 100;
+}
+.imp-ch[data-swap] {
+  font-variation-settings: "wght" 100, "wdth" 25;
+  opacity: 0.25;
+  transition-duration: 0.16s;
+}
+.imp-cur {
+  color: var(--pink);
+  cursor: default;
+  touch-action: none;
+  -webkit-touch-callout: none;
+}
+.imp-cur::after {
+  content: none;
+}
+.imp[data-empty] .imp-cur {
+  animation: imp-blink 1s steps(1) infinite;
+}
+
+.imp-last {
+  margin-top: 0.16em;
+  font-size: clamp(1.35rem, 7.4vw, 6.2rem);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-variation-settings: "wght" 130, "wdth" 151;
+}
+.imp-sup {
+  margin-left: 0.15em;
+  font-size: 0.45em;
+  vertical-align: top;
+  letter-spacing: 0;
+  font-variation-settings: "wght" 500, "wdth" 100;
+}
+
+/* IMPRESO dd·mm·aaaa — the last beat of the print run */
+.imp-stampd {
+  --r: -9deg;
+  position: absolute;
+  z-index: 2;
+  right: 12px;
+  top: 64px;
+  display: grid;
+  justify-items: center;
+  padding: 0.3em 0.55em 0.35em;
+  border: 3px solid currentColor;
+  border-radius: 6px;
+  outline: 1.5px solid currentColor;
+  outline-offset: -7px;
+  color: var(--pink);
+  font-size: 0.85rem;
+  line-height: 1;
+  white-space: nowrap;
+  transform: rotate(var(--r));
+  mix-blend-mode: multiply;
+  mask: var(--noise-stamp) 30px 70px / 160px 160px;
+  -webkit-mask: var(--noise-stamp) 30px 70px / 160px 160px;
+  pointer-events: none;
+}
+.imp-stampd b {
+  font-weight: 400;
+  font-size: 1.55rem;
+  font-variation-settings: "wght" 1000, "wdth" 40;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.imp-stampd::after {
+  content: attr(data-d);
+  font: 0.68rem/1.2 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.imp-body {
+  position: relative;
+  margin-top: auto;
+  padding-top: 32px;
+  display: grid;
+  gap: 20px;
+}
+.imp-lede {
+  margin: 0;
+  max-width: 21em;
+  font-size: clamp(1.25rem, 5.6vw, 2.6rem);
+  line-height: 1.08;
+  font-variation-settings: "wght" 460, "wdth" 92;
+  text-wrap: pretty;
+}
+.imp-dot {
+  color: var(--pink);
+  font-variation-settings: "wght" 1000, "wdth" 100;
+}
+
+/* links: the pink plate prints a fat highlighter stroke under each one */
+.imp-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em 1.3em;
+  font-size: 1.1rem;
+}
+.imp a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: var(--pink);
+  text-decoration-thickness: 0.36em;
+  text-underline-offset: -0.06em;
+  text-decoration-skip-ink: none;
+  transition:
+    text-decoration-thickness 0.25s steps(3),
+    text-underline-offset 0.25s steps(3);
+}
+.imp a:hover {
+  text-decoration-thickness: 1.05em;
+  text-underline-offset: -0.75em;
+}
+.imp-links a {
+  font-variation-settings: "wght" 600, "wdth" 100;
+}
+
+.imp-foot,
+.imp-note {
+  margin: 0;
+  font: 400 11px/1.45 var(--mono);
+}
+.imp-note {
+  min-height: 1.45em;
+  margin-top: 10px;
+  color: var(--violet);
+}
+
+/* registration marks — print furniture that turns out to be a button */
+.imp-reg {
+  position: absolute;
+  z-index: 4;
+  display: block;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border: 0;
+  background: none;
+  color: var(--blue);
+  cursor: pointer;
+  transition: rotate 0.4s var(--spring);
+}
+.imp-reg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.imp-reg::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  background: radial-gradient(circle, var(--pink) 0 3px, transparent 3.5px);
+  translate: var(--mx) var(--my);
+  mix-blend-mode: multiply;
+}
+.imp-reg:hover {
+  rotate: 45deg;
+}
+.imp-reg--tl {
+  left: 0;
+  top: 2px;
+  width: 40px;
+  height: 40px;
+}
+.imp-reg--br {
+  right: 4px;
+  bottom: 8px;
+  color: var(--paper);
+}
+
+/* ------------------------------------------------- the shop floor (yard) */
+.imp-yard {
+  position: relative;
+  z-index: 2;
+  height: calc(var(--u) * 30);
+  margin-top: 12px;
+  pointer-events: none;
+}
+.imp-yard::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--u) * 8);
+  background: var(--tile) 0 0 / calc(var(--u) * 8) calc(var(--u) * 8);
+  image-rendering: pixelated;
+}
+.imp-crew {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.imp-risobtn {
+  position: absolute;
+  right: calc(var(--u) * 4);
+  bottom: calc(var(--u) * 8);
+  padding: 0;
+  border: 0;
+  background: none;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.imp-riso {
+  display: block;
+  width: calc(var(--u) * 28);
+  height: calc(var(--u) * 16);
+}
+.imp-risobtn:active .imp-riso {
+  translate: 0 var(--u);
+}
+.imp-nomolestar {
+  position: absolute;
+  bottom: calc(var(--u) * 8);
+  display: none;
+  translate: -50% 0;
+  padding-bottom: calc(var(--u) * 5);
+}
+.imp-nomolestar::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - var(--u) / 2);
+  bottom: 0;
+  width: var(--u);
+  height: calc(var(--u) * 5);
+  background: #6b4b2a;
+}
+.imp-nomolestar[data-show="1"] {
+  display: block;
+  animation: imp-plant 320ms steps(4, end) both;
+}
+.imp-nomolestar > span {
+  display: grid;
+  justify-items: center;
+  padding: 5px 9px 4px;
+  background: var(--paper);
+  border: 2px solid var(--blue);
+  box-shadow: var(--u) var(--u) 0 var(--pink);
+  color: var(--blue);
+  line-height: 1;
+  white-space: nowrap;
+}
+.imp-nomolestar b {
+  font-weight: 400;
+  font-size: 1.05rem;
+  font-variation-settings: "wght" 1000, "wdth" 40;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.imp-nomolestar small {
+  font: 10px/1.2 var(--mono);
+}
+
+/* ================================================================ the run */
+/* data-stage is set by the inline script during HTML parsing. The loader IS
+   the hero: nothing fades out, the sheet just finishes printing. */
+
+.imp-drum,
+.imp-feed,
+.imp-reprint {
+  display: none;
+}
+
+.imp[data-stage="boot"] .imp-ch:not(.imp-cur) {
+  opacity: 0;
+  font-variation-settings: "wght" 100, "wdth" 25;
+}
+.imp[data-stage="boot"] :is(.imp-row, .imp-sun, .imp-stampd) {
+  opacity: 0;
+}
+.imp[data-stage="boot"] .imp-cur {
+  animation: imp-blink 0.9s steps(1) infinite;
+}
+
+/* run: pass 1 (pink) then pass 2 (blue); the type travels the axes meanwhile */
+.imp[data-stage="run"] .imp-drum {
+  display: block;
+  position: absolute;
+  z-index: 6;
+  left: -4%;
+  right: -4%;
+  height: 22px;
+  pointer-events: none;
+  animation: imp-roll 520ms var(--ease-drum) both;
+}
+.imp-drum--p {
+  background: linear-gradient(to bottom, transparent, var(--pink));
+}
+.imp-drum--b {
+  background: linear-gradient(to bottom, transparent, var(--blue));
+}
+.imp[data-stage="run"] .imp-drum--b {
+  animation-delay: 520ms;
+}
+.imp[data-stage="run"] .imp-sun {
+  animation: imp-drum 520ms var(--ease-drum) both;
+}
+.imp[data-stage="run"] .imp-sheet {
+  animation: imp-wobble 780ms cubic-bezier(0.3, 0.7, 0.4, 1) 520ms both;
+}
+.imp[data-stage="run"] .imp-ch:not(.imp-cur) {
+  animation:
+    imp-sweep 760ms cubic-bezier(0.7, 0, 0.2, 1) both,
+    imp-inkb 120ms linear both;
+  animation-delay:
+    calc(40ms + var(--i) * 45ms),
+    calc(600ms + var(--i) * 18ms);
+}
+.imp[data-stage="run"] .imp-cur {
+  animation: imp-blink 220ms steps(1) 3;
+}
+.imp[data-stage="run"] .imp-row {
+  animation:
+    imp-inkp 1ms linear both,
+    imp-inkb 140ms linear both;
+  animation-delay:
+    calc(var(--row) * 75ms),
+    calc(540ms + var(--row) * 75ms);
+}
+.imp[data-stage="run"] .imp-stampd {
+  animation: imp-thunk 260ms cubic-bezier(0.2, 0.8, 0.3, 1.2) 1060ms both;
+}
+
+/* the feed label: status of the print run, and how to skip it */
+.imp[data-stage="run"] .imp-feed {
+  position: fixed;
+  z-index: 20;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 6px 12px 7px;
+  background: var(--paper);
+  border: 1.5px solid var(--blue);
+  color: var(--blue);
+  font: 11px/1.3 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: imp-feedout 200ms ease-in 1120ms both;
+}
+.imp-feed__a,
+.imp-feed__b {
+  grid-area: 1 / 1;
+}
+.imp-feed__skip {
+  opacity: 0.8;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.imp[data-stage="run"] .imp-feed__a {
+  animation: imp-swapout 540ms steps(1, end) both;
+}
+.imp[data-stage="run"] .imp-feed__b {
+  animation: imp-swapin 540ms steps(1, end) both;
+}
+
+/* enter: same session, came back — the short version of the same idea */
+.imp[data-stage="enter"] .imp-ch:not(.imp-cur) {
+  animation: imp-up 520ms var(--out) both;
+  animation-delay: calc(var(--i) * 35ms);
+}
+.imp[data-stage="enter"] :is(.imp-row, .imp-stampd) {
+  animation: imp-rise 420ms var(--out) both;
+  animation-delay: calc(140ms + var(--row, 2) * 50ms);
+}
+
+/* calm: reduced motion — the two inks arrive one after the other */
+.imp[data-stage="calm"] .imp-sun {
+  animation: imp-fade 420ms ease-out both;
+}
+.imp[data-stage="calm"] :is(.imp-ch, .imp-row, .imp-stampd) {
+  animation: imp-fade 420ms ease-out 260ms both;
+}
+
+@keyframes imp-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes imp-sweep {
+  0% {
+    opacity: 0;
+    font-variation-settings: "wght" 100, "wdth" 25;
+    transform: none;
+  }
+  14% {
+    opacity: 1;
+    font-variation-settings: "wght" 100, "wdth" 25;
+    transform: none;
+  }
+  52% {
+    font-variation-settings: "wght" var(--xw), "wdth" var(--xd);
+    transform: skewX(var(--xs, 0deg));
+  }
+  100% {
+    opacity: 1;
+    font-variation-settings:
+      "wght" calc(var(--w) + 140 * var(--lens, 0)),
+      "wdth" var(--d);
+    transform: none;
+  }
+}
+@keyframes imp-inkb {
+  from {
+    color: transparent;
+  }
+}
+@keyframes imp-inkp {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes imp-drum {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes imp-roll {
+  from {
+    top: -22px;
+    opacity: 0.9;
+  }
+  92% {
+    opacity: 0.9;
+  }
+  to {
+    top: calc(100% - 22px);
+    opacity: 0;
+  }
+}
+@keyframes imp-wobble {
+  0% {
+    transform: translate(-7px, 5px) rotate(0.45deg);
+  }
+  55% {
+    transform: translate(2px, -1.5px) rotate(-0.12deg);
+  }
+  78% {
+    transform: translate(-0.8px, 0.5px) rotate(0.04deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes imp-thunk {
+  from {
+    opacity: 0;
+    transform: rotate(var(--r)) scale(1.7);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(var(--r)) scale(0.94);
+  }
+  to {
+    transform: rotate(var(--r)) scale(1);
+  }
+}
+@keyframes imp-up {
+  from {
+    opacity: 0;
+    translate: 0 0.22em;
+    font-variation-settings: "wght" 100, "wdth" 25;
+  }
+}
+@keyframes imp-rise {
+  from {
+    opacity: 0;
+    translate: 0 0.6rem;
+  }
+}
+@keyframes imp-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes imp-swapout {
+  to {
+    visibility: hidden;
+  }
+}
+@keyframes imp-swapin {
+  from {
+    visibility: hidden;
+  }
+  to {
+    visibility: visible;
+  }
+}
+@keyframes imp-feedout {
+  to {
+    opacity: 0;
+    translate: -50% 8px;
+  }
+}
+@keyframes imp-plant {
+  from {
+    translate: -50% calc(var(--u) * -14);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  to {
+    translate: -50% 0;
+    opacity: 1;
+  }
+}
+
+/* ================================================================ borders */
+
+.imp-edge {
+  position: relative;
+  z-index: 1;
+  container-type: inline-size;
+  view-timeline-name: --edge;
+  background: var(--grain), var(--from);
+}
+.imp-edge__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--grain), var(--to);
+}
+
+/* escalón 1: a mesa of pixel stairs rising into the sheet above */
+.imp-edge--mesa {
+  height: calc(var(--u) * 16);
+}
+/* escalón 2: one long staircase going down into the press room */
+.imp-edge--stairs {
+  height: calc(var(--u) * 24);
+}
+/* punto 1: halftone ramp — the next ink arrives dot by dot */
+.imp-edge--ramp {
+  height: 84px;
+}
+.imp-edge--ramp .imp-edge__fill {
+  -webkit-mask: var(--ramp) 0 0 / 12px 84px repeat-x;
+  mask: var(--ramp) 0 0 / 12px 84px repeat-x;
+}
+/* punto 2: the coupon's top — punched holes and a line of dots to cut along */
+.imp-edge--perf {
+  height: 34px;
+  background: linear-gradient(var(--from) 0 10px, transparent 10px);
+}
+.imp-edge--perf .imp-edge__fill {
+  top: 10px;
+  background:
+    radial-gradient(circle, var(--from) 0 3.6px, transparent 4.2px) 0 2px / 16px 10px repeat-x,
+    radial-gradient(circle, var(--blue) 0 1.1px, transparent 1.5px) 3px 16px / 7px 4px repeat-x,
+    var(--grain),
+    var(--to);
+}
+
+/* the walker: a crew member who crosses the border while you scroll. Legs
+   only move when the page moves (frames are scroll-driven too). */
+.imp-walker {
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--u) * -5);
+  top: calc(var(--u) * -10);
+  width: calc(var(--u) * 11);
+  height: calc(var(--u) * 10);
+  cursor: pointer;
+  translate: calc(var(--u) * 4) calc(var(--u) * 16);
+}
+.imp-edge--stairs .imp-walker {
+  translate: 4cqw 0;
+}
+.imp-walker::before {
+  /* a bigger target for thumbs */
+  content: "";
+  position: absolute;
+  inset: -12px;
+}
+.imp-walker__hop {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.imp-walker[data-hop] .imp-walker__hop {
+  animation: imp-hop 480ms steps(6, end);
+}
+.imp-walker__win {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.imp-walker__strip {
+  display: block;
+}
+@keyframes imp-hop {
+  50% {
+    translate: 0 calc(var(--u) * -8);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .imp-walker {
+      animation-name: imp-mesa-walk;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --edge;
+      animation-range: entry 0% exit 100%;
+    }
+    .imp-edge--stairs .imp-walker {
+      animation-name: imp-stairs-walk;
+    }
+    .imp-walker__strip {
+      animation-name: imp-legs;
+      animation-duration: auto;
+      animation-timing-function: steps(2, end);
+      animation-iteration-count: 26;
+      animation-fill-mode: both;
+      animation-timeline: --edge;
+      animation-range: entry 0% exit 100%;
+    }
+  }
+}
+@keyframes imp-legs {
+  to {
+    translate: calc(var(--u) * -22) 0;
+  }
+}
+/* climbs the 4 steps of the mesa (8u wide, 4u tall), then walks the plateau */
+@keyframes imp-mesa-walk {
+  0% {
+    translate: calc(var(--u) * 3) calc(var(--u) * 16);
+  }
+  7.5% {
+    translate: calc(var(--u) * 8) calc(var(--u) * 16);
+  }
+  7.6% {
+    translate: calc(var(--u) * 8) calc(var(--u) * 12);
+  }
+  15% {
+    translate: calc(var(--u) * 16) calc(var(--u) * 12);
+  }
+  15.1% {
+    translate: calc(var(--u) * 16) calc(var(--u) * 8);
+  }
+  22.5% {
+    translate: calc(var(--u) * 24) calc(var(--u) * 8);
+  }
+  22.6% {
+    translate: calc(var(--u) * 24) calc(var(--u) * 4);
+  }
+  30% {
+    translate: calc(var(--u) * 32) calc(var(--u) * 4);
+  }
+  30.1% {
+    translate: calc(var(--u) * 32) 0;
+  }
+  100% {
+    translate: calc(100cqw - var(--u) * 46) 0;
+  }
+}
+/* goes down 8 steps (12.5% wide, 3u tall each), one hop at every riser */
+@keyframes imp-stairs-walk {
+  0% {
+    translate: 2cqw 0;
+  }
+  11.17% {
+    translate: 12.5cqw 0;
+  }
+  11.27% {
+    translate: 12.5cqw calc(var(--u) * 3);
+  }
+  24.47% {
+    translate: 25cqw calc(var(--u) * 3);
+  }
+  24.57% {
+    translate: 25cqw calc(var(--u) * 6);
+  }
+  37.77% {
+    translate: 37.5cqw calc(var(--u) * 6);
+  }
+  37.87% {
+    translate: 37.5cqw calc(var(--u) * 9);
+  }
+  51.06% {
+    translate: 50cqw calc(var(--u) * 9);
+  }
+  51.16% {
+    translate: 50cqw calc(var(--u) * 12);
+  }
+  64.36% {
+    translate: 62.5cqw calc(var(--u) * 12);
+  }
+  64.46% {
+    translate: 62.5cqw calc(var(--u) * 15);
+  }
+  77.66% {
+    translate: 75cqw calc(var(--u) * 15);
+  }
+  77.76% {
+    translate: 75cqw calc(var(--u) * 18);
+  }
+  90.96% {
+    translate: 87.5cqw calc(var(--u) * 18);
+  }
+  91.06% {
+    translate: 87.5cqw calc(var(--u) * 21);
+  }
+  100% {
+    translate: 96cqw calc(var(--u) * 21);
+  }
+}
+
+/* =============================================================== sections */
+
+.imp-sec {
+  position: relative;
+  overflow-x: clip;
+  padding: 26px 0 80px;
+}
+.imp-wrap {
+  position: relative;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--gut);
+}
+.imp-marg {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin: 0 0 18px;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.imp-intro {
+  max-width: 34ch;
+  margin: 22px 0 0;
+  font-size: clamp(1.15rem, 4.6vw, 1.9rem);
+  line-height: 1.15;
+  font-variation-settings: "wght" 460, "wdth" 92;
+  text-wrap: pretty;
+}
+
+/* the giant section words (Specimen): too big for the page on purpose.
+   Static state = the end state, so browsers without scroll timelines get a
+   word that fits. */
+.imp-giant {
+  width: max-content;
+  max-width: none;
+  margin: 0;
+  font-size: clamp(3.6rem, 19vw, 17rem);
+  font-weight: 400;
+  line-height: 0.8;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.imp-gdot {
+  color: var(--pink);
+}
+.imp-giant--hola {
+  font-variation-settings: "wght" 1000, "wdth" 151;
+}
+.imp-giant--proy {
+  font-variation-settings: "wght" 1000, "wdth" 40;
+}
+.imp-giant--prensa {
+  font-size: clamp(3.2rem, 16vw, 15rem);
+  font-variation-settings: "wght" 1000, "wdth" 45;
+}
+.imp-giant--escribime {
+  font-variation-settings: "wght" 1000, "wdth" 38;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .imp-giant {
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+    .imp-giant--hola {
+      animation-name: imp-g-hola;
+    }
+    .imp-giant--proy {
+      animation-name: imp-g-push;
+    }
+    .imp-giant--prensa {
+      animation-name: imp-g-ink;
+    }
+    .imp-giant--escribime {
+      animation-name: imp-g-push;
+    }
+  }
+}
+/* HOLA widens as it arrives */
+@keyframes imp-g-hola {
+  from {
+    font-variation-settings: "wght" 200, "wdth" 25;
+  }
+}
+/* PROYECTOS / ESCRIBIME: too wide, they compress and slide until they fit */
+@keyframes imp-g-push {
+  from {
+    translate: 0 0;
+    font-variation-settings: "wght" 1000, "wdth" 151;
+  }
+  to {
+    translate: min(0px, calc(-100% + 100vw - var(--gut) * 2)) 0;
+  }
+}
+/* EN PRENSA: the ink fills the letters in */
+@keyframes imp-g-ink {
+  from {
+    font-variation-settings: "wght" 100, "wdth" 151;
+  }
+}
+
+/* ------------------------------------------------------------------ stamps */
+.imp-stamps {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+.imp-stamp {
+  position: absolute;
+  translate: -50% -50%;
+  transform: rotate(var(--r, -8deg));
+  padding: 0.32em 0.6em 0.26em;
+  border: 3px solid currentColor;
+  border-radius: 6px;
+  outline: 1.5px solid currentColor;
+  outline-offset: -7px;
+  font-size: 1.4rem;
+  font-weight: 400;
+  font-variation-settings: "wght" 1000, "wdth" 40;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.92;
+  mix-blend-mode: multiply;
+  mask: var(--noise-stamp) var(--mp, 40px 90px) / 160px 160px;
+  -webkit-mask: var(--noise-stamp) var(--mp, 40px 90px) / 160px 160px;
+  animation: imp-thunk 200ms cubic-bezier(0.2, 0.8, 0.3, 1.25) both;
+  pointer-events: none;
+}
+.imp-stamp--p {
+  color: var(--pink);
+}
+.imp-stamp--b {
+  color: var(--blue);
+}
+.imp-stamp--fixed {
+  animation: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .imp [data-paper] {
+    cursor: var(--cursor-stamp) 16 29, crosshair;
+  }
+  .imp :is(a, button, label, input, textarea, [data-walker], [data-riso]) {
+    cursor: pointer;
+  }
+  .imp :is(input[type="text"], textarea) {
+    cursor: text;
+  }
+  .imp .imp-ch:not(.imp-cur) {
+    cursor: grab;
+  }
+}
+
+/* ===================================================================== BIO */
+/* pink flood. Text printed in blue over pink comes out violet (4.6:1). */
+.imp-bio {
+  background: var(--grain), var(--pink);
+  color: var(--violet);
+  padding-top: 18px;
+}
+.imp-bio .imp-gdot {
+  color: var(--paper);
+}
+.imp-bio .imp-gw::after {
+  /* pink plate on pink paper: double pink */
+  color: #ff1479;
+}
+.imp-bio__grid {
+  display: grid;
+  gap: 32px;
+  margin-top: 32px;
+}
+.imp-portrait {
+  margin: 0;
+  width: min(72vw, 380px);
+}
+.imp-portrait__frame {
+  position: relative;
+  isolation: isolate;
+  aspect-ratio: 1;
+  mix-blend-mode: multiply;
+  rotate: -1.5deg;
+}
+.imp-portrait__screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff;
+  filter: contrast(14);
+}
+.imp-portrait__screen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) brightness(1.18) contrast(1.35);
+}
+.imp-portrait__screen::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(closest-side, #777, #fff) 0 0 / 5px 5px;
+  mix-blend-mode: multiply;
+  rotate: 45deg;
+}
+.imp-portrait__tint {
+  position: absolute;
+  inset: 0;
+  background: var(--blue);
+  mix-blend-mode: screen;
+}
+.imp-portrait figcaption {
+  margin-top: 10px;
+  font: 400 11px/1.4 var(--mono);
+}
+.imp-bio__text {
+  display: grid;
+  gap: 1em;
+  max-width: 36rem;
+  font-size: 1.06rem;
+  line-height: 1.5;
+}
+.imp-bio__text p {
+  margin: 0;
+  text-wrap: pretty;
+}
+.imp-bio__lead {
+  font-size: clamp(1.35rem, 5.4vw, 2.2rem);
+  line-height: 1.12;
+  font-variation-settings: "wght" 560, "wdth" 90;
+}
+.imp-bio__lead::first-letter {
+  float: left;
+  margin: 0.04em 0.08em -0.1em 0;
+  font-size: 3.15em;
+  line-height: 0.8;
+  font-variation-settings: "wght" 1000, "wdth" 151;
+}
+
+/* the foreman's card (La Obra's "cartel de obra", in print-shop key) */
+.imp-ficha {
+  margin: 0;
+  max-width: 30rem;
+  border-top: 2px solid currentColor;
+}
+.imp-ficha > div {
+  display: grid;
+  grid-template-columns: 6.6rem minmax(0, 1fr);
+  gap: 10px;
+  padding: 8px 0 7px;
+  border-bottom: 1px dashed currentColor;
+}
+.imp-ficha dt {
+  font: 400 11px/1.6 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.imp-ficha dd {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+  font-variation-settings: "wght" 620, "wdth" 96;
+}
+
+/* the type case: the stack as slugs of type, each in its own style */
+.imp-caja__h {
+  margin: 0 0 10px;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.imp-caja ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.imp-caja li {
+  padding: 0.3em 0.6em 0.36em;
+  background: var(--violet);
+  color: var(--pink);
+  font-size: 1.15rem;
+  line-height: 1;
+  font-variation-settings: "wght" var(--w), "wdth" var(--d);
+  transition: font-variation-settings 0.4s steps(4);
+}
+.imp-caja li:hover {
+  font-variation-settings: "wght" 860, "wdth" 100;
+}
+
+/* =============================================================== PROYECTOS */
+.imp-proj {
+  background: var(--grain), var(--paper);
+}
+.imp-pliegos {
+  display: grid;
+  gap: 64px;
+  margin: 48px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.imp-pliego article {
+  display: grid;
+  gap: 14px;
+}
+.imp-pliego__meta,
+.imp-pliego__inst {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.imp-pliego__meta {
+  padding-top: 10px;
+  border-top: 2px solid currentColor;
+}
+.imp-flag {
+  padding: 0 6px;
+  background: var(--blue);
+  color: var(--paper);
+}
+.imp-pliego__name {
+  margin: 0;
+  font-size: clamp(2.3rem, 10.5vw, 7.6rem);
+  font-weight: 400;
+  line-height: 0.88;
+  font-variation-settings: "wght" var(--w), "wdth" var(--d);
+  transform: skewX(var(--sk, 0deg));
+  transform-origin: 0 100%;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  transition: font-variation-settings 0.55s var(--out);
+}
+.imp-pliego__name .imp-gw {
+  display: block;
+}
+.imp-pliego__name .imp-gw::after {
+  /* multi-line names: same box, same width, so the plate wraps like the text */
+  right: 0;
+  white-space: normal;
+}
+.imp-pliego:is(:hover, :focus-within) .imp-pliego__name {
+  font-variation-settings: "wght" 860, "wdth" 100;
+}
+
+.imp-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  padding: 0;
+  border: 0;
+  background: var(--blue);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.imp-thumb__print {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.imp-thumb__print img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+/* one-ink print over the real screenshot: hue + saturation from Federal Blue,
+   luminosity from the image. Pull it off and you get the colour proof. */
+.imp-thumb__ink,
+.imp-thumb__dots {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 0.42s steps(6, end);
+}
+.imp-thumb__ink {
+  background: var(--blue);
+  mix-blend-mode: color;
+}
+.imp-thumb__dots {
+  background: radial-gradient(circle, rgb(255 72 176 / 0.55) 0 1.1px, transparent 1.6px) 0 0 / 5px 5px;
+  mix-blend-mode: multiply;
+}
+.imp-thumb[aria-pressed="true"] :is(.imp-thumb__ink, .imp-thumb__dots) {
+  clip-path: inset(0 0 0 100%);
+}
+@media (hover: hover) and (pointer: fine) {
+  .imp-thumb:hover :is(.imp-thumb__ink, .imp-thumb__dots) {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+.imp-thumb__hint {
+  position: absolute;
+  left: calc(var(--u) * 8);
+  bottom: 8px;
+  padding: 3px 7px;
+  background: var(--paper);
+  color: var(--blue);
+  font: 400 10.5px/1.3 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.imp-on,
+.imp-thumb[aria-pressed="true"] .imp-off {
+  display: none;
+}
+.imp-thumb[aria-pressed="true"] .imp-on {
+  display: inline;
+}
+
+.imp-wip {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  background:
+    radial-gradient(circle, rgb(61 85 136 / 0.22) 0 1.2px, transparent 1.7px) 0 0 / 6px 6px,
+    #fbf6ec;
+}
+.imp-wip__svg {
+  position: absolute;
+  inset: 8% 4% 0;
+  width: 92%;
+  height: 92%;
+}
+.imp-wip .imp-stamp {
+  left: 74%;
+  top: 26%;
+  --r: 7deg;
+}
+.imp-wip__f2 {
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .imp-wip__f1 {
+    animation: imp-flip-a 0.56s steps(1, end) infinite;
+  }
+  .imp-wip__f2 {
+    animation: imp-flip-b 0.56s steps(1, end) infinite;
+  }
+  .imp-wip__carry {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: imp-carry 7s linear infinite;
+  }
+  .imp-wip__bob {
+    animation: imp-bob 0.5s steps(1, end) infinite;
+  }
+}
+@keyframes imp-flip-a {
+  50% {
+    visibility: hidden;
+  }
+}
+@keyframes imp-flip-b {
+  50% {
+    visibility: visible;
+  }
+}
+@keyframes imp-bob {
+  50% {
+    transform: translateY(-1px);
+  }
+}
+@keyframes imp-carry {
+  0% {
+    transform: translateX(0) scaleX(1);
+    animation-timing-function: steps(10, end);
+  }
+  45% {
+    transform: translateX(10px) scaleX(1);
+    animation-timing-function: step-end;
+  }
+  50% {
+    transform: translateX(10px) scaleX(-1);
+    animation-timing-function: steps(10, end);
+  }
+  95% {
+    transform: translateX(0) scaleX(-1);
+    animation-timing-function: step-end;
+  }
+  100% {
+    transform: translateX(0) scaleX(1);
+  }
+}
+
+.imp-pliego__body {
+  display: grid;
+  gap: 12px;
+}
+.imp-pliego__desc {
+  max-width: 38rem;
+  margin: 0;
+  font-size: 1.04rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.imp-pliego__stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: 400 11.5px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.imp-pliego__stack li::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--pink);
+  vertical-align: 1px;
+}
+.imp-pliego__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 4px 0 0;
+  font-size: 1.15rem;
+  font-variation-settings: "wght" 640, "wdth" 100;
+}
+.imp-pliego__links--wip {
+  font: 400 12px/1.4 var(--mono);
+}
+
+/* scroll: each screenshot is printed in six stair-step bands as it arrives */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .imp-thumb__print {
+      animation-name: imp-printin;
+      animation-duration: auto;
+      animation-timing-function: steps(6, end);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 35%;
+    }
+  }
+}
+@keyframes imp-printin {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* ==================================================================== BLOG */
+/* solid blue flood; paper text is the paper showing through (knockout) */
+.imp-blog {
+  background: var(--grain), var(--blue);
+  color: var(--paper);
+}
+.imp-blog .imp-gw::after {
+  mix-blend-mode: normal;
+  opacity: 0.85;
+}
+.imp-galeras {
+  display: grid;
+  gap: 28px;
+  margin: 44px 0 0;
+  padding: 0;
+  list-style: none;
+}
+/* galley proofs: strips of paper with tractor-feed holes down one side */
+.imp-galera {
+  position: relative;
+  max-width: 40rem;
+  padding: 18px 18px 22px 34px;
+  background:
+    radial-gradient(circle, var(--blue) 0 3.4px, transparent 4px) 10px 6px / 10px 16px repeat-y,
+    var(--grain),
+    var(--paper);
+  color: var(--blue);
+  rotate: calc((var(--i) - 1) * 0.7deg);
+}
+.imp-galera:nth-child(2) {
+  margin-left: auto;
+}
+.imp-galera article {
+  display: grid;
+  gap: 10px;
+}
+.imp-galera__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.imp-galera__h {
+  margin: 0;
+  max-width: 16ch;
+  font-size: clamp(1.7rem, 7.4vw, 3.2rem);
+  font-weight: 400;
+  line-height: 0.95;
+  font-variation-settings: "wght" 860, "wdth" 80;
+  text-wrap: balance;
+}
+.imp-galera__p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.imp-galera__a {
+  justify-self: start;
+  font: 400 12.5px/1.4 var(--mono);
+  letter-spacing: 0.03em;
+}
+.imp-galera .imp-stamp {
+  left: auto;
+  right: 10px;
+  top: auto;
+  bottom: 16px;
+  translate: 0 0;
+  font-size: 1.15rem;
+  --r: 6deg;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .imp-galera {
+      animation-name: imp-feedin;
+      animation-duration: auto;
+      animation-timing-function: steps(5, end);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+  }
+}
+@keyframes imp-feedin {
+  from {
+    translate: 0 calc(var(--u) * 20);
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    translate: 0 0;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* ================================================================ CONTACTO */
+.imp-contact {
+  background: var(--grain), var(--paper);
+}
+.imp-contact__grid {
+  display: grid;
+  gap: 36px;
+  margin-top: 36px;
+}
+.imp-order {
+  position: relative;
+  display: grid;
+  gap: 20px;
+  max-width: 40rem;
+  padding: 0 0 4px;
+}
+.imp-order__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 2px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.imp-order__kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.imp-order__kinds legend {
+  margin-bottom: 10px;
+  padding: 0;
+  font-size: 1.25rem;
+  font-variation-settings: "wght" 700, "wdth" 90;
+}
+.imp-chip {
+  position: relative;
+}
+.imp-chip input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+}
+.imp-chip span {
+  display: block;
+  padding: 0.5em 0.85em 0.55em;
+  border: 2px solid var(--blue);
+  font-size: 1rem;
+  line-height: 1.1;
+  font-variation-settings: "wght" 560, "wdth" 92;
+  transition:
+    box-shadow 0.2s steps(2),
+    background 0.2s steps(2);
+}
+.imp-chip input:checked + span {
+  background: var(--blue);
+  color: var(--paper);
+  box-shadow: calc(var(--mx) + 2px) calc(var(--my) + 3px) 0 var(--pink);
+}
+.imp-chip input:focus-visible + span {
+  outline: 3px solid var(--pink);
+  outline-offset: 2px;
+}
+.imp-field {
+  display: grid;
+  gap: 6px;
+}
+.imp-field > span {
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.imp-field :is(input, textarea) {
+  width: 100%;
+  padding: 6px 0 8px;
+  border: 0;
+  border-bottom: 2px dotted var(--blue);
+  background: transparent;
+  color: var(--blue);
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  resize: vertical;
+  border-radius: 0;
+}
+.imp-field :is(input, textarea)::placeholder {
+  color: rgb(61 85 136 / 0.7);
+}
+.imp-field :is(input, textarea):focus {
+  outline: none;
+  border-bottom-style: solid;
+  border-bottom-color: var(--pink);
+}
+.imp-order__go {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 22px;
+}
+.imp .imp-send {
+  display: inline-block;
+  padding: 0.5em 0.8em 0.55em;
+  background: var(--blue);
+  color: var(--paper);
+  font-size: clamp(1.4rem, 6vw, 2.2rem);
+  line-height: 1;
+  font-variation-settings: "wght" 900, "wdth" 70;
+  text-decoration: none;
+  box-shadow: calc(var(--mx) + 3px) calc(var(--my) + 4px) 0 var(--pink);
+  clip-path: polygon(
+    0 var(--u),
+    var(--u) var(--u),
+    var(--u) 0,
+    calc(100% - var(--u)) 0,
+    calc(100% - var(--u)) var(--u),
+    100% var(--u),
+    100% 100%,
+    0 100%
+  );
+  transition: translate 0.18s steps(2);
+}
+.imp .imp-send:hover {
+  translate: 2px 2px;
+}
+.imp-send span {
+  color: var(--pink);
+}
+.imp-copy {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--blue);
+  font: 400 13px/1.4 var(--mono);
+  text-decoration: underline dotted;
+  text-underline-offset: 0.25em;
+}
+.imp-order__stamp {
+  left: 72%;
+  top: 0;
+  --r: -10deg;
+}
+.imp-order__fine {
+  margin: 0;
+  font: 400 11.5px/1.5 var(--mono);
+}
+.imp-direct {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.imp-direct li {
+  display: grid;
+  gap: 2px;
+}
+.imp-direct__k {
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.imp-direct a {
+  justify-self: start;
+  font-size: clamp(1.25rem, 5.4vw, 2rem);
+  line-height: 1.15;
+  font-variation-settings: "wght" 640, "wdth" 88;
+  overflow-wrap: anywhere;
+}
+
+/* ================================================================ COLOFÓN */
+.imp-colofon {
+  background: var(--grain), var(--violet);
+  color: var(--paper);
+  padding-bottom: 0;
+}
+.imp-colofon__big {
+  margin: 0 0 18px;
+  font-size: clamp(2.6rem, 12vw, 9rem);
+  line-height: 0.85;
+  font-variation-settings: "wght" 1000, "wdth" 60;
+  text-transform: uppercase;
+}
+.imp-colofon__text {
+  max-width: 54ch;
+  margin: 0;
+  font: 400 13px/1.6 var(--mono);
+}
+.imp-secret {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.25em;
+}
+.imp-secret[aria-pressed="true"] {
+  color: var(--yellow);
+  text-decoration-style: solid;
+}
+.imp-y-on,
+.imp[data-yellow] .imp-y-off {
+  display: none;
+}
+.imp[data-yellow] .imp-y-on {
+  display: inline;
+}
+.imp-colofon__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px 24px;
+  margin-top: 28px;
+  font: 400 12px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.imp-colofon__row p {
+  margin: 0;
+}
+.imp-colofon__links {
+  display: flex;
+  gap: 18px;
+}
+.imp-lineup {
+  display: flex;
+  gap: calc(var(--u) * 3);
+  align-items: flex-end;
+  margin-top: 40px;
+  padding: 0 calc(var(--u) * 6);
+  height: calc(var(--u) * 18);
+  background: var(--tile) 0 100% / calc(var(--u) * 8) calc(var(--u) * 8) repeat-x;
+  padding-bottom: calc(var(--u) * 8);
+  margin-inline: calc(var(--gut) * -1);
+}
+.imp-printonly {
+  display: none;
+}
+
+/* ===================================================================== JAM */
+.imp[data-jam] main {
+  animation: imp-jam 520ms cubic-bezier(0.3, 0.6, 0.4, 1) both;
+}
+.imp[data-jam] {
+  --mx: 14px;
+  --my: 9px;
+  --mr: 1deg;
+}
+@keyframes imp-jam {
+  20% {
+    transform: translate(0, -6px) rotate(0.5deg);
+  }
+  40% {
+    transform: translate(-3px, 4px) rotate(-0.8deg);
+  }
+  to {
+    transform: translate(0, -8px) rotate(-0.6deg);
+  }
+}
+.imp-jam {
+  position: fixed;
+  z-index: 30;
+  left: var(--gut);
+  right: var(--gut);
+  bottom: max(16px, env(safe-area-inset-bottom));
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 16px 16px 18px;
+  background: var(--grain), var(--paper);
+  border: 2px solid var(--blue);
+  box-shadow: 6px 6px 0 var(--pink);
+  color: var(--blue);
+  animation: imp-slip 260ms steps(4, end) both;
+}
+.imp-jam[hidden] {
+  display: none;
+}
+.imp-jam__crew {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.imp-jam__sign {
+  padding: 3px 7px;
+  border: 2px solid var(--blue);
+  background: var(--paper);
+  box-shadow: 2px 2px 0 var(--pink);
+  font-size: 0.95rem;
+  line-height: 1;
+  font-variation-settings: "wght" 1000, "wdth" 40;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.imp-jam__t {
+  margin: 0 0 4px;
+  font-size: 2rem;
+  line-height: 1;
+  font-variation-settings: "wght" 1000, "wdth" 50;
+  text-transform: uppercase;
+}
+.imp-jam__d {
+  margin: 0 0 14px;
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+.imp-jam__b {
+  padding: 0.65em 1em;
+  border: 0;
+  background: var(--blue);
+  color: var(--paper);
+  font: inherit;
+  font-size: 1rem;
+  font-variation-settings: "wght" 700, "wdth" 100;
+  box-shadow: 3px 3px 0 var(--pink);
+}
+@keyframes imp-slip {
+  from {
+    opacity: 0;
+    translate: 0 calc(var(--u) * 12);
+  }
+}
+
+/* the sheet goes through both drums again after a jam */
+.imp[data-reprint] .imp-reprint {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: block;
+  pointer-events: none;
+}
+.imp-reprint i {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  height: 26px;
+  animation: imp-roll 420ms var(--ease-drum) both;
+}
+.imp-reprint i:first-child {
+  background: linear-gradient(to bottom, transparent, var(--pink));
+}
+.imp-reprint i:last-child {
+  background: linear-gradient(to bottom, transparent, var(--blue));
+  animation-delay: 380ms;
+}
+
+/* ================================================================= DESKTOP */
+@media (min-width: 900px) {
+  .imp {
+    --gut: 32px;
+  }
+  .imp-sheet {
+    padding-top: 20px;
+  }
+  .imp-top,
+  .imp-foot,
+  .imp-note,
+  .imp-marg {
+    font-size: 12px;
+  }
+  .imp-sun {
+    width: min(46vw, 720px);
+    right: -9vw;
+    top: -6svh;
+  }
+  .imp-word {
+    font-size: max(4.25rem, min(22vw, 38svh));
+  }
+  .imp-name {
+    margin-top: clamp(40px, 8svh, 110px);
+  }
+  .imp-ysun {
+    width: 36vw;
+    right: 22vw;
+    top: 30svh;
+  }
+  .imp-stampd {
+    right: 5vw;
+    top: 58px;
+    font-size: 1.1rem;
+  }
+  .imp-stampd b {
+    font-size: 2.2rem;
+  }
+  .imp-body {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    align-items: end;
+    column-gap: 48px;
+  }
+  .imp-lede {
+    grid-row: span 2;
+  }
+  .imp-links {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 1.4rem;
+  }
+  .imp-reg--tl {
+    left: 4px;
+    top: 6px;
+  }
+
+  .imp-sec {
+    padding: 40px 0 120px;
+  }
+  .imp-bio__grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    grid-template-areas:
+      "portrait text"
+      "ficha text"
+      "ficha caja";
+    column-gap: 6vw;
+    row-gap: 40px;
+    align-items: start;
+  }
+  .imp-portrait {
+    grid-area: portrait;
+    width: 100%;
+    max-width: 440px;
+  }
+  .imp-bio__text {
+    grid-area: text;
+    font-size: 1.15rem;
+  }
+  .imp-ficha {
+    grid-area: ficha;
+  }
+  .imp-caja {
+    grid-area: caja;
+  }
+
+  .imp-pliegos {
+    gap: 110px;
+    margin-top: 72px;
+  }
+  .imp-pliego article {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-areas:
+      "meta meta"
+      "name name"
+      "inst inst"
+      "thumb body";
+    column-gap: 40px;
+    row-gap: 16px;
+  }
+  .imp-pliego[data-side="r"] article {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-areas:
+      "meta meta"
+      "name name"
+      "inst inst"
+      "body thumb";
+  }
+  .imp-pliego__meta {
+    grid-area: meta;
+  }
+  .imp-pliego__name {
+    grid-area: name;
+  }
+  .imp-pliego__inst {
+    grid-area: inst;
+  }
+  .imp-thumb,
+  .imp-wip {
+    grid-area: thumb;
+  }
+  .imp-pliego__body {
+    grid-area: body;
+    align-content: start;
+  }
+
+  .imp-galeras {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px;
+    align-items: start;
+  }
+  .imp-galera:nth-child(2) {
+    margin: 48px 0 0;
+  }
+  .imp-galera:nth-child(3) {
+    margin-top: 14px;
+  }
+
+  .imp-contact__grid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    column-gap: 6vw;
+  }
+}
+
+/* ========================================================== reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .imp,
+  .imp *,
+  .imp *::after {
+    transition: none !important;
+  }
+  .imp-stamp {
+    animation: imp-fade 160ms ease-out both;
+  }
+  .imp-stamp--fixed {
+    animation: none;
+  }
+  .imp[data-jam] main {
+    animation: none;
+    transform: rotate(-0.5deg);
+  }
+  .imp-jam,
+  .imp-nomolestar[data-show="1"],
+  .imp-walker[data-hop] .imp-walker__hop {
+    animation: none;
+  }
+  .imp[data-yellow] .imp-ysun {
+    animation: imp-fade 400ms ease-out both;
+  }
+  .imp-walker {
+    translate: calc(var(--u) * 40) 0;
+  }
+  .imp-edge--stairs .imp-walker {
+    translate: 6cqw 0;
+  }
+}
+
+/* ========================================================== hidden: print */
+/* Ctrl/Cmd+P gives you a real two-ink sheet. */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+  .imp {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    background: #fff;
+  }
+  .imp :is(.imp-yard, .imp-reg, .imp-walker, .imp-feed, .imp-jam, .imp-reprint, .imp-skip, .imp-stamps, .imp-order, .imp-thumb__hint, .imp-lineup, .imp-drum, .imp-ysun) {
+    display: none !important;
+  }
+  .imp :is(.imp-hero, .imp-bio, .imp-proj, .imp-blog, .imp-contact, .imp-colofon) {
+    background: #fff !important;
+    color: var(--blue) !important;
+    min-height: 0;
+  }
+  .imp-edge {
+    height: 12px !important;
+  }
+  .imp-giant {
+    width: auto;
+    white-space: normal;
+    font-size: 64pt;
+    animation: none !important;
+    translate: none !important;
+  }
+  .imp-pliego,
+  .imp-galera,
+  .imp-portrait {
+    break-inside: avoid;
+  }
+  .imp-galera {
+    rotate: none;
+  }
+  .imp-pliego__name {
+    font-size: 30pt;
+  }
+  .imp-sun {
+    width: 70%;
+    right: -20%;
+  }
+  .imp a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font: 9pt var(--mono);
+  }
+  .imp-printonly {
+    display: block;
+    margin-top: 24px;
+    padding-top: 10px;
+    border-top: 2px solid var(--pink);
+    font: 11pt/1.5 var(--mono);
+  }
+}

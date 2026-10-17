@@ -1,0 +1,519 @@
+/* ==========================================================================
+   SPECIMEN — the site is a type specimen sheet.
+   One variable family (Roboto Flex: wght + wdth) + the system mono for
+   annotations (0 bytes). Paper, ink, and one signal red reserved for the
+   two recurring marks: `_` and `.`.
+   ========================================================================== */
+
+/* Integer props so the readout can count with CSS counters (zero JS). */
+@property --rw {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 860;
+}
+@property --rd {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 100;
+}
+
+.root {
+  --paper: #edeae3;
+  --ink: #141414;
+  --red: #e0371c;
+  --mute: #5b5852;
+  --mute-dark: #a8a49b;
+  --mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+  --gutter: 16px;
+
+  min-height: 100svh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-flex), system-ui, sans-serif;
+  overflow-x: clip;
+  -webkit-tap-highlight-color: transparent;
+}
+.root ::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+.root :focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 4px;
+  border-radius: 1px;
+}
+.root main {
+  display: block;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ------------------------------------------------------------------ hero */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: 14px var(--gutter) 22px;
+  /* only x: the sweep overshoots sideways, but the dragged period may
+     travel down over the next section */
+  overflow-x: clip;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.top p {
+  margin: 0;
+}
+.spec {
+  max-width: 15em;
+  text-align: right;
+}
+
+.name {
+  margin: clamp(40px, 11svh, 150px) 0 0;
+  display: flex;
+  flex-direction: column;
+  font-weight: 400;
+  line-height: 0.8;
+}
+
+.word {
+  align-self: flex-start;
+  white-space: nowrap;
+  font-size: max(4.25rem, min(24vw, 44svh));
+  line-height: 0.8;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ch {
+  --w: 860;
+  --d: calc(var(--fit, 100) * (1 + 0.4 * (var(--lens, 0) - var(--lm, 0))));
+  display: inline-block;
+  position: relative;
+  font-variation-settings:
+    "wght" calc(var(--w) + 140 * var(--lens, 0)),
+    "wdth" var(--d);
+  transition: font-variation-settings 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.2s;
+  touch-action: manipulation;
+}
+.word[data-fitting] .ch,
+.root:not([data-stage="done"]) .ch {
+  transition: none;
+}
+.ch[data-fallen] {
+  z-index: 3;
+}
+.ch[data-alt] {
+  --w: 100;
+}
+.ch[data-swap] {
+  font-variation-settings: "wght" 100, "wdth" 25;
+  opacity: 0.25;
+  transition-duration: 0.16s;
+}
+
+.cur {
+  color: var(--red);
+  touch-action: none;
+  -webkit-touch-callout: none;
+}
+.root[data-empty] .cur {
+  animation: blink 1s steps(1) infinite;
+}
+
+.last {
+  margin-top: 0.14em;
+  font-size: clamp(1.4rem, 7.6vw, 6.5rem);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-variation-settings: "wght" 130, "wdth" 151;
+}
+
+.sup {
+  margin-left: 0.15em;
+  font-size: 0.45em;
+  vertical-align: top;
+  letter-spacing: 0;
+  font-variation-settings: "wght" 500, "wdth" 100;
+}
+
+.readout {
+  margin: 14px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--ink);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1.4em;
+  font: 400 11px/1.2 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--mute);
+  font-variant-numeric: tabular-nums;
+}
+.readout::before {
+  content: attr(data-c);
+  color: var(--ink);
+  min-width: 7ch;
+}
+.rw::after {
+  counter-reset: rw var(--rw);
+  content: counter(rw);
+}
+.rd::after {
+  counter-reset: rd var(--rd);
+  content: counter(rd);
+}
+
+.body {
+  margin-top: auto;
+  padding-top: 36px;
+  display: grid;
+  gap: 22px;
+}
+
+.lede {
+  margin: 0;
+  max-width: 21em;
+  font-size: clamp(1.25rem, 5.6vw, 2.6rem);
+  line-height: 1.08;
+  font-variation-settings: "wght" 440, "wdth" 92;
+  text-wrap: pretty;
+}
+
+/* the period: closes the sentence, can be dragged, always comes back */
+.dot {
+  display: inline-block;
+  position: relative;
+  z-index: 4;
+  padding: 0 0.22em;
+  margin: 0 -0.22em 0 -0.18em;
+  color: var(--red);
+  font-variation-settings: "wght" 1000, "wdth" 100;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: scale 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.dot[data-held] {
+  cursor: grabbing;
+  scale: 1.8;
+}
+
+/* links: the `_` cursor stretches to where you point */
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em 1.3em;
+  font-size: 1.1rem;
+}
+.links a {
+  color: inherit;
+  text-decoration: none;
+  font-variation-settings: "wght" 560, "wdth" 100;
+}
+.links a::after {
+  content: "_";
+  display: inline-block;
+  color: var(--red);
+  font-variation-settings: "wght" 560, "wdth" 25;
+  transition: font-variation-settings 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.links a:hover::after,
+.links a:focus-visible::after {
+  font-variation-settings: "wght" 1000, "wdth" 151;
+}
+
+.foot {
+  margin: 0;
+  font: 400 11px/1.4 var(--mono);
+  color: var(--mute);
+}
+
+.note {
+  margin: 10px 0 0;
+  min-height: 1.4em;
+  font: 400 11px/1.4 var(--mono);
+  color: var(--red);
+}
+
+/* --------------------------------------------------------------- stages */
+
+.root[data-stage="boot"] .ch:not(.cur) {
+  opacity: 0;
+  font-variation-settings: "wght" 100, "wdth" 25;
+}
+.root[data-stage="boot"] .fade,
+.root[data-stage="boot"] .dot {
+  opacity: 0;
+}
+.root[data-stage="boot"] .cur {
+  animation: blink 0.9s steps(1) infinite;
+}
+
+/* run: first visit — each letter visits its own extreme, then they agree */
+.root[data-stage="run"] .ch:not(.cur) {
+  animation: sweep 760ms cubic-bezier(0.7, 0, 0.2, 1) both;
+  animation-delay: calc(40ms + var(--i) * 45ms);
+}
+.root[data-stage="run"] .cur {
+  animation: blink 220ms steps(1) 3;
+}
+.root[data-stage="run"] .fade {
+  animation: rise 400ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(620ms + var(--o, 0) * 60ms);
+}
+.root[data-stage="run"] .readout {
+  animation:
+    rise 400ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms both,
+    count 820ms cubic-bezier(0.7, 0, 0.2, 1) 120ms both;
+}
+.root[data-stage="run"] .dot {
+  animation: drop 300ms cubic-bezier(0.5, 0, 0.5, 1) 950ms both;
+}
+
+/* enter: same session, came back — a short version of the same idea */
+.root[data-stage="enter"] .ch:not(.cur) {
+  animation: up 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 35ms);
+}
+.root[data-stage="enter"] .fade,
+.root[data-stage="enter"] .dot {
+  animation: rise 400ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(150ms + var(--o, 2) * 60ms);
+}
+
+/* calm: reduced motion — opacity only, nothing travels */
+.root[data-stage="calm"] .ch,
+.root[data-stage="calm"] .fade,
+.root[data-stage="calm"] .dot {
+  animation: fadein 500ms ease-out both;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes sweep {
+  0% {
+    opacity: 0;
+    font-variation-settings: "wght" 100, "wdth" 25;
+    transform: none;
+  }
+  14% {
+    opacity: 1;
+    font-variation-settings: "wght" 100, "wdth" 25;
+    transform: none;
+  }
+  52% {
+    font-variation-settings: "wght" var(--xw), "wdth" var(--xd);
+    transform: skewX(var(--xs, 0deg));
+  }
+  100% {
+    opacity: 1;
+    font-variation-settings:
+      "wght" calc(var(--w) + 140 * var(--lens, 0)),
+      "wdth" var(--d);
+    transform: none;
+  }
+}
+@keyframes up {
+  from {
+    opacity: 0;
+    translate: 0 0.22em;
+    font-variation-settings: "wght" 100, "wdth" 25;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 0.6rem;
+  }
+}
+@keyframes drop {
+  0% {
+    opacity: 0;
+    translate: 0 -1.4em;
+  }
+  60% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  80% {
+    translate: 0 -0.16em;
+  }
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes count {
+  from {
+    --rw: 100;
+    --rd: 25;
+  }
+}
+
+/* --------------------------------------------- section border (preview) */
+
+.next {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Half paper, half ink. The word is painted with the inverse split, so it
+   reads continuously across the border: it belongs to both sections. */
+.border {
+  background: linear-gradient(var(--paper) 50%, var(--ink) 50%);
+  overflow: clip;
+}
+.borderWord {
+  width: max-content;
+  margin: 0;
+  padding-inline: var(--gutter);
+  font-size: clamp(6rem, 31vw, 30rem);
+  line-height: 0.78;
+  font-weight: 400;
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-variation-settings: "wght" 1000, "wdth" 151;
+  background: linear-gradient(var(--ink) 50%, var(--paper) 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.borderDot {
+  color: var(--red);
+  -webkit-text-fill-color: var(--red);
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .borderWord {
+      /* longhands on purpose: the shorthand would reset the timeline */
+      animation-name: push;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 35%;
+    }
+  }
+}
+@keyframes push {
+  from {
+    translate: 0 0;
+    font-variation-settings: "wght" 1000, "wdth" 151;
+  }
+  to {
+    translate: calc(-100% + 100vw) 0;
+    font-variation-settings: "wght" 1000, "wdth" 40;
+  }
+}
+
+.stub {
+  padding: 40px var(--gutter) 72px;
+}
+.stubLabel {
+  margin: 0 0 20px;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mute-dark);
+}
+
+/* a waterfall: the classic specimen device, walking both axes at once */
+.waterfall {
+  --top: clamp(2rem, 7.5vw, 5.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.waterfall li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2em 0.9em;
+  padding: 0.35em 0;
+  border-top: 1px solid rgb(237 234 227 / 0.16);
+}
+.pn {
+  font-size: calc(var(--top) * (1 - var(--k) * 0.09));
+  line-height: 1;
+  font-variation-settings:
+    "wght" calc(900 - var(--k) * 110),
+    "wdth" calc(140 - var(--k) * 14);
+}
+.pt {
+  font: 400 11px/1.4 var(--mono);
+  color: var(--mute-dark);
+}
+
+/* ------------------------------------------------------------- desktop */
+
+@media (min-width: 900px) {
+  .root {
+    --gutter: 32px;
+  }
+  .hero {
+    padding-top: 20px;
+    padding-bottom: 32px;
+  }
+  .top,
+  .readout,
+  .foot,
+  .note {
+    font-size: 12px;
+  }
+  .spec {
+    max-width: none;
+  }
+  .body {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    align-items: end;
+    column-gap: 48px;
+  }
+  .lede {
+    grid-row: span 2;
+  }
+  .links {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 1.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch,
+  .links a::after,
+  .dot {
+    transition: none;
+  }
+}

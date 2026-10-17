@@ -1,0 +1,249 @@
+/* La Máquina — patent-drawing look: paper, one ink, four flat colours. */
+
+.mq {
+  --paper: #f2ede2;
+  --ink: #16181f;
+  --mut: #4f525c; /* 7.0:1 on paper */
+  --yel: #f3b21b;
+  --blu: #2346c8;
+  --red: #cf4f29;
+  --grn: #2f6b4b;
+  --grid: rgba(22, 24, 31, 0.07);
+  --dot-gap: 0.075em;
+  --sans: var(--mq-sans), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--mq-mono), ui-monospace, monospace;
+
+  position: relative;
+  overflow-x: clip;
+  min-height: 100svh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-tap-highlight-color: transparent;
+}
+.mq ::selection { background: var(--yel); color: var(--ink); }
+.mq-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+.mq :focus-visible { outline: 3px solid var(--blu); outline-offset: 3px; }
+
+/* ------------------------------------------------------------ layout */
+.mq-hero {
+  display: grid;
+  gap: 10px;
+  min-height: 100svh;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 14px 16px 28px;
+  align-content: start;
+}
+.mq-top, .mq-cap, .mq-status, .mq-hint, .mq-meta, .mq-legend, .mq-kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+}
+.mq-top {
+  display: flex;
+  justify-content: space-between;
+  text-transform: uppercase;
+  color: var(--mut);
+  border-bottom: 1.5px solid var(--ink);
+  padding-bottom: 8px;
+}
+.mq-fig { margin: 0; min-width: 0; }
+.mq-cap { margin: 0 0 6px; text-transform: uppercase; color: var(--mut); }
+.mq-frame {
+  position: relative;
+  border: 1.5px solid var(--ink);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.mq-svg { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; overflow: hidden; }
+
+.mq-ctrl { display: flex; align-items: center; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.mq-run {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 16px;
+  border: 1.5px solid var(--ink); border-radius: 999px;
+  background: var(--ink); color: var(--paper);
+  font: 600 14px/1 var(--sans);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.mq-run-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--yel); }
+.mq-run:hover { background: var(--blu); border-color: var(--blu); }
+.mq[data-jam] .mq-run { background: var(--red); border-color: var(--ink); color: var(--ink); }
+.mq[data-running] .mq-run { opacity: 0.55; cursor: progress; }
+.mq-status { margin: 0; color: var(--mut); flex: 1 1 140px; }
+.mq[data-jam] .mq-status { color: var(--ink); }
+.mq-hint { margin: 6px 0 0; color: var(--mut); }
+.mq-legend { display: none; }
+
+.mq-copy { min-width: 0; }
+.mq-kicker { margin: 10px 0 0; text-transform: uppercase; color: var(--mut); }
+.mq-name {
+  margin: 4px 0 0;
+  font-weight: 800;
+  font-variation-settings: "wdth" 70;
+  font-size: 21vw;
+  line-height: 0.84;
+  letter-spacing: -0.02em;
+}
+.mq-w { display: block; white-space: nowrap; }
+.mq-l { display: inline-block; }
+.mq-i { position: relative; }
+.mq-base { display: inline-block; position: relative; width: 0; height: 0; vertical-align: baseline; }
+.mq-ex, .mq-exp { position: absolute; left: 0; bottom: 0; width: 0; }
+.mq-ex { height: calc(1ex + var(--dot-gap) + var(--dot-r)); }
+.mq-exp { height: var(--dot-r); }
+.mq-period { display: inline-block; width: calc(var(--dot-r) * 2 + 0.03em); margin-left: 0.03em; text-align: center; }
+/* No JS: draw the dot so the name is never broken. */
+html:not([data-mq-ready]) .mq-ex::before {
+  content: ""; position: absolute; left: -0.13em; top: 0;
+  width: calc(var(--dot-r) * 2); height: calc(var(--dot-r) * 2);
+  translate: -50% -50%; border-radius: 50%; background: var(--yel);
+  box-shadow: inset 0 0 0 0.02em var(--ink);
+}
+
+.mq-line {
+  margin: 14px 0 0;
+  max-width: 28ch;
+  font-size: clamp(19px, 5.4vw, 28px);
+  line-height: 1.22;
+  font-weight: 600;
+  font-variation-settings: "wdth" 88;
+  text-wrap: balance;
+}
+.mq-meta { margin: 10px 0 0; color: var(--mut); }
+.mq-links { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 14px 0 0; padding: 0; list-style: none; }
+.mq-links a {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 36px;
+  color: var(--ink); font: 500 13px/1.2 var(--mono);
+  text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px;
+}
+.mq-links a::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--blu); flex: none; }
+.mq-links a:hover { text-decoration-color: var(--red); }
+
+@media (min-width: 900px) {
+  .mq-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(32px, 4vw, 64px);
+    padding: 22px 40px 48px;
+    align-items: center;
+  }
+  .mq-top { grid-column: 1 / -1; }
+  .mq-copy { grid-column: 1; grid-row: 2; }
+  .mq-fig { grid-column: 2; grid-row: 2; }
+  .mq-name { font-size: clamp(96px, 10.6vw, 170px); }
+  .mq-legend {
+    display: flex; flex-wrap: wrap; gap: 4px 14px;
+    margin: 10px 0 0; padding: 0; list-style: none; counter-reset: n; color: var(--mut);
+  }
+  .mq-legend li::before {
+    counter-increment: n; content: counter(n);
+    display: inline-grid; place-items: center; width: 15px; height: 15px; margin-right: 5px;
+    border: 1px solid var(--ink); border-radius: 50%; font-size: 9px; color: var(--ink);
+  }
+}
+
+/* ------------------------------------------------------------ svg art */
+.mq-svg { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.mq-svg .p { fill: var(--paper); }
+.mq-svg .i { fill: var(--ink); }
+.mq-svg .y { fill: var(--yel); }
+.mq-svg .b { fill: var(--blu); }
+.mq-svg .r { fill: var(--red); }
+.mq-svg .g { fill: var(--grn); }
+.mq-svg .k { fill: #e2dac8; stroke-width: 1; }
+.mq-svg .mq-key { stroke-width: 1; }
+.mq-svg .mq-key.on { fill: var(--yel); }
+.mq-svg .mq-thin { stroke-width: 1; }
+.mq-svg .mq-thin-s { stroke: none; }
+.mq-svg .mq-btn { stroke-width: 1; }
+.mq-svg .mq-hatch { stroke-width: 1; }
+.mq-svg .mq-rod { stroke-width: 1.25; }
+.mq-svg .mq-string, .mq-svg .mq-sling { stroke-width: 1.2; }
+.mq-svg .mq-trail { stroke: var(--blu); stroke-width: 1; stroke-dasharray: 2 4; opacity: 0.55; }
+.mq-svg .mq-trail-head { stroke: var(--blu); stroke-width: 1; opacity: 0.55; }
+.mq-svg .mq-num circle { fill: var(--paper); stroke-width: 1; }
+.mq-svg .mq-num text {
+  fill: var(--ink); stroke: none; font: 500 8px var(--mono); text-anchor: middle;
+}
+.mq-piece { cursor: pointer; outline: none; touch-action: manipulation; }
+.mq-piece:focus-visible :is(rect, path, circle, ellipse, line) { stroke: var(--blu); stroke-width: 2.5; }
+.mq-piece[data-out] { cursor: grab; touch-action: none; }
+.mq-piece[data-out]:active { cursor: grabbing; }
+.mq-ghosts rect { display: none; fill: rgba(35, 70, 200, 0.08); stroke: var(--blu); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.mq-ghosts rect[data-show] { display: inline; }
+
+/* ------------------------------------------------------------ balls */
+.mq-ball {
+  position: absolute; left: -24px; top: -24px; z-index: 5;
+  width: 48px; height: 48px; padding: 0; margin: 0;
+  border: 0; border-radius: 50%; background: none;
+  visibility: hidden; cursor: pointer; touch-action: manipulation;
+  will-change: transform;
+}
+.mq-ball::before { content: ""; position: absolute; inset: -70%; border-radius: 50%; }
+.mq-ball:focus-visible { outline-width: 6px; outline-offset: 4px; }
+.mq-ball svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.mq-ball-a { fill: var(--yel); }
+.mq-ball-b { fill: var(--blu); }
+.mq-ball-o { fill: none; stroke: var(--ink); stroke-width: 3; }
+.mq-ball[data-two] .mq-ball-a { fill: var(--paper); }
+.mq-ball[data-two] .mq-ball-b { fill: var(--red); }
+
+/* ------------------------------------------------------------ next-section stub */
+.mq-next {
+  --ramp: 48px;
+  position: relative;
+  min-height: 42vh;
+  margin-top: 8px;
+  padding: calc(var(--ramp) + 28px) 16px 48px;
+  background: var(--ink);
+  color: var(--paper);
+  clip-path: polygon(0 0, 100% var(--ramp), 100% 100%, 0 100%);
+}
+.mq-next .mq-cap { color: #c9c4b8; max-width: 1280px; margin: 0 auto 8px; }
+.mq-next-t { max-width: 1280px; margin: 0 auto; font-size: clamp(22px, 5vw, 40px); font-weight: 700; font-variation-settings: "wdth" 80; }
+@media (min-width: 900px) {
+  .mq-next { --ramp: 110px; padding-left: 40px; padding-right: 40px; }
+}
+
+/* ------------------------------------------------------------ toast */
+.mq-toast {
+  position: fixed; left: 50%; bottom: 16px; z-index: 10;
+  max-width: calc(100% - 32px); margin: 0; padding: 10px 14px;
+  translate: -50% 8px; opacity: 0; pointer-events: none;
+  background: var(--ink); color: var(--paper); border-radius: 10px;
+  font: 500 13px/1.35 var(--mono);
+  transition: opacity 0.2s, translate 0.2s;
+}
+.mq-toast[data-on] { opacity: 1; translate: -50% 0; }
+
+/* ------------------------------------------------------------ intro */
+/* Before JS takes over: hidden, with a failsafe reveal if JS never arrives. */
+html[data-mq="boot"] .mq-in,
+html[data-mq="boot"] .mq-l,
+html[data-mq="boot"] .mq-fade {
+  opacity: 0;
+  animation: mq-show 1ms 2.2s forwards;
+}
+html[data-mq="run"] .mq-in { animation: mq-drop 340ms var(--d, 0ms) cubic-bezier(0.2, 0.9, 0.3, 1.12) both; }
+html[data-mq="run"] .mq-l { animation: mq-letter 380ms var(--d, 0ms) cubic-bezier(0.3, 1.5, 0.5, 1) both; }
+html[data-mq="run"] .mq-fade { animation: mq-fade 320ms var(--d, 0ms) ease-out both; }
+
+@keyframes mq-show { to { opacity: 1; } }
+@keyframes mq-drop { from { transform: translateY(-320px); } }
+@keyframes mq-letter { from { transform: translateY(-0.6em) rotate(-8deg); opacity: 0; } }
+@keyframes mq-fade { from { opacity: 0; transform: translateY(6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mq-toast { transition: none; }
+}

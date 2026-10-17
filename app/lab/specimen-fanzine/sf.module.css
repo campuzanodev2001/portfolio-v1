@@ -1,0 +1,2165 @@
+/* ==========================================================================
+   SPECIMEN × FANZINE — a type specimen printed on a risograph.
+   One variable family (Roboto Flex, wght + wdth) + the system mono.
+   Two spot inks: Federal Blue (all text) + Fluorescent Pink (second plate,
+   decorative only). Where they overprint (multiply) you get violet.
+   Two shapes only: el punto (period = halftone dot) and el guion (_ = bar).
+   ========================================================================== */
+
+@property --rw {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 860;
+}
+@property --rd {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 100;
+}
+/* dot growth of the halftone ramp (scroll-linked) */
+@property --dg {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+/* halftone cell of the portrait (the loupe egg animates it) */
+@property --cell {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 5px;
+}
+
+.root {
+  --paper: #f2ecdf;
+  --tint: #f6d3dd; /* ~15% pink screen on cream */
+  --manila: #ece2c6;
+  --blue: #3d5588; /* Federal Blue: 6.2:1 on paper */
+  --pink: #ff48b0; /* Fluorescent Pink: never carries text alone */
+  --violet: #3d185d; /* blue × pink, multiply */
+  --yellow: #ffe800; /* hidden third drum */
+  --red: #ff4100; /* pink × yellow: the old Specimen red, earned */
+  --on-blue: #f2ecdf;
+  --on-blue-2: #cfd5e4;
+  --mk: var(--pink); /* ink of the two marks: _ and . */
+
+  /* misregistration of every pink plate on the page (re-rolled by the
+     registration marks, blown up by the paper jam) */
+  --mx: 3px;
+  --my: -2px;
+  --mr: -0.12deg;
+
+  --mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+  --gutter: 16px;
+  --ease-drum: cubic-bezier(0.55, 0.06, 0.45, 0.96);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --spring: cubic-bezier(0.3, 1.6, 0.5, 1);
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .24 0 0 0 0 .18 1.5 0 0 0 -.74'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.4 0 0 0 -.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --stamp-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='%233D5588'%3E%3Ccircle cx='16' cy='6' r='5'/%3E%3Crect x='13' y='10' width='6' height='9'/%3E%3Crect x='6' y='19' width='20' height='5' rx='1'/%3E%3C/g%3E%3Crect x='5' y='25' width='22' height='4' fill='%23FF48B0'/%3E%3C/svg%3E");
+
+  min-height: 100svh;
+  background: var(--paper);
+  color: var(--blue);
+  font-family: var(--font-flex), system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.45;
+  font-variation-settings: "wght" 420, "wdth" 96;
+  overflow-x: clip;
+  -webkit-tap-highlight-color: transparent;
+}
+.root[data-yellow] {
+  --mk: var(--red);
+}
+.root ::selection {
+  background: var(--pink);
+  color: var(--violet);
+}
+.root :focus-visible {
+  outline: 3px solid var(--pink);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+.root a {
+  color: inherit;
+}
+.root main {
+  display: block;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 40;
+  padding: 8px 12px;
+  background: var(--blue);
+  color: var(--on-blue) !important;
+  font: 600 14px/1 var(--mono);
+}
+.skip:focus {
+  top: 8px;
+}
+
+/* every section is a sheet of paper with grain printed into it */
+.sheet {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  padding: 40px var(--gutter) 56px;
+  background: var(--grain) 0 0 / 180px 180px, var(--bg, var(--paper));
+}
+
+/* mono marginalia shared by all sheets: "Pliego 0X/06 ........ Tema" */
+.meta,
+.pmeta,
+.dmeta,
+.couponH,
+.stylesH {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 14px;
+  font: 400 11.5px/1.3 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+/* dot leaders: el punto, in a row */
+.leader {
+  flex: 1;
+  min-width: 16px;
+  height: 4px;
+  background: radial-gradient(circle, currentColor 1.1px, #0000 1.6px) 0 50% / 7px 4px repeat-x;
+  opacity: 0.8;
+}
+
+/* the period that closes headings: pink, in the pink plate */
+.pdot {
+  color: var(--mk);
+  transition: color 0.6s;
+}
+
+/* registration marks: two bars and a dot — and a button */
+.reg {
+  position: absolute;
+  z-index: 4;
+  display: block;
+  width: 44px;
+  height: 44px;
+  padding: 11px;
+  border: 0;
+  background: none;
+  color: var(--blue);
+  cursor: pointer;
+  transition: rotate 0.4s var(--spring);
+}
+.reg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.reg::after {
+  /* the pink drum prints the same mark, out of register */
+  content: "";
+  position: absolute;
+  inset: 11px;
+  background: var(--pink);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect y='12.9' width='28' height='2.2'/%3E%3Crect x='12.9' width='2.2' height='28'/%3E%3Ccircle cx='14' cy='14' r='5.2'/%3E%3C/svg%3E") center / contain no-repeat;
+  mix-blend-mode: multiply;
+  translate: var(--mx) var(--my);
+  transition: translate 0.75s var(--spring);
+}
+.reg:active {
+  rotate: 45deg;
+}
+.regTl {
+  top: 2px;
+  left: 2px;
+}
+.regBr {
+  right: 2px;
+  bottom: 2px;
+}
+
+/* halftone suns (el punto, at planet scale) */
+.sun,
+.yellow {
+  position: absolute;
+  z-index: -1;
+  display: block;
+  aspect-ratio: 1;
+  height: auto;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+.sun {
+  color: var(--pink);
+}
+.yellow {
+  display: none;
+  color: var(--yellow);
+}
+.root[data-yellow] .yellow {
+  display: block;
+  animation: drum 620ms var(--ease-drum) both;
+}
+
+/* ===================================================================== HERO */
+
+.hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 14px;
+  padding-bottom: 44px;
+}
+
+.sunHero {
+  width: 74vw;
+  right: -34vw;
+  top: 25svh;
+  opacity: 0.9;
+}
+.wide {
+  display: none;
+}
+.yHero {
+  width: 64vw;
+  left: -18vw;
+  top: 18svh;
+}
+
+.roller {
+  display: none;
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: var(--pink);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 4px 0 0 40px;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.top p {
+  margin: 0;
+}
+.spec {
+  max-width: 14em;
+  text-align: right;
+}
+
+.name {
+  margin: clamp(36px, 10svh, 140px) 0 0;
+  display: flex;
+  flex-direction: column;
+  font-weight: 400;
+  line-height: 0.8;
+}
+
+.wordbox {
+  position: relative;
+  display: block;
+}
+
+.word {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: max(4.25rem, min(24vw, 44svh));
+  line-height: 0.8;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.wb {
+  position: relative;
+  z-index: 2;
+}
+/* the pink plate: same word, same fit, its own drum — out of register */
+.wp {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  top: 0;
+  color: var(--pink);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  translate: var(--mx) var(--my);
+  rotate: var(--mr);
+  transition:
+    translate 0.75s var(--spring),
+    rotate 0.75s var(--spring);
+}
+
+.ch {
+  --w: 860;
+  --d: calc(var(--fit, 100) * (1 + 0.4 * (var(--lens, 0) - var(--lm, 0))));
+  display: inline-block;
+  position: relative;
+  font-variation-settings:
+    "wght" calc(var(--w) + 140 * var(--lens, 0)),
+    "wdth" var(--d);
+  transition:
+    font-variation-settings 0.5s var(--ease-out),
+    opacity 0.2s;
+  touch-action: manipulation;
+}
+.wordbox[data-fitting] .ch,
+.root:not([data-stage="done"]) .ch {
+  transition: none;
+}
+.ch[data-fallen] {
+  z-index: 3;
+}
+.ch[data-alt] {
+  --w: 100;
+}
+.ch[data-swap] {
+  font-variation-settings: "wght" 100, "wdth" 25;
+  opacity: 0.25;
+  transition-duration: 0.16s;
+}
+
+/* the cursor: only the pink drum inks it */
+.wb .cur {
+  color: transparent;
+  touch-action: none;
+  -webkit-touch-callout: none;
+}
+.wp .cur {
+  color: var(--mk);
+}
+.root[data-empty] .wp .cur {
+  animation: blink 1s steps(1) infinite;
+}
+
+.last {
+  margin-top: 0.16em;
+  font-size: clamp(1.4rem, 7.6vw, 6.5rem);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-variation-settings: "wght" 130, "wdth" 151;
+}
+.sup {
+  margin-left: 0.15em;
+  font-size: 0.45em;
+  vertical-align: top;
+  letter-spacing: 0;
+  font-variation-settings: "wght" 500, "wdth" 100;
+}
+
+.readout {
+  margin: 14px 0 0;
+  padding-top: 8px;
+  border-top: 2px solid var(--blue);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1.4em;
+  font: 400 11px/1.2 var(--mono);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.readout::before {
+  content: attr(data-c);
+  min-width: 7ch;
+  font-weight: 700;
+}
+.rw::after {
+  counter-reset: rw var(--rw);
+  content: counter(rw);
+}
+.rd::after {
+  counter-reset: rd var(--rd);
+  content: counter(rd);
+}
+/* how far the pink plate is off, live (re-rolled by the marks) */
+.rg {
+  margin-left: auto;
+  color: var(--violet);
+}
+
+.body {
+  margin-top: auto;
+  padding-top: 32px;
+  display: grid;
+  gap: 22px;
+}
+
+.lede {
+  margin: 0;
+  max-width: 21em;
+  font-size: clamp(1.3rem, 5.8vw, 2.7rem);
+  line-height: 1.08;
+  font-variation-settings: "wght" 460, "wdth" 92;
+  text-wrap: pretty;
+}
+
+/* the period: closes the sentence, can be dragged, always comes back */
+.dot {
+  display: inline-block;
+  position: relative;
+  z-index: 6;
+  padding: 0 0.22em;
+  margin: 0 -0.22em 0 -0.16em;
+  color: var(--mk);
+  font-variation-settings: "wght" 1000, "wdth" 100;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    scale 0.2s var(--ease-out),
+    color 0.6s;
+}
+.dot[data-held] {
+  cursor: grabbing;
+  scale: 1.8;
+}
+
+/* links: the `_` stretches to where you point */
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em 1.3em;
+  font-size: 1.15rem;
+}
+.links a,
+.notify,
+.plinks a,
+.elsewhere a,
+.footRow a {
+  text-decoration: none;
+  font-variation-settings: "wght" 600, "wdth" 100;
+}
+.links a::after,
+.notify::after,
+.plinks a::after,
+.elsewhere a::after,
+.footRow a::after,
+.send::after {
+  content: "_";
+  display: inline-block;
+  color: var(--mk);
+  font-variation-settings: "wght" 600, "wdth" 25;
+  transition: font-variation-settings 0.35s var(--ease-out);
+}
+.links a:hover::after,
+.links a:focus-visible::after,
+.notify:hover::after,
+.notify:focus-visible::after,
+.plinks a:hover::after,
+.plinks a:focus-visible::after,
+.elsewhere a:hover::after,
+.elsewhere a:focus-visible::after,
+.footRow a:hover::after,
+.footRow a:focus-visible::after,
+.send:hover::after,
+.send:focus-visible::after {
+  font-variation-settings: "wght" 1000, "wdth" 151;
+}
+
+.foot {
+  justify-self: start;
+  margin: 0;
+  padding: 2px 4px;
+  margin-left: -4px;
+  font: 400 11px/1.4 var(--mono);
+  background: var(--paper);
+}
+/* knockouts: the pink sun is not printed under the links and the note */
+.links a {
+  padding: 0 0.2em;
+  margin-left: -0.2em;
+  background: var(--paper);
+}
+
+.note {
+  position: relative;
+  z-index: 6;
+  margin: 10px 0 0;
+  min-height: 1.4em;
+  font: 700 11.5px/1.4 var(--mono);
+  color: var(--violet);
+}
+
+/* ink impressions: where a falling letter hits the paper, it prints */
+.imp {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  color: var(--pink);
+  font-size: max(4.25rem, min(24vw, 44svh));
+  line-height: 0.8;
+  mix-blend-mode: multiply;
+  opacity: 0.8;
+  pointer-events: none;
+  mask: var(--noise) var(--mp, 0 0) / 160px 160px;
+  -webkit-mask: var(--noise) var(--mp, 0 0) / 160px 160px;
+  animation: thunk 200ms cubic-bezier(0.2, 0.8, 0.3, 1.25) both;
+  transition: opacity 0.6s;
+}
+.imp[data-gone] {
+  opacity: 0;
+}
+
+/* --------------------------------------------------------- loader stages */
+
+.root[data-stage="boot"] .ch:not(.cur) {
+  opacity: 0;
+  font-variation-settings: "wght" 100, "wdth" 25;
+}
+.root[data-stage="boot"] .fade,
+.root[data-stage="boot"] .dot {
+  opacity: 0;
+}
+.root[data-stage="boot"] .wp .cur {
+  animation: blink 0.9s steps(1) infinite;
+}
+
+/* run — first visit: two drums, two paths through the design space */
+.root[data-stage="run"] .ch:not(.cur) {
+  animation: sweep 760ms cubic-bezier(0.7, 0, 0.2, 1) both;
+}
+.root[data-stage="run"] .wp .ch {
+  animation-delay: calc(var(--i) * 40ms);
+}
+.root[data-stage="run"] .wb .ch {
+  animation-delay: calc(150ms + var(--i) * 40ms);
+}
+.root[data-stage="run"] .wp {
+  animation: settle 360ms var(--spring) 1000ms both;
+}
+.root[data-stage="run"] .wp .cur {
+  animation: blink 220ms steps(1) 3;
+}
+.root[data-stage="run"] .roller {
+  display: block;
+  animation: roll 640ms var(--ease-drum) 470ms both;
+}
+.root[data-stage="run"] .fade {
+  animation: ink 380ms var(--ease-drum) both;
+  animation-delay: calc(480ms + var(--o, 0) * 85ms);
+}
+.root[data-stage="run"] .readout {
+  animation:
+    ink 380ms var(--ease-drum) 650ms both,
+    count 900ms cubic-bezier(0.7, 0, 0.2, 1) 150ms both;
+}
+.root[data-stage="run"] .dot {
+  animation: drop 260ms cubic-bezier(0.5, 0, 0.5, 1) 1090ms both;
+}
+
+/* enter — same session: letters rise, the pink plate falls into register */
+.root[data-stage="enter"] .ch:not(.cur) {
+  animation: up 520ms var(--ease-out) both;
+  animation-delay: calc(var(--i) * 35ms);
+}
+.root[data-stage="enter"] .wp .ch:not(.cur) {
+  animation-delay: calc(90ms + var(--i) * 35ms);
+}
+.root[data-stage="enter"] .wp {
+  animation: settle 520ms var(--spring) 300ms both;
+}
+.root[data-stage="enter"] .fade,
+.root[data-stage="enter"] .dot {
+  animation: rise 400ms var(--ease-out) both;
+  animation-delay: calc(150ms + var(--o, 2) * 60ms);
+}
+
+/* calm — reduced motion: blue arrives, then pink. Nothing travels. */
+.root[data-stage="calm"] .wb .ch,
+.root[data-stage="calm"] .fade,
+.root[data-stage="calm"] .dot {
+  animation: fadein 450ms ease-out both;
+}
+.root[data-stage="calm"] .wp {
+  animation: fadein 450ms ease-out 280ms both;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes sweep {
+  0% {
+    opacity: 0;
+    font-variation-settings: "wght" 100, "wdth" 25;
+    transform: none;
+  }
+  14% {
+    opacity: 1;
+    font-variation-settings: "wght" 100, "wdth" 25;
+    transform: none;
+  }
+  52% {
+    font-variation-settings: "wght" var(--xw), "wdth" var(--xd);
+    transform: skewX(var(--xs, 0deg));
+  }
+  100% {
+    opacity: 1;
+    font-variation-settings:
+      "wght" calc(var(--w) + 140 * var(--lens, 0)),
+      "wdth" var(--d);
+    transform: none;
+  }
+}
+@keyframes settle {
+  from {
+    translate: calc(var(--mx) * 5) calc(var(--my) * 5);
+    rotate: calc(var(--mr) * 6);
+  }
+  to {
+    translate: var(--mx) var(--my);
+    rotate: var(--mr);
+  }
+}
+@keyframes roll {
+  from {
+    top: -10px;
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  to {
+    top: 100%;
+    opacity: 0;
+  }
+}
+@keyframes ink {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes up {
+  from {
+    opacity: 0;
+    translate: 0 0.22em;
+    font-variation-settings: "wght" 100, "wdth" 25;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 0.6rem;
+  }
+}
+@keyframes drop {
+  0% {
+    opacity: 0;
+    translate: 0 -1.4em;
+  }
+  60% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  80% {
+    translate: 0 -0.16em;
+  }
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes count {
+  from {
+    --rw: 100;
+    --rd: 25;
+  }
+}
+@keyframes thunk {
+  from {
+    opacity: 0;
+    scale: 1.6;
+  }
+  60% {
+    opacity: 1;
+    scale: 0.94;
+  }
+  to {
+    scale: 1;
+  }
+}
+@keyframes drum {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* ================================================= border 1: halftone ramp */
+/* cream → pink screen, one row of dots at a time. Each row's dot is a bit
+   bigger; the last row is about the tone of the bio's tint. */
+
+.ramp {
+  --dg: 1;
+  position: relative;
+  height: 84px;
+  background:
+    radial-gradient(circle, var(--pink) calc(var(--dg) * 0.5px), #0000 calc(var(--dg) * 0.5px + 0.6px)) 0 6px / 12px 12px repeat-x,
+    radial-gradient(circle, var(--pink) calc(var(--dg) * 0.9px), #0000 calc(var(--dg) * 0.9px + 0.6px)) 6px 18px / 12px 12px repeat-x,
+    radial-gradient(circle, var(--pink) calc(var(--dg) * 1.3px), #0000 calc(var(--dg) * 1.3px + 0.6px)) 0 30px / 12px 12px repeat-x,
+    radial-gradient(circle, var(--pink) calc(var(--dg) * 1.7px), #0000 calc(var(--dg) * 1.7px + 0.6px)) 6px 42px / 12px 12px repeat-x,
+    radial-gradient(circle, var(--pink) calc(var(--dg) * 2.1px), #0000 calc(var(--dg) * 2.1px + 0.6px)) 0 54px / 12px 12px repeat-x,
+    radial-gradient(circle, var(--pink) calc(var(--dg) * 2.5px), #0000 calc(var(--dg) * 2.5px + 0.6px)) 6px 66px / 12px 12px repeat-x,
+    radial-gradient(circle, var(--pink) calc(var(--dg) * 2.9px), #0000 calc(var(--dg) * 2.9px + 0.6px)) 0 78px / 12px 6px repeat-x,
+    linear-gradient(var(--paper), var(--paper) 40%, var(--tint));
+}
+
+/* ====================================================================== BIO */
+
+.bio {
+  --bg: var(--tint);
+  padding-top: 28px;
+  padding-bottom: 72px;
+}
+.yBio {
+  width: 70vw;
+  right: -20vw;
+  top: 4%;
+}
+
+.bioH {
+  margin: 0 0 26px;
+  font-size: clamp(2.8rem, 14vw, 9rem);
+  font-weight: 400;
+  line-height: 0.86;
+  font-variation-settings: "wght" 900, "wdth" 70;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.bioGrid {
+  display: grid;
+  gap: 28px;
+}
+
+/* portrait: amplitude-modulated halftone made by CSS, two plates */
+.portrait {
+  margin: 0;
+  width: min(72vw, 380px);
+  justify-self: end;
+  rotate: 1.5deg;
+}
+.photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  clip-path: polygon(1.5% 2%, 98% 0, 100% 97%, 0.5% 100%);
+  background: var(--paper);
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.plate {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: multiply;
+}
+.plateP {
+  translate: var(--mx) var(--my);
+  rotate: var(--mr);
+  transition:
+    translate 0.75s var(--spring),
+    rotate 0.75s var(--spring);
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff;
+  filter: contrast(14);
+}
+.screen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+  filter: grayscale(1) var(--tone);
+}
+.screen::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(closest-side, #777, #fff) 0 0 / var(--c) var(--c);
+  mix-blend-mode: multiply;
+  rotate: var(--ang);
+}
+.plateB {
+  --c: var(--cell);
+  --ang: 45deg;
+  --tone: brightness(1.75) contrast(1.25);
+}
+.plateP {
+  --c: calc(var(--cell) * 1.2);
+  --ang: 15deg;
+  --tone: brightness(1.5) contrast(0.9);
+}
+.tint {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+}
+.plateB .tint {
+  background: var(--blue);
+}
+.plateP .tint {
+  background: var(--pink);
+}
+.portrait[data-loupe-on] {
+  --cell: 18px;
+}
+.portrait {
+  transition: --cell 0.5s var(--ease-out);
+}
+.caption {
+  margin-top: 10px;
+  font: 400 11px/1.4 var(--mono);
+  text-align: right;
+}
+
+.bioText {
+  max-width: 34em;
+}
+.bioText p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+.bioText a {
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--mk);
+  text-underline-offset: 0.18em;
+}
+/* drop cap: a specimen of the heaviest, widest instance */
+.drop {
+  font-size: 1.22em;
+  line-height: 1.32;
+  font-variation-settings: "wght" 520, "wdth" 92;
+}
+.drop::first-letter {
+  float: left;
+  margin: 0.06em 0.08em 0 0;
+  font-size: 3.6em;
+  line-height: 0.76;
+  font-variation-settings: "wght" 1000, "wdth" 151;
+  color: var(--blue);
+  text-shadow: var(--mx) var(--my) 0 rgb(255 72 176 / 0.9);
+}
+
+/* facts: a glyph table */
+.facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 40px 0 0;
+  border-top: 2px solid var(--blue);
+}
+.facts > div {
+  padding: 12px 10px 14px 0;
+  border-bottom: 1px solid rgb(61 85 136 / 0.35);
+}
+.facts > div:nth-child(odd) {
+  border-right: 1px solid rgb(61 85 136 / 0.35);
+}
+.facts > div:nth-child(even) {
+  padding-left: 12px;
+}
+.facts dt {
+  font: 400 11px/1.3 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.facts dd {
+  margin: 6px 0 0;
+  font-size: clamp(1.2rem, 5.6vw, 2.4rem);
+  line-height: 1;
+  font-variation-settings: "wght" 800, "wdth" 62;
+}
+
+/* the stack, set as a list of styles of the family */
+.styles {
+  margin-top: 44px;
+}
+.stylesH {
+  font-weight: 700;
+}
+.stylesList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stylesList li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 12px;
+  padding: 2px 0 4px;
+  border-bottom: 1px solid rgb(61 85 136 / 0.3);
+}
+.styleName {
+  font-size: clamp(2rem, 10vw, 5.4rem);
+  line-height: 1.02;
+  font-variation-settings: "wght" var(--w), "wdth" var(--d);
+  transition: font-variation-settings 0.45s var(--ease-out);
+}
+.stylesList li:hover .styleName {
+  font-variation-settings: "wght" calc(1100 - var(--w)), "wdth" var(--d);
+}
+.styleMeta {
+  font: 400 11px/1.3 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.stylesFoot {
+  margin: 14px 0 0;
+  font: 400 12px/1.4 var(--mono);
+}
+
+/* ========================================== border 2: the word that won't fit */
+
+.border {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  padding: 0;
+  background: linear-gradient(var(--tint) 50%, var(--blue) 50%);
+}
+.borderH {
+  position: relative;
+  margin: 0;
+  padding: 0 var(--gutter);
+  font-weight: 400;
+}
+.bwBox {
+  position: relative;
+  display: block;
+  width: max-content;
+  white-space: nowrap;
+}
+.bw {
+  display: block;
+  font-size: clamp(3.4rem, 14vw, 15rem);
+  line-height: 0.8;
+  padding-bottom: 0.02em;
+  text-transform: uppercase;
+  font-variation-settings: "wght" 1000, "wdth" var(--fit, 100);
+}
+/* Half paper, half ink: painted with the inverse split so the word reads
+   continuously across the border. */
+.bwB {
+  background: linear-gradient(var(--blue) 50%, var(--on-blue) 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.bwP {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--pink);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  translate: var(--mx) var(--my);
+  transition: translate 0.75s var(--spring);
+}
+.bwDot {
+  color: var(--mk);
+  -webkit-text-fill-color: var(--mk);
+}
+.bwP .bwDot {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.bwDisc {
+  position: absolute;
+  z-index: -1;
+  right: -16vw;
+  top: 50%;
+  width: 54vw;
+  max-width: 640px;
+  translate: 0 -50%;
+  color: var(--pink);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.bwBox[data-fitting] .bw {
+  animation: none !important;
+}
+
+/* ================================================================ PROYECTOS */
+
+.projects {
+  --bg: var(--blue);
+  color: var(--on-blue);
+  padding-top: 36px;
+  padding-bottom: 64px;
+}
+.projects ::selection {
+  background: var(--on-blue);
+  color: var(--blue);
+}
+.projIntro {
+  max-width: 34em;
+  margin: 0 0 36px;
+  color: var(--on-blue-2);
+}
+
+.plist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.proj {
+  padding: 22px 0 38px;
+  border-top: 1px solid rgb(242 236 223 / 0.3);
+}
+.projIn {
+  display: grid;
+  gap: 14px;
+}
+.pmeta {
+  margin: 0;
+  color: var(--on-blue-2);
+}
+.pname {
+  margin: 0;
+  font-size: clamp(2.2rem, 10.5vw, 9rem);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -0.005em;
+  font-variation-settings: "wght" var(--w), "wdth" var(--d);
+  overflow-wrap: break-word;
+  transition: font-variation-settings 0.45s var(--ease-out);
+}
+.pbody p {
+  margin: 0;
+  max-width: 36em;
+  text-wrap: pretty;
+}
+.pstack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  font: 400 11.5px/1.3 var(--mono);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--on-blue-2);
+}
+.pstack li::before {
+  content: "_";
+  margin-right: 3px;
+  color: var(--pink);
+}
+.pbody .plinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin-top: 14px;
+  font-size: 1.1rem;
+}
+.plinks a::after {
+  color: var(--pink);
+}
+
+/* thumbnails: two-ink proofs; tap (or hover) to see them in colour */
+.thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--paper);
+  isolation: isolate;
+  cursor: pointer;
+  rotate: -0.8deg;
+  box-shadow: 6px 6px 0 var(--violet);
+}
+.proj:nth-child(even) .thumb {
+  rotate: 0.8deg;
+}
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0;
+  filter: grayscale(1) contrast(1.15);
+  mix-blend-mode: multiply;
+  transition: filter 0.4s;
+}
+.thumbTint {
+  position: absolute;
+  inset: 0;
+  background: var(--blue);
+  mix-blend-mode: screen;
+  transition: opacity 0.4s;
+}
+.thumbTag {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 3px 6px;
+  background: var(--paper);
+  color: var(--blue);
+  font: 400 10.5px/1.2 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.thumb[aria-pressed="true"] img {
+  filter: none;
+  mix-blend-mode: normal;
+}
+.thumb[aria-pressed="true"] .thumbTint,
+.thumb[aria-pressed="true"] .thumbTag {
+  opacity: 0;
+}
+
+.thumbWip {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--blue);
+  rotate: 0.8deg;
+  box-shadow: 6px 6px 0 var(--violet);
+  text-align: center;
+}
+.thumbWip p {
+  position: relative;
+  margin: 0;
+  font-size: clamp(1.2rem, 5vw, 2rem);
+  line-height: 1.05;
+  font-variation-settings: "wght" 800, "wdth" 70;
+}
+.wipDisc {
+  position: absolute;
+  width: 70%;
+  left: 52%;
+  top: -16%;
+  color: var(--pink);
+  mix-blend-mode: multiply;
+}
+
+/* ======================================== border 3 + BLOG: the perforation */
+
+.blog {
+  --bg: var(--manila);
+  padding-top: 52px;
+  padding-bottom: 80px;
+}
+/* holes punched in a row, 12px under the edge: you see the blue through */
+.blog::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  height: 10px;
+  background: radial-gradient(circle 4.6px, var(--blue) 92%, #0000) 0 0 / 18px 10px repeat-x;
+}
+.perfLabel {
+  position: absolute;
+  right: var(--gutter);
+  top: 24px;
+  margin: 0;
+  font: 400 10.5px/1 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.blogH {
+  margin: 0;
+  font-size: clamp(3rem, 15vw, 10rem);
+  font-weight: 400;
+  line-height: 0.86;
+  font-variation-settings: "wght" 200, "wdth" 151;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+.blogIntro {
+  max-width: 32em;
+  margin: 18px 0 34px;
+}
+
+.drafts {
+  display: grid;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.draft article {
+  position: relative;
+  padding: 18px 16px 20px;
+  background: var(--grain) 0 0 / 180px 180px, var(--paper);
+  box-shadow: 0 1px 0 rgb(40 30 10 / 0.12), 4px 5px 0 rgb(40 30 10 / 0.08);
+}
+.draft:nth-child(1) article {
+  rotate: -0.6deg;
+}
+.draft:nth-child(2) article {
+  rotate: 0.5deg;
+}
+.draft:nth-child(3) article {
+  rotate: -0.3deg;
+}
+.dtitle {
+  margin: 0 0 10px;
+  font-size: clamp(1.6rem, 7vw, 2.6rem);
+  font-weight: 400;
+  line-height: 1;
+  font-variation-settings: "wght" 780, "wdth" 82;
+  text-wrap: balance;
+}
+.dexcerpt {
+  margin: 0 0 16px;
+  text-wrap: pretty;
+}
+.notify {
+  font-size: 1rem;
+}
+.draftStamp {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 0.28em 0.55em 0.22em;
+  border: 3px solid currentColor;
+  border-radius: 5px;
+  outline: 1.5px solid currentColor;
+  outline-offset: -7px;
+  color: var(--pink);
+  font-size: 1rem;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-variation-settings: "wght" 900, "wdth" 75;
+  rotate: -7deg;
+  mix-blend-mode: multiply;
+  mask: var(--noise) 20px 40px / 160px 160px;
+  -webkit-mask: var(--noise) 20px 40px / 160px 160px;
+  pointer-events: none;
+}
+
+/* ===================================================== border 4: the ink bar */
+
+.bar {
+  position: relative;
+  z-index: 2;
+  height: 0;
+}
+.barIn {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -9px;
+  height: 18px;
+  background: var(--mk);
+  mix-blend-mode: multiply;
+  transform-origin: 0 50%;
+  transition: background-color 0.6s;
+}
+
+/* ================================================================= CONTACTO */
+
+.contact {
+  padding-top: 44px;
+  padding-bottom: 64px;
+}
+.sunContact {
+  width: 80vw;
+  left: -30vw;
+  bottom: -14vw;
+  rotate: 120deg;
+}
+.yContact {
+  width: 60vw;
+  right: -10vw;
+  top: 20%;
+}
+
+.contactH {
+  margin: 0 0 18px;
+  font-weight: 400;
+}
+.bigMail {
+  display: block;
+  text-decoration: none;
+}
+
+/* plated word: blue text + a pink ghost from the other drum */
+.plated {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  line-height: 0.82;
+}
+.pb,
+.pp {
+  display: block;
+  font-variation-settings: "wght" 940, "wdth" var(--fit, 100);
+}
+.pp {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--pink);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  translate: var(--mx) var(--my);
+  rotate: var(--mr);
+  transition:
+    translate 0.75s var(--spring),
+    rotate 0.75s var(--spring);
+}
+.mark {
+  position: relative;
+  display: inline-block;
+}
+.pb .mark {
+  color: transparent;
+}
+.pp .mark {
+  color: var(--mk);
+}
+.markD {
+  position: absolute;
+  left: 0;
+  opacity: 0;
+}
+.contact .plated {
+  font-size: clamp(3rem, 15vw, 13rem);
+  text-transform: uppercase;
+}
+.bigMail:hover .pp .markU,
+.bigMail:focus-visible .pp .markU {
+  animation: blink 0.8s steps(1) infinite;
+}
+.contact[data-copied] .markU {
+  opacity: 0;
+  animation: none !important;
+}
+.contact[data-copied] .markD {
+  opacity: 1;
+}
+
+.mailLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin: 0 0 36px;
+}
+.mailAddr {
+  font-size: clamp(1.1rem, 5vw, 1.6rem);
+  font-variation-settings: "wght" 600, "wdth" 90;
+  overflow-wrap: anywhere;
+}
+.copy,
+.send,
+.jamB {
+  padding: 0.6em 0.9em;
+  border: 0;
+  background: var(--blue);
+  color: var(--paper);
+  font: inherit;
+  font-size: 0.95rem;
+  font-variation-settings: "wght" 650, "wdth" 100;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--pink);
+  transition:
+    box-shadow 0.15s,
+    translate 0.15s;
+}
+.copy:hover,
+.send:hover,
+.jamB:hover {
+  box-shadow: 6px 6px 0 var(--pink);
+  translate: -1px -1px;
+}
+.copy:active,
+.send:active {
+  box-shadow: 0 0 0 var(--pink);
+  translate: 3px 3px;
+}
+.copied {
+  font: 700 12px/1.3 var(--mono);
+  color: var(--violet);
+}
+
+/* the coupon: a fill-in-the-blanks form whose blanks are underscores */
+.coupon {
+  position: relative;
+  max-width: 40rem;
+  padding: 18px 16px 20px;
+  border: 2px dashed var(--blue);
+  background: var(--grain) 0 0 / 180px 180px, #f7f3ea;
+}
+.couponH {
+  font-weight: 700;
+}
+.field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0 0 16px;
+  font-size: 1.25rem;
+  font-variation-settings: "wght" 560, "wdth" 92;
+}
+.field input,
+.field textarea {
+  flex: 1 1 12rem;
+  min-width: 0;
+  padding: 4px 2px;
+  border: 0;
+  border-bottom: 3px solid var(--blue);
+  border-radius: 0;
+  background: transparent;
+  color: var(--blue);
+  font: inherit;
+  font-variation-settings: "wght" 420, "wdth" 96;
+  resize: vertical;
+}
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-bottom-color: var(--pink);
+  background: rgb(255 72 176 / 0.08);
+}
+.fieldArea {
+  align-items: flex-start;
+}
+.fieldArea textarea {
+  flex-basis: 100%;
+  line-height: 1.5;
+  background-image: linear-gradient(#0000 calc(1.5em + 3px), rgb(61 85 136 / 0.35) calc(1.5em + 3px), rgb(61 85 136 / 0.35) calc(1.5em + 4px), #0000 calc(1.5em + 4px));
+  background-size: 100% 1.5em;
+}
+.choices {
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 8px;
+}
+.choices legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: 1.25rem;
+  font-variation-settings: "wght" 560, "wdth" 92;
+}
+.choices label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+/* radios are dots: el punto, inked when chosen */
+.choices input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  border: 2px solid var(--blue);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.choices input:checked {
+  background: radial-gradient(circle, var(--mk) 0 6px, #0000 6.5px);
+}
+.couponFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+}
+.send {
+  font-size: 1.1rem;
+}
+.send::after {
+  color: var(--pink);
+}
+.couponNote {
+  flex: 1 1 14rem;
+  margin: 0;
+  font: 400 11.5px/1.4 var(--mono);
+}
+
+.elsewhere {
+  display: grid;
+  gap: 6px;
+  margin: 40px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.elsewhere li {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.elsewhere a {
+  font-size: clamp(2rem, 9vw, 4.5rem);
+  line-height: 1;
+  font-variation-settings: "wght" 300, "wdth" 140;
+  transition: font-variation-settings 0.4s var(--ease-out);
+}
+.elsewhere a:hover,
+.elsewhere a:focus-visible {
+  font-variation-settings: "wght" 900, "wdth" 60;
+}
+.handle {
+  font: 400 12px/1.3 var(--mono);
+}
+
+/* ============================================= border 5: cut line of _ _ _ */
+
+.cut {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  background:
+    repeating-linear-gradient(90deg, var(--blue) 0 12px, #0000 12px 20px) 0 50% / 100% 3px no-repeat,
+    var(--paper);
+  font: 400 10.5px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cut span {
+  padding: 2px 8px;
+  background: var(--paper);
+}
+
+/* ================================================================= COLOFÓN */
+
+.footer {
+  --bg: var(--blue);
+  color: var(--on-blue);
+  padding-top: 36px;
+  padding-bottom: 28px;
+}
+.footer .reg {
+  color: var(--on-blue);
+}
+.regFoot {
+  right: 4px;
+  top: 4px;
+}
+.colophon {
+  max-width: 44em;
+  margin: 0;
+  font: 400 12.5px/1.6 var(--mono);
+}
+.secret {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.22em;
+  cursor: pointer;
+}
+.secret[aria-pressed="true"] {
+  text-decoration-style: solid;
+  color: var(--yellow);
+}
+.hint {
+  margin: 12px 0 0;
+  font: 400 12px/1.5 var(--mono);
+  color: var(--on-blue-2);
+}
+.footName {
+  margin: 40px 0 0;
+}
+.footPlated {
+  font-size: clamp(2rem, 8.5vw, 8.5rem);
+}
+.footer .pb {
+  color: var(--on-blue);
+}
+.footer .pp .markU {
+  animation: blink 1.1s steps(1) infinite;
+}
+.footer:not([data-vis]) .pp .markU {
+  animation-play-state: paused;
+}
+.footRow {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 22px 0 0;
+  font: 400 12px/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.footRow a {
+  font-family: inherit;
+  font-variation-settings: normal;
+}
+.footRow a::after {
+  font-family: var(--font-flex), sans-serif;
+}
+
+/* ================================================================== STAMPS */
+
+.stamp {
+  position: absolute;
+  z-index: 7;
+  translate: -50% -50%;
+  rotate: var(--r);
+  padding: 0.32em 0.6em 0.26em;
+  border: 3px solid currentColor;
+  border-radius: 6px;
+  outline: 1.5px solid currentColor;
+  outline-offset: -7px;
+  font-size: 1.35rem;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-variation-settings: "wght" 900, "wdth" 75;
+  white-space: nowrap;
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  mask: var(--noise) var(--mp) / 160px 160px;
+  -webkit-mask: var(--noise) var(--mp) / 160px 160px;
+  animation: thunk 200ms cubic-bezier(0.2, 0.8, 0.3, 1.25) both;
+}
+.stampP {
+  color: var(--pink);
+}
+.stampB {
+  color: var(--blue);
+}
+/* on the blue flood pink would print violet and vanish: stamp in paper */
+.projects .stamp,
+.footer .stamp,
+.border .stamp {
+  color: var(--on-blue);
+  mix-blend-mode: normal;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero,
+  .bio,
+  .blog,
+  .contact {
+    cursor: var(--stamp-cursor) 16 29, crosshair;
+  }
+  .root a,
+  .root button,
+  .root input,
+  .root textarea,
+  .root label,
+  .ch,
+  .portrait {
+    cursor: pointer;
+  }
+  .field input,
+  .field textarea {
+    cursor: text;
+  }
+  .dot {
+    cursor: grab;
+  }
+  .reg:hover {
+    rotate: 45deg;
+  }
+  .proj:hover .pname {
+    font-variation-settings: "wght" var(--w), "wdth" calc(var(--d) * 0.82 + 27);
+  }
+  .proj:hover .thumb img {
+    filter: none;
+    mix-blend-mode: normal;
+  }
+  .proj:hover .thumbTint,
+  .proj:hover .thumbTag {
+    opacity: 0;
+  }
+}
+
+/* ================================================================ PAPER JAM */
+
+.root[data-jam] {
+  --mx: 16px;
+  --my: 10px;
+  --mr: 1.1deg;
+}
+.root[data-jam] .wb,
+.root[data-jam] .last,
+.root[data-jam] .readout,
+.root[data-jam] .body,
+.root[data-jam] .pname,
+.root[data-jam] .dtitle {
+  animation: jam 520ms cubic-bezier(0.3, 0.6, 0.4, 1) both;
+}
+@keyframes jam {
+  20% {
+    transform: translate(0, -6px) rotate(0.5deg);
+  }
+  45% {
+    transform: translate(-3px, 4px) rotate(-0.8deg);
+  }
+  to {
+    transform: translate(0, -10px) rotate(-1.2deg);
+  }
+}
+
+.jam {
+  position: fixed;
+  z-index: 50;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: max(16px, env(safe-area-inset-bottom));
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 16px 16px 18px;
+  background: var(--paper);
+  border: 2px solid var(--blue);
+  box-shadow: 6px 6px 0 var(--pink);
+  color: var(--blue);
+  font-size: 15px;
+  line-height: 1.45;
+  animation: slip 260ms ease-out both;
+}
+.jam[hidden] {
+  display: none;
+}
+.jamT {
+  margin: 0 0 4px;
+  font-size: 2rem;
+  line-height: 1;
+  text-transform: uppercase;
+  font-variation-settings: "wght" 900, "wdth" 70;
+}
+.jamD {
+  margin: 0 0 14px;
+}
+@keyframes slip {
+  from {
+    opacity: 0;
+    transform: translateY(24px) rotate(-1deg);
+  }
+}
+
+/* ======================================================= SCROLL-LINKED MOTION */
+/* CSS scroll-driven animations: zero JS, and they don't run off-screen.
+   Longhands on purpose (the shorthand would reset the timeline). */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .ramp {
+      animation-name: dots;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 55%;
+    }
+    /* the word compresses until it fits — justifying itself as you scroll.
+       The pink plate runs on a slightly later range: out of register on
+       the way, in register at the end. */
+    .bwB {
+      animation-name: squeeze;
+      animation-timing-function: linear;
+      animation-fill-mode: backwards;
+      animation-timeline: view();
+      animation-range: entry 10% cover 50%;
+    }
+    .bwP {
+      animation-name: squeeze;
+      animation-timing-function: linear;
+      animation-fill-mode: backwards;
+      animation-timeline: view();
+      animation-range: entry 25% cover 58%;
+    }
+    .bwDisc {
+      animation-name: spin;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+    /* each project name stretches into its own style as it enters */
+    .pname {
+      animation-name: instance;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: backwards;
+      animation-timeline: view();
+      animation-range: entry 0% cover 32%;
+    }
+    /* drafts are still being written: their titles ink up as you read */
+    .dtitle {
+      animation-name: inkup;
+      animation-timing-function: linear;
+      animation-fill-mode: backwards;
+      animation-timeline: view();
+      animation-range: entry 10% cover 40%;
+    }
+    .blogH {
+      animation-name: blogh;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+    /* the cursor grows into a rule */
+    .barIn {
+      animation-name: grow;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 50%;
+    }
+    .sunHero {
+      animation-name: spin;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: exit;
+    }
+  }
+}
+@keyframes dots {
+  from {
+    --dg: 0.15;
+  }
+  to {
+    --dg: 1;
+  }
+}
+@keyframes squeeze {
+  from {
+    font-variation-settings: "wght" 1000, "wdth" 151;
+  }
+}
+@keyframes spin {
+  from {
+    rotate: -40deg;
+  }
+  to {
+    rotate: 40deg;
+  }
+}
+@keyframes instance {
+  from {
+    font-variation-settings: "wght" var(--w), "wdth" 25;
+    opacity: 0.4;
+  }
+}
+@keyframes inkup {
+  from {
+    font-variation-settings: "wght" 120, "wdth" 82;
+  }
+}
+@keyframes blogh {
+  from {
+    font-variation-settings: "wght" 100, "wdth" 151;
+  }
+  to {
+    font-variation-settings: "wght" 400, "wdth" 151;
+  }
+}
+@keyframes grow {
+  from {
+    transform: scaleX(0.04);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ================================================================== DESKTOP */
+
+@media (min-width: 900px) {
+  .root {
+    --gutter: 40px;
+    font-size: 18px;
+  }
+  .sheet {
+    padding-top: 64px;
+    padding-bottom: 88px;
+  }
+  .hero {
+    padding-top: 20px;
+    padding-bottom: 52px;
+  }
+  .top {
+    padding-left: 52px;
+  }
+  .top,
+  .readout,
+  .foot,
+  .note {
+    font-size: 12px;
+  }
+  .spec {
+    max-width: none;
+  }
+  .wide {
+    display: inline;
+  }
+  .sunHero {
+    width: min(44vw, 720px);
+    right: -9vw;
+    top: 8svh;
+  }
+  .yHero {
+    width: 36vw;
+    left: 18vw;
+    top: 30svh;
+  }
+  .body {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    align-items: end;
+    column-gap: 48px;
+  }
+  .lede {
+    grid-row: span 2;
+  }
+  .links {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 1.45rem;
+  }
+  .regTl {
+    top: 8px;
+    left: 8px;
+  }
+  .regBr {
+    right: 8px;
+    bottom: 8px;
+  }
+
+  .ramp {
+    height: 96px;
+  }
+
+  .bioGrid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+    column-gap: 6vw;
+  }
+  .portrait {
+    width: 100%;
+    max-width: 400px;
+    justify-self: start;
+    rotate: -1.5deg;
+    grid-row: span 2;
+  }
+  .bioText {
+    font-size: 1.12rem;
+    padding-top: 8px;
+  }
+  .facts {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .facts > div {
+    padding: 14px 16px 18px;
+    border-right: 1px solid rgb(61 85 136 / 0.35);
+  }
+  .facts > div:first-child {
+    padding-left: 0;
+  }
+  .facts > div:last-child {
+    border-right: 0;
+  }
+  .stylesList li {
+    padding: 4px 0 6px;
+  }
+
+  .bwDisc {
+    right: 4vw;
+    width: 34vw;
+  }
+
+  .projIntro {
+    font-size: 1.1rem;
+  }
+  .projIn {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-areas:
+      "meta  meta"
+      "name  name"
+      "body  thumb";
+    column-gap: 4vw;
+    row-gap: 18px;
+    align-items: start;
+  }
+  .pmeta {
+    grid-area: meta;
+  }
+  .pname {
+    grid-area: name;
+  }
+  .pbody {
+    grid-area: body;
+  }
+  .thumb,
+  .thumbWip {
+    grid-area: thumb;
+    align-self: start;
+  }
+  .pname {
+    font-size: min(8vw, 9rem);
+  }
+  .proj {
+    padding: 28px 0 56px;
+  }
+
+  .drafts {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+  .draft:nth-child(2) article {
+    margin-top: 40px;
+  }
+  .draft:nth-child(3) article {
+    margin-top: 16px;
+  }
+  .perfLabel {
+    top: 26px;
+  }
+  .barIn {
+    top: -13px;
+    height: 26px;
+  }
+
+  .sunContact {
+    width: 44vw;
+    left: auto;
+    right: -10vw;
+    bottom: -12vw;
+  }
+  .yContact {
+    width: 30vw;
+    right: 22vw;
+    top: 10%;
+  }
+  .coupon {
+    padding: 24px 26px 26px;
+  }
+
+  .stamp {
+    font-size: 1.6rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .bio > *,
+  .projects > *,
+  .blog > *:not(.perfLabel),
+  .contact > *:not(.sun):not(.yellow),
+  .footer > *:not(.reg) {
+    max-width: 1320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* =========================================================== REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+  .ch,
+  .dot,
+  .wp,
+  .pp,
+  .bwP,
+  .plateP,
+  .reg,
+  .reg::after,
+  .pname,
+  .styleName,
+  .elsewhere a,
+  .portrait,
+  .copy,
+  .send,
+  .links a::after,
+  .notify::after,
+  .plinks a::after,
+  .elsewhere a::after,
+  .footRow a::after,
+  .send::after {
+    transition: none;
+  }
+  .stamp,
+  .imp {
+    animation: fadein 140ms ease-out both;
+  }
+  .root[data-yellow] .yellow {
+    animation: fadein 400ms ease-out both;
+  }
+  .root[data-jam] .wb,
+  .root[data-jam] .last,
+  .root[data-jam] .readout,
+  .root[data-jam] .body,
+  .root[data-jam] .pname,
+  .root[data-jam] .dtitle {
+    animation: none;
+    rotate: -0.8deg;
+  }
+  .jam {
+    animation: none;
+  }
+  .footer .pp .markU,
+  .bigMail:hover .pp .markU,
+  .root[data-empty] .wp .cur {
+    animation: none;
+  }
+  .ramp {
+    --dg: 1;
+  }
+}

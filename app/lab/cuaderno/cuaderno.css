@@ -1,0 +1,411 @@
+/* ==========================================================================
+   El Cuaderno — el cuaderno de problemas de Daniel.
+   Papel cuadriculado de ingeniería, tres tintas: grafito, azul, rojo.
+   ========================================================================== */
+
+.cq {
+  --paper: #f5f4ee;
+  --grid: rgb(64 118 140 / 0.11);
+  --grid-major: rgb(64 118 140 / 0.2);
+  --graphite: #313338; /* texto: ~12:1 sobre el papel */
+  --graphite-soft: #5d6066; /* secundario: ~6:1 */
+  --blue: #1e4c9a; /* Claude + la frase que lo define: ~7.5:1 */
+  --red: #b3301c; /* corrección / círculos / sellos: ~5.7:1 */
+  --hole: #c9c6bb;
+  --ring: #7d8086;
+  --noise-stamp: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.4 0 0 0 -.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --noise-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .3 0 0 0 0 .28 1.2 0 0 0 -.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --gutter: 16px;
+  --margin-x: 40px; /* línea roja del margen */
+  --hand: var(--cq-hand), "Segoe Print", cursive;
+  --mono: var(--cq-mono), ui-monospace, Menlo, monospace;
+
+  color-scheme: light;
+  position: relative;
+  min-height: 100svh;
+  overflow-x: clip;
+  color: var(--graphite);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.65;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(90deg, transparent calc(var(--margin-x) - 1px), rgb(179 48 28 / 0.45) calc(var(--margin-x) - 1px), rgb(179 48 28 / 0.45) var(--margin-x), transparent var(--margin-x)),
+    linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 100% 100%, 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  background-position: 0 0, -1px -1px, -1px -1px, -1px -1px, -1px -1px;
+}
+.cq ::selection { background: rgb(30 76 154 / 0.18); }
+
+.cq-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+  background: var(--noise-grain) 0 0 / 180px 180px;
+}
+
+.cq-hand { font-family: var(--hand); }
+.cq-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+.cq :focus-visible {
+  outline: 2px dashed var(--blue);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+.cq button {
+  font: inherit; color: inherit; background: none; border: 0; padding: 0;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------------------------------------------------------------- head -- */
+.cq-head {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px;
+  padding: 14px var(--gutter) 0 calc(var(--margin-x) + 12px);
+  font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--graphite-soft);
+}
+.cq-head__right { display: flex; gap: 14px; align-items: baseline; }
+.cq-who-btn {
+  text-transform: none; letter-spacing: 0; font-size: 12px;
+  color: var(--blue); border-bottom: 1px dashed currentColor;
+  padding: 6px 0; margin: -6px 0;
+}
+.cq-who-btn[aria-pressed="true"] { color: var(--red); }
+
+/* --------------------------------------------------------------- sheet -- */
+.cq-sheet {
+  display: grid;
+  gap: 40px;
+  padding: 36px var(--gutter) 24px calc(var(--margin-x) + 12px);
+  max-width: 1240px;
+  margin-inline: auto;
+}
+
+/* El renglón tachado: rol actual escrito encima del anterior. */
+.cq-role {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 2px;
+  font-family: var(--hand); font-size: 1.55rem; line-height: 1.1;
+}
+.cq-role__stack { display: grid; }
+.cq-role__stack > span { grid-area: 1 / 1; transition: opacity 0.35s 0.25s, filter 0.35s 0.25s; }
+.cq-role__old {
+  color: var(--graphite); opacity: 0.13; filter: blur(0.5px);
+  transform: translate(3px, 2px) rotate(-1deg);
+  white-space: nowrap;
+}
+.cq-role__now { color: var(--graphite-soft); }
+.cq-role[data-erased] .cq-role__old { opacity: 1; filter: none; }
+.cq-role[data-erased] .cq-role__now { opacity: 0.1; filter: blur(0.6px); }
+.cq-eraser { color: var(--graphite); padding: 8px; margin: -8px; }
+.cq-eraser svg { display: block; width: 40px; height: 20px; transition: transform 0.2s; }
+.cq-eraser:hover svg { transform: rotate(-6deg) translateY(-1px); }
+.cq-eraser svg.is-rubbing { animation: cq-rub 0.55s ease-in-out; }
+@keyframes cq-rub {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-14px) rotate(-4deg); }
+  40%, 80% { transform: translateX(4px) rotate(3deg); }
+}
+
+/* El nombre — escrito por el lápiz. */
+.cq-name {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding-bottom: 0.32em;
+  font-family: var(--hand);
+  font-weight: 600;
+  font-size: clamp(2.9rem, 13.2vw, 8.75rem);
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  color: var(--graphite);
+}
+.cq-name__ink { display: inline-block; }
+.cq-uline {
+  position: absolute; left: -2%; right: 0; bottom: 0;
+  width: 102%; height: 0.3em; overflow: visible;
+}
+.cq-uline path, .cq-arrow path, .cq-circled__mark path {
+  fill: none; stroke-linecap: round; stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1; stroke-dashoffset: 0;
+}
+.cq-uline path { stroke: var(--graphite); stroke-width: 2.4; }
+.cq-uline__b { stroke-width: 1.8 !important; opacity: 0.85; }
+.cq-pencil {
+  position: absolute; top: 0.62em; left: 0;
+  width: 0.26em; height: 1.05em; overflow: visible;
+  transform: translate(-50%, -100%);
+  opacity: 0; pointer-events: none;
+}
+
+/* La línea que lo define + la flecha. */
+.cq-claim {
+  display: flex; align-items: flex-start; gap: 6px;
+  margin: 2px 0 0 clamp(4px, 4vw, 48px);
+}
+.cq-arrow { flex: none; width: 52px; height: 52px; overflow: visible; }
+.cq-arrow path { stroke: var(--graphite); stroke-width: 1.9; }
+.cq-claim__text {
+  margin: 30px 0 0;
+  font-family: var(--hand); font-weight: 500;
+  font-size: clamp(1.85rem, 7.4vw, 3.3rem);
+  line-height: 1.02;
+  color: var(--blue);
+}
+
+.cq-after { margin-top: 30px; display: grid; gap: 26px; max-width: 60ch; }
+.cq-lede { margin: 0; }
+.cq-circled { position: relative; white-space: nowrap; }
+.cq-circled__mark {
+  position: absolute; inset: -0.55em -0.6em -0.5em -0.55em;
+  width: calc(100% + 1.15em); height: calc(100% + 1.05em);
+  overflow: visible; pointer-events: none;
+}
+.cq-circled__mark path { stroke: var(--red); stroke-width: 1.6; }
+
+.cq-data { margin: 0; display: grid; gap: 4px; }
+.cq-data dt {
+  font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--graphite-soft); margin-bottom: 2px;
+}
+.cq-data dd { margin: 0; display: grid; grid-template-columns: 7ch 1fr; gap: 8px; align-items: baseline; }
+.cq-data__k { font-size: 11px; color: var(--graphite-soft); }
+.cq-link {
+  color: var(--graphite); text-decoration: none; overflow-wrap: anywhere;
+  padding: 6px 0; font-weight: 500;
+  background: linear-gradient(var(--blue), var(--blue)) 0 calc(100% - 6px) / 0 1.5px no-repeat,
+    linear-gradient(rgb(49 51 56 / 0.35), rgb(49 51 56 / 0.35)) 0 calc(100% - 6px) / 100% 1px no-repeat;
+  transition: background-size 0.35s cubic-bezier(.3,.7,.2,1), color 0.2s;
+}
+.cq-link:hover, .cq-link:focus-visible { color: var(--blue); background-size: 100% 1.5px, 100% 1px; }
+
+/* -------------------------------------------------------------- margin -- */
+.cq-margin { display: grid; gap: 26px; align-content: start; }
+.cq-note {
+  margin: 0; max-width: 34ch;
+  font-size: 12px; line-height: 1.55; color: var(--blue);
+  padding-left: 12px; border-left: 1.5px solid rgb(30 76 154 / 0.35);
+}
+.cq-note b { font-weight: 500; }
+.cq-note--1 { transform: rotate(-0.6deg); }
+.cq-note--2 { transform: rotate(0.5deg); }
+
+.cq-doodles {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px;
+}
+.cq-dd { display: grid; justify-items: start; gap: 2px; }
+.cq-dd button { position: relative; display: block; padding: 4px; margin: -4px; border-radius: 6px; }
+.cq-dd svg {
+  display: block; width: auto; height: 74px; overflow: visible;
+  fill: none; stroke: var(--graphite); stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+  transition: transform 0.25s cubic-bezier(.3,.7,.2,1);
+}
+.cq-dd button:hover svg { transform: rotate(-2deg) scale(1.03); }
+.cq-dd .cq-thin { stroke-width: 1; }
+.cq-dd .cq-dot { fill: var(--graphite); stroke: none; }
+.cq-hand-svg { font-family: var(--hand); font-size: 27px; font-weight: 600; fill: var(--graphite); stroke: none; }
+.cq-dd__cap { font-size: 10.5px; color: var(--graphite-soft); letter-spacing: 0.02em; }
+.cq-dd__say {
+  position: absolute; right: -6px; top: -10px;
+  font-size: 1.35rem; color: var(--red); opacity: 0; pointer-events: none;
+}
+
+/* vida propia */
+.cq-ball { transform-box: view-box; }
+.is-on .cq-ball { animation: cq-serve 0.95s cubic-bezier(.3,.1,.4,1) both; }
+@keyframes cq-serve {
+  0% { transform: translate(0, 0); }
+  12% { transform: translate(0, -18px); }
+  50% { transform: translate(50px, -60px) rotate(200deg); }
+  100% { transform: translate(104px, 10px) rotate(420deg); }
+}
+.cq-dd__say.is-on { animation: cq-say 1.2s 0.6s both; }
+@keyframes cq-say {
+  0% { opacity: 0; transform: translateY(6px) rotate(-6deg); }
+  20%, 70% { opacity: 1; transform: translateY(0) rotate(-6deg); }
+  100% { opacity: 0; transform: translateY(-6px) rotate(-6deg); }
+}
+.cq-leaf { transform-box: view-box; transform-origin: 33px 78px; }
+.is-on .cq-leaf { animation: cq-sway 1.4s cubic-bezier(.3,.6,.3,1); }
+@keyframes cq-sway {
+  0% { transform: rotate(0); }
+  20% { transform: rotate(14deg); }
+  45% { transform: rotate(-9deg); }
+  70% { transform: rotate(5deg); }
+  100% { transform: rotate(0); }
+}
+.cq-notes { opacity: 0; }
+.is-on .cq-notes { animation: cq-float 1.4s ease-out; }
+@keyframes cq-float {
+  0% { opacity: 0; transform: translate(0, 6px); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translate(8px, -22px); }
+}
+.is-on .cq-dot { animation: cq-pluck 0.5s; }
+@keyframes cq-pluck { 40% { fill: var(--red); } }
+.cq-dpad, .cq-btn-a, .cq-btn-b { transform-box: fill-box; transform-origin: center; }
+.is-on .cq-dpad { animation: cq-press 0.5s 2 alternate; }
+.is-on .cq-btn-a { animation: cq-press 0.18s 0.15s 4 alternate; }
+.is-on .cq-btn-b { animation: cq-press 0.18s 0.3s 2 alternate; }
+@keyframes cq-press { to { transform: scale(0.8); fill: var(--graphite); } }
+
+/* Regla escondida: DANIEL ES ___ */
+.cq-rule {
+  position: relative;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+  font-size: 11px; letter-spacing: 0.12em; color: var(--graphite-soft);
+}
+.cq-rule__blank {
+  min-width: 14ch; min-height: 36px; text-align: left;
+  border-bottom: 1.5px solid var(--graphite) !important;
+  padding: 2px 4px 0 !important;
+  letter-spacing: 0; text-transform: none;
+}
+.cq-rule__ans {
+  display: inline-block;
+  font-family: var(--hand); font-size: 1.6rem; line-height: 1.1; color: var(--graphite);
+  animation: cq-write 0.45s steps(14) both;
+}
+@keyframes cq-write { from { clip-path: inset(-30% 100% -30% 0); } to { clip-path: inset(-30% 0 -30% 0); } }
+.cq-stamp {
+  position: absolute; right: 0; top: -30px;
+  display: grid; justify-items: center; padding: 4px 10px;
+  border: 2px solid var(--red); border-radius: 6px;
+  outline: 1px solid var(--red); outline-offset: 2px;
+  color: var(--red); font-weight: 500; font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase;
+  transform: rotate(-9deg);
+  mask: var(--noise-stamp) 20px 40px / 160px 160px;
+  -webkit-mask: var(--noise-stamp) 20px 40px / 160px 160px;
+  animation: cq-stamp 0.3s cubic-bezier(.2,1.6,.4,1) both;
+}
+.cq-stamp small { font-size: 8.5px; letter-spacing: 0.1em; }
+@keyframes cq-stamp { from { opacity: 0; transform: rotate(-9deg) scale(1.6); } }
+
+/* ------------------------------------------------------------ autoría -- */
+.cq-authors {
+  display: none;
+  margin: 0 var(--gutter) 24px calc(var(--margin-x) + 12px);
+  max-width: 70ch; font-size: 12px; color: var(--graphite);
+  padding: 10px 12px; border: 1px dashed var(--graphite-soft); background: rgb(245 244 238 / 0.9);
+}
+.cq-authors p { margin: 0; }
+.cq-who-d { color: var(--graphite); }
+.cq-who-c { color: var(--blue); }
+.cq-who-b { color: var(--red); }
+.cq[data-authorship] .cq-authors { display: block; }
+.cq[data-authorship] [data-who] {
+  position: relative;
+  outline: 1.5px dashed var(--graphite);
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+.cq[data-authorship] [data-who="claude"] { outline-color: var(--blue); }
+.cq[data-authorship] [data-who="both"] { outline-color: var(--red); }
+.cq[data-authorship] [data-who]::after {
+  content: attr(data-who-label);
+  position: absolute; top: -16px; right: -6px; z-index: 2;
+  padding: 0 5px; font: 500 10px/16px var(--mono); letter-spacing: 0.04em;
+  color: var(--paper); background: var(--graphite); border-radius: 3px;
+}
+.cq[data-authorship] [data-who="claude"]::after { background: var(--blue); }
+.cq[data-authorship] [data-who="both"]::after { background: var(--red); }
+
+/* ---------------------------------------------- la hoja siguiente (stub) -- */
+.cq-next { position: relative; margin-top: 40px; }
+.cq-spiral { display: block; position: relative; z-index: 1; margin-bottom: -22px; }
+.cq-next__page {
+  padding: 34px var(--gutter) 40px calc(var(--margin-x) + 12px);
+  border-top: 1px solid rgb(49 51 56 / 0.18);
+  box-shadow: 0 -10px 18px -14px rgb(49 51 56 / 0.35);
+  max-height: 260px; overflow: hidden;
+  mask-image: linear-gradient(#000 55%, transparent);
+  -webkit-mask-image: linear-gradient(#000 55%, transparent);
+}
+.cq-next__title {
+  margin: 0 0 14px; font-family: var(--hand); font-weight: 600; font-size: 1.9rem; line-height: 1.1;
+}
+.cq-next__num {
+  display: inline-block; margin-right: 8px; padding: 0 6px;
+  font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--red); border: 1.5px solid var(--red); border-radius: 3px; vertical-align: 0.5em;
+}
+.cq-ex { margin: 0; display: grid; grid-template-columns: 11ch 1fr; gap: 6px 10px; max-width: 64ch; }
+.cq-ex dt { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--graphite-soft); padding-top: 2px; }
+.cq-ex dd { margin: 0; }
+.cq-ex s { text-decoration-color: var(--red); text-decoration-thickness: 1.5px; color: var(--graphite-soft); margin-right: 10px; }
+.cq-ex__fade { font-family: var(--hand); font-size: 1.4rem; line-height: 1.2; color: var(--graphite-soft); }
+
+.cq-skip {
+  position: fixed; left: 50%; bottom: 18px; z-index: 60; margin: 0;
+  transform: translateX(-50%);
+  font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--graphite-soft);
+  opacity: 0; pointer-events: none;
+}
+
+/* ====================================================== el lápiz (boot) ==
+   0–80     papel y grilla
+   80–760   el lápiz escribe "Daniel Campuzano"
+   760–900  primer subrayado · 900–1030 segundo
+   1030–1260 flecha · 1180–1420 la frase en azul
+   1250–1450 círculo rojo + resto de la hoja
+   ========================================================================= */
+.cq[data-boot="run"] .cq-name__ink { animation: cq-ink 0.68s 0.08s cubic-bezier(.45,.1,.6,.95) both; }
+@keyframes cq-ink { from { clip-path: inset(-25% 100% -40% -4%); } to { clip-path: inset(-25% -4% -40% -4%); } }
+.cq[data-boot="run"] .cq-pencil { animation: cq-pencil 0.8s 0.08s cubic-bezier(.45,.1,.6,.95) both; }
+@keyframes cq-pencil {
+  0% { opacity: 1; left: 0; top: 0.62em; }
+  20% { top: 0.5em; } 40% { top: 0.7em; } 60% { top: 0.52em; }
+  85% { opacity: 1; left: 100%; top: 0.66em; }
+  100% { opacity: 0; left: 100%; top: 1.1em; }
+}
+.cq[data-boot="run"] .cq-uline__a { animation: cq-dash 0.14s 0.76s ease-out both; }
+.cq[data-boot="run"] .cq-uline__b { animation: cq-dash 0.13s 0.9s ease-out both; }
+.cq[data-boot="run"] .cq-arrow path:first-child { animation: cq-dash 0.17s 1.03s ease-in both; }
+.cq[data-boot="run"] .cq-arrow__head { animation: cq-dash 0.08s 1.19s linear both; }
+@keyframes cq-dash { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.cq[data-boot="run"] .cq-claim__text { animation: cq-ink 0.24s 1.18s linear both; }
+.cq[data-boot="run"] .cq-circled__mark path { animation: cq-dash 0.2s 1.25s ease-in-out both; }
+.cq[data-boot="run"] .cq-role,
+.cq[data-boot="run"] .cq-after,
+.cq[data-boot="run"] .cq-margin,
+.cq[data-boot="run"] .cq-head,
+.cq[data-boot="run"] .cq-next { animation: cq-in 0.2s 1.25s both; }
+@keyframes cq-in { from { opacity: 0; } }
+.cq[data-boot="run"] .cq-skip { animation: cq-hint 1.45s both; }
+@keyframes cq-hint { 0%, 15% { opacity: 0; } 25%, 85% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ------------------------------------------------------------- desktop -- */
+@media (min-width: 720px) {
+  .cq { font-size: 15px; --gutter: 40px; --margin-x: 88px; }
+  .cq-head { padding-top: 22px; font-size: 11px; }
+  .cq-sheet { padding-top: 64px; }
+  .cq-arrow { width: 72px; height: 72px; }
+  .cq-claim__text { margin-top: 40px; }
+  .cq-doodles { grid-template-columns: repeat(4, max-content); gap: 22px 34px; }
+}
+@media (min-width: 1100px) {
+  .cq { font-size: 15.5px; }
+  .cq-sheet { grid-template-columns: minmax(0, 1fr) 300px; gap: 56px; padding-top: 80px; }
+  .cq-margin { padding-top: 24px; gap: 34px; }
+  .cq-doodles { grid-template-columns: repeat(2, max-content); gap: 26px 36px; }
+  .cq-dd svg { height: 84px; }
+  .cq-note--1 { margin-left: -12px; }
+}
+
+/* --------------------------------------------------------- calma total -- */
+@media (prefers-reduced-motion: reduce) {
+  .cq *, .cq *::before, .cq *::after { animation: none !important; transition: none !important; }
+  .cq-dd__say { display: none; }
+}

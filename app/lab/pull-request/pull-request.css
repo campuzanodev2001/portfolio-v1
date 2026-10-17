@@ -1,0 +1,1217 @@
+/* ==========================================================================
+   03 — Pull Request
+   Todo prefijado con .pr / pr- (CSS global de la ruta, convive con otros labs).
+   Mobile-first: 360px primero.
+   ========================================================================== */
+
+.pr {
+  --paper: #eeeae0;
+  --ink: #15130f;
+  --mute: #6a6458;
+  --hair: color-mix(in oklab, var(--ink) 18%, transparent);
+  --add: #17652f;
+  --add-bg: #d3ebc9;
+  --del: #b32e14;
+  --del-bg: #f5d5cb;
+  --focus: var(--del);
+
+  --gut: 2.6rem;
+  --pad-x: 16px;
+  --pad-y: 14px;
+  --ease: cubic-bezier(0.2, 0.75, 0.1, 1);
+  --strike: max(2px, 0.075em);
+
+  --mono: var(--pr-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --serif: var(--pr-display), "Iowan Old Style", Georgia, serif;
+
+  position: relative;
+  min-height: 100svh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-optical-sizing: auto;
+  font-synthesis: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html:has(.pr) {
+  background: #eeeae0;
+}
+html:has(.pr[data-style="cartel"]) {
+  background: #cde5c0;
+}
+html:has(.pr[data-style="nocturno"]) {
+  background: #10110e;
+}
+html:has(.pr[data-style="indice"]) {
+  background: #f5f4ef;
+}
+
+.pr ::selection {
+  background: var(--add-bg);
+  color: var(--ink);
+}
+
+.pr :focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.pr button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.pr button:disabled {
+  cursor: default;
+}
+
+/* Mono: un poco condensada para que el código entre en 360px */
+.pr-bar,
+.pr-l-code,
+.pr-l-head,
+.pr-meta,
+.pr-gut,
+.pr-links,
+.pr-btn,
+.pr-blame,
+.pr-blamebar,
+.pr-label,
+.pr-hunk,
+.pr-proj-what {
+  font-family: var(--mono);
+  font-variation-settings: "wdth" 87.5;
+}
+
+/* ---------- Recurring shape: + / − dibujado (dos barras) ---------- */
+
+.pr-plus {
+  position: relative;
+  display: inline-block;
+  width: 0.62rem;
+  height: 0.62rem;
+  flex: none;
+  color: var(--add);
+  transition: transform 0.35s var(--ease), color 0.25s, opacity 0.3s;
+}
+.pr-plus::before,
+.pr-plus::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.pr-plus::before {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1.5px;
+  transform: translateY(-50%);
+}
+.pr-plus::after {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1.5px;
+  transform: translateX(-50%);
+  transition: transform 0.35s var(--ease);
+}
+.pr-plus.is-minus {
+  color: var(--del);
+}
+.pr-plus.is-minus::after {
+  transform: translateX(-50%) scaleY(0);
+}
+
+/* ==========================================================================
+   LOADER — un diff que se escribe solo (100% CSS, no espera al JS)
+   ========================================================================== */
+
+.pr-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--paper);
+  padding: var(--pad-y) var(--pad-x);
+  overflow: hidden;
+  cursor: pointer;
+  /* failsafe: si el JS no llegó, el loader se va solo y queda el hero */
+  animation: pr-hide 0.25s linear 1.45s forwards;
+}
+html[data-pr-boot="skip"] .pr-loader {
+  display: none;
+}
+
+.pr-l-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--hair);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  animation: pr-fade 0.2s linear both;
+}
+
+.pr-l-code {
+  margin-top: 1.4rem;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.pr-l-typed {
+  clip-path: inset(0 100% 0 0);
+  animation: pr-type 0.15s steps(var(--steps, 18), end) var(--d) forwards;
+}
+
+.pr-l-hunk {
+  color: var(--mute);
+  margin-bottom: 0.35rem;
+}
+.pr-l-hunk b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.pr-l-row {
+  display: grid;
+  grid-template-columns: 1.4em 1.4em 1.5em minmax(0, 1fr);
+  align-items: baseline;
+}
+.pr-l-n {
+  color: var(--mute);
+  text-align: right;
+  padding-right: 0.35em;
+  font-size: 0.85em;
+}
+.pr-l-s {
+  text-align: center;
+  font-weight: 600;
+}
+.pr-l-src {
+  padding-right: 0.5em;
+}
+
+.pr-l-row.is-del {
+  background: var(--del-bg);
+  color: var(--del);
+}
+.pr-l-strike {
+  background: linear-gradient(var(--del), var(--del)) no-repeat 0 56% / 0% 1.5px;
+  animation: pr-strike 0.2s var(--ease) calc(var(--d) + 150ms) forwards;
+}
+
+.pr-l-row.is-add {
+  background: linear-gradient(var(--add-bg), var(--add-bg)) no-repeat 0 0 / 0% 100%;
+  animation:
+    pr-type 0.15s steps(var(--steps, 18), end) var(--d) forwards,
+    pr-sweep 0.24s var(--ease) calc(var(--d) + 80ms) forwards;
+}
+.pr-l-row.is-add .pr-l-s {
+  color: var(--add);
+}
+
+.pr-tok {
+  color: var(--mute);
+}
+.pr-l-v {
+  display: inline-block; /* un solo box: requisito de view-transition-name */
+  color: var(--ink);
+}
+.pr-l-block {
+  display: block;
+  padding-left: 1ch;
+}
+
+.pr-l-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 0.3em;
+  vertical-align: -0.18em;
+  background: var(--ink);
+  opacity: 0;
+  animation: pr-blink 0.5s steps(1, end) var(--d) infinite;
+}
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+
+.pr-hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--pad-y) var(--pad-x) calc(var(--pad-y) + 10px);
+}
+
+/* Mientras corre el loader: hero invisible (pero en el DOM y legible por AT).
+   Failsafe: aparece solo a los 1.45s si el JS no llegó. */
+html:not([data-pr-boot="skip"]) .pr[data-phase="boot"] .pr-hero {
+  opacity: 0;
+  animation: pr-show 0.3s linear 1.45s forwards;
+}
+
+/* ---------- Barra: archivo · rama · diffstat ---------- */
+
+.pr-bar {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--hair);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.pr-file {
+  position: relative;
+  text-decoration: none;
+}
+.pr-file::before {
+  content: "";
+  position: absolute;
+  inset: -10px -6px;
+}
+.pr-file[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0 0.3em;
+  margin: 0 -0.3em;
+}
+.pr-branch {
+  display: none;
+  color: var(--mute);
+}
+.pr-stat {
+  margin-left: auto;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.pr-stat-add {
+  color: var(--add);
+}
+.pr-stat-del {
+  color: var(--del);
+}
+.pr-stat-bar {
+  margin-left: 0.6em;
+  letter-spacing: -0.06em;
+}
+.pr-stat--merged {
+  color: var(--add);
+}
+.pr-stat--merged::before {
+  content: "+ ";
+}
+
+/* ---------- Blame ---------- */
+
+.pr-blamebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+  margin-top: 0.9rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px dashed var(--ink);
+  font-size: 11px;
+  line-height: 1.5;
+  max-width: 62ch;
+  animation: pr-fade 0.25s linear both;
+}
+.pr-blamebar p {
+  margin: 0;
+  flex: 1 1 24ch;
+}
+.pr-blamebar b {
+  font-weight: 700;
+}
+.pr-link {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pr-blame {
+  grid-area: blame;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--mute);
+  margin-bottom: 0.3rem;
+  animation: pr-fade 0.25s linear both;
+}
+.pr-who {
+  flex: none;
+  padding: 0.1em 0.45em;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-weight: 600;
+}
+.pr-who[data-who="Daniel"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+.pr-who[data-who="Los dos"] {
+  border-style: dashed;
+}
+
+/* ---------- Líneas ---------- */
+
+.pr-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: 3rem;
+}
+
+.pr-rows {
+  position: relative;
+}
+/* El margen "+": una columna verde continua detrás del gutter */
+.pr-rows::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -0.4rem;
+  bottom: -0.4rem;
+  width: var(--gut);
+  background: var(--add-bg);
+  transform-origin: 50% 0;
+  transition: opacity 0.4s;
+}
+
+.pr-row {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: var(--gut) minmax(0, 1fr);
+  grid-template-areas: "gut cell";
+  align-items: baseline;
+}
+.pr-row[data-row="statement"] {
+  margin-top: 1.4rem;
+}
+.pr-row[data-row="place"] {
+  margin-top: 1.4rem;
+}
+.pr-row[data-row="links"] {
+  margin-top: 0.7rem;
+}
+.pr-row[data-row="review"] {
+  margin-top: 1.6rem;
+}
+
+/* gutter tintado de rojo si la línea está borrada */
+.pr-row::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: -0.15rem;
+  bottom: -0.15rem;
+  width: var(--gut);
+  background: var(--del-bg);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.pr-row[data-del]::before,
+.pr[data-rejecting] .pr-hero .pr-row::before {
+  opacity: 1;
+}
+
+.pr-gut {
+  grid-area: gut;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  padding-right: 0.55rem;
+  font-size: 10.5px;
+  line-height: 1;
+  color: var(--mute);
+  font-variant-numeric: tabular-nums;
+}
+.pr-n {
+  display: inline-block;
+}
+.pr-gut .pr-plus {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.pr-sign {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+.pr-sign::before {
+  /* área táctil de ~40px sin mover el layout */
+  content: "";
+  position: absolute;
+  inset: -16px -12px;
+}
+.pr-sign[aria-pressed="true"] .pr-plus,
+.pr[data-rejecting] .pr-hero .pr-sign .pr-plus {
+  color: var(--del);
+}
+.pr-sign[aria-pressed="true"] .pr-plus::after,
+.pr[data-rejecting] .pr-hero .pr-sign .pr-plus::after {
+  transform: translateX(-50%) scaleY(0);
+}
+.pr[data-merged] .pr-rows::before,
+.pr[data-merged] .pr-sign .pr-plus {
+  opacity: 0;
+}
+.pr[data-merged] .pr-sign .pr-plus {
+  transform: scale(0);
+}
+.pr[data-merged] .pr-row[data-del]:not([data-row="review"]) {
+  display: none;
+}
+
+.pr-label {
+  display: none;
+  grid-area: label;
+}
+
+.pr-cell {
+  grid-area: cell;
+  min-width: 0;
+}
+
+/* Tachado que barre: también funciona sobre texto en varias líneas */
+.pr-t {
+  background: linear-gradient(var(--del), var(--del)) no-repeat 0 58% / 0% var(--strike);
+  transition: background-size 0.42s var(--ease) var(--sd, 0ms);
+}
+.pr-row[data-del] .pr-t,
+.pr[data-rejecting] .pr-hero .pr-t {
+  background-size: 100% var(--strike);
+}
+.pr[data-rejecting] .pr-hero .pr-row {
+  --sd: calc(var(--i) * 55ms);
+}
+
+/* ---------- Contenido (estilo base: "pliego") ---------- */
+
+.pr-name {
+  margin: 0;
+  font-weight: 300;
+  font-size: clamp(3rem, min(16vw, 21svh), 13rem);
+  line-height: 0.86;
+  letter-spacing: -0.035em;
+}
+.pr-first,
+.pr-last {
+  display: block;
+  width: fit-content;
+}
+
+.pr-statement {
+  width: fit-content;
+  max-width: 30ch;
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.38;
+  text-wrap: pretty;
+}
+
+.pr-meta {
+  width: fit-content;
+  margin: 0;
+  font-size: 10.5px;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: var(--mute);
+}
+.pr-time {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.2rem;
+  width: fit-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  font-weight: 500;
+}
+.pr-links a {
+  display: inline-block;
+  padding: 0.55rem 0;
+  color: var(--ink);
+  text-decoration: none;
+  background: linear-gradient(var(--add-bg), var(--add-bg)) no-repeat 0 78% / 100% 1px;
+  transition: background-size 0.3s var(--ease);
+}
+.pr-links a:hover,
+.pr-links a:focus-visible {
+  background-size: 100% 1.25em;
+}
+
+.pr-review {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem 1rem;
+}
+.pr-q {
+  flex-basis: 100%;
+  width: fit-content;
+  max-width: fit-content;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+.pr-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.pr .pr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 42px;
+  padding: 0 0.95rem 0 0.8rem;
+  border: 1px solid var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+.pr .pr-btn--ok {
+  background: var(--ink);
+  color: var(--paper);
+}
+.pr .pr-btn--ok .pr-plus {
+  color: currentColor;
+}
+.pr-round {
+  flex-basis: 100%;
+}
+.pr-hint {
+  display: none;
+}
+
+/* ---------- Entrada ---------- */
+
+/* visitante que vuelve (sin loader): las líneas suben en cascada */
+.pr[data-entry="fresh"] .pr-hero .pr-row,
+html[data-pr-boot="skip"] .pr[data-phase="boot"] .pr-hero .pr-row {
+  animation: pr-rise 0.8s var(--ease) calc(120ms + var(--i) * 70ms) both;
+}
+.pr[data-entry="fresh"] .pr-bar,
+html[data-pr-boot="skip"] .pr[data-phase="boot"] .pr-bar {
+  animation: pr-fade 0.5s linear both;
+}
+.pr[data-entry="fresh"] .pr-hero .pr-rows::before,
+html[data-pr-boot="skip"] .pr[data-phase="boot"] .pr-hero .pr-rows::before {
+  animation: pr-grow 0.9s var(--ease) 80ms both;
+}
+/* después del morph: lo que no viene del diff entra solo */
+.pr[data-entry="morph"][data-phase="hero"] .pr-hero .pr-rows::before {
+  animation: pr-grow 0.7s var(--ease) 0.1s both;
+}
+.pr[data-entry="morph"][data-phase="hero"] .pr-actions,
+.pr[data-entry="morph"][data-phase="hero"] .pr-round {
+  animation: pr-rise 0.6s var(--ease) 0.35s both;
+}
+
+/* ---------- Stub: el borde de sección es un hunk header ---------- */
+
+.pr-stub {
+  padding: 2.5rem var(--pad-x) 4.5rem;
+}
+.pr-hunkwrap > summary {
+  list-style: none;
+}
+.pr-hunkwrap > summary::-webkit-details-marker {
+  display: none;
+}
+.pr-hunk {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 44px;
+  font-size: 11px;
+  color: var(--mute);
+  cursor: pointer;
+}
+.pr-hunk code {
+  font: inherit;
+  color: var(--ink);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pr-hunk-ctx {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.pr-hunk-rule {
+  flex: 1;
+  min-width: 1.5rem;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--mute) 0 3px, transparent 3px 7px);
+}
+.pr-plus.is-toggle {
+  color: var(--ink);
+}
+.pr-hunkwrap[open] .pr-plus.is-toggle::after {
+  transform: translateX(-50%) scaleY(0);
+}
+.pr-hunk--pending {
+  cursor: default;
+  margin-top: 2.5rem;
+}
+.pr-hunk--pending .pr-hunk-ctx {
+  white-space: normal;
+}
+
+.pr-rows--static {
+  margin: 1rem 0 0;
+}
+.pr-rows--static .pr-row + .pr-row {
+  margin-top: 0.85rem;
+}
+.pr-rows--static .pr-row:first-child {
+  margin-bottom: 0.6rem;
+}
+.pr-h2 {
+  margin: 0;
+  font-size: clamp(2rem, 9vw, 4.5rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+.pr-proj-name {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.15;
+}
+.pr-proj-what {
+  margin: 0.15rem 0 0;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--mute);
+}
+.pr-proj-wip {
+  color: var(--del);
+}
+
+/* ==========================================================================
+   ESTILOS ALTERNATIVOS (Rechazar). Mismo DOM, otra tipografía y composición:
+   la View Transition interpola cada elemento entre una y otra.
+   ========================================================================== */
+
+/* ---------- cartel: una sola línea agregada, ampliada a afiche ---------- */
+
+.pr[data-style="cartel"] {
+  --paper: #cde5c0;
+  --ink: #0c1a0f;
+  --mute: #2c4632;
+  --hair: #0c1a0f;
+  --add: #0c1a0f;
+  --add-bg: #0c1a0f;
+  --del: #a3290f;
+  --del-bg: #f1c4b5;
+}
+.pr[data-style="cartel"] .pr-body {
+  justify-content: flex-start;
+  padding-top: 1.1rem;
+}
+.pr[data-style="cartel"] .pr-body::after {
+  /* el "+" gigante: la forma recurrente como afiche */
+  content: "";
+  align-self: flex-end;
+  margin-top: auto;
+  width: min(34vmin, 15rem);
+  aspect-ratio: 1;
+  background:
+    linear-gradient(var(--ink), var(--ink)) center / 100% 20% no-repeat,
+    linear-gradient(var(--ink), var(--ink)) center / 20% 100% no-repeat;
+}
+.pr[data-style="cartel"] .pr-hero .pr-row {
+  border-top: 2px solid var(--ink);
+  padding-top: 0.55rem;
+  margin-top: 0.55rem;
+}
+.pr[data-style="cartel"] .pr-hero .pr-row:first-child {
+  margin-top: 0;
+}
+.pr[data-style="cartel"] .pr-hero .pr-gut {
+  color: var(--paper);
+  font-weight: 700;
+}
+.pr[data-style="cartel"] .pr-hero .pr-gut .pr-plus {
+  color: var(--paper);
+}
+.pr[data-style="cartel"] .pr-name {
+  font-family: var(--mono);
+  font-weight: 800;
+  font-variation-settings: "wdth" 112.5;
+  text-transform: uppercase;
+  font-size: clamp(2rem, 11.2vw, 9.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+.pr[data-style="cartel"] .pr-statement {
+  font-family: var(--mono);
+  font-variation-settings: "wdth" 100;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  max-width: 36ch;
+}
+.pr[data-style="cartel"] .pr-meta {
+  color: var(--ink);
+  text-transform: uppercase;
+}
+.pr[data-style="cartel"] .pr-q {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+/* ---------- nocturno: centrado, suave, a oscuras ---------- */
+
+.pr[data-style="nocturno"] {
+  --paper: #10110e;
+  --ink: #ece5d6;
+  --mute: #9a9487;
+  --hair: color-mix(in oklab, #ece5d6 20%, transparent);
+  --add: #8bd49a;
+  --add-bg: #1a2a1d;
+  --del: #ff6b4d;
+  --del-bg: #3a1a12;
+  color-scheme: dark;
+}
+.pr[data-style="nocturno"] .pr-body {
+  justify-content: center;
+}
+.pr[data-style="nocturno"] .pr-hero .pr-row {
+  grid-template-columns: var(--gut) minmax(0, 1fr) var(--gut);
+  grid-template-areas: "gut cell .";
+}
+.pr[data-style="nocturno"] .pr-hero .pr-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.pr[data-style="nocturno"] .pr-hero .pr-rows::after {
+  /* un "−" bermellón sobre el nombre, centrado */
+  content: "";
+  position: absolute;
+  top: -2.4rem;
+  left: 50%;
+  width: 2.4rem;
+  height: 2px;
+  translate: -50% 0;
+  background: var(--del);
+}
+.pr[data-style="nocturno"] .pr-name {
+  font-weight: 620;
+  font-variation-settings: "SOFT" 100;
+  font-size: clamp(2.6rem, min(13vw, 18svh), 10.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+.pr[data-style="nocturno"] .pr-first,
+.pr[data-style="nocturno"] .pr-last {
+  margin-inline: auto;
+}
+.pr[data-style="nocturno"] .pr-statement {
+  font-weight: 300;
+  font-variation-settings: "SOFT" 100;
+  max-width: 25ch;
+}
+.pr[data-style="nocturno"] .pr-links,
+.pr[data-style="nocturno"] .pr-review,
+.pr[data-style="nocturno"] .pr-actions {
+  justify-content: center;
+}
+.pr[data-style="nocturno"] .pr-q {
+  margin-inline: auto;
+  font-variation-settings: "SOFT" 100;
+}
+.pr[data-style="nocturno"] .pr-links a {
+  background-image: linear-gradient(var(--mute), var(--mute));
+}
+
+/* ---------- índice: una ficha técnica, todo al mismo tamaño ---------- */
+
+.pr[data-style="indice"] {
+  --paper: #f5f4ef;
+  --ink: #121212;
+  --mute: #5c5c57;
+  --hair: #121212;
+  --add-bg: #e1eedb;
+}
+.pr[data-style="indice"] .pr-body {
+  justify-content: flex-start;
+  padding-top: 2.2rem;
+}
+.pr[data-style="indice"] .pr-hero .pr-row {
+  grid-template-columns: var(--gut) 5.2rem minmax(0, 1fr);
+  grid-template-areas: "gut label cell";
+  margin-top: 0;
+  padding: 0.7rem 0 0.8rem;
+  border-top: 1px solid var(--ink);
+}
+.pr[data-style="indice"] .pr-hero .pr-row:last-child {
+  border-bottom: 1px solid var(--ink);
+}
+.pr[data-style="indice"] .pr-label {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.pr[data-style="indice"] .pr-name {
+  font-weight: 420;
+  font-size: clamp(1.55rem, 6.6vw, 3.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+}
+.pr[data-style="indice"] .pr-first,
+.pr[data-style="indice"] .pr-last {
+  display: inline-block;
+}
+.pr[data-style="indice"] .pr-statement {
+  font-size: 1rem;
+  max-width: 34ch;
+}
+.pr[data-style="indice"] .pr-meta {
+  color: var(--ink);
+}
+.pr[data-style="indice"] .pr-links a {
+  padding: 0;
+}
+.pr[data-style="indice"] .pr-q {
+  font-size: 1rem;
+}
+
+/* ---------- Blame: layout por estilo ---------- */
+
+.pr[data-blame] .pr-hero .pr-row {
+  grid-template-areas:
+    ". blame"
+    "gut cell";
+}
+.pr[data-blame][data-style="nocturno"] .pr-hero .pr-row {
+  grid-template-areas:
+    ". blame ."
+    "gut cell .";
+}
+.pr[data-blame][data-style="nocturno"] .pr-blame {
+  justify-content: center;
+}
+.pr[data-blame][data-style="indice"] .pr-hero .pr-row {
+  grid-template-areas:
+    ". blame blame"
+    "gut label cell";
+}
+
+/* ==========================================================================
+   >= 640 / 900 / 1200
+   ========================================================================== */
+
+@media (min-width: 640px) {
+  .pr {
+    --gut: 3.6rem;
+    --pad-x: 28px;
+    --pad-y: 18px;
+  }
+  .pr-branch {
+    display: inline;
+  }
+  .pr-l-code {
+    font-size: 13.5px;
+    max-width: 78ch;
+  }
+  .pr-statement {
+    font-size: 1.4rem;
+  }
+  .pr-meta,
+  .pr-gut,
+  .pr-proj-what {
+    font-size: 11px;
+  }
+  .pr-hint {
+    display: inline;
+  }
+  .pr-q {
+    flex-basis: auto;
+  }
+  .pr-round {
+    flex-basis: auto;
+  }
+}
+
+@media (min-width: 900px) {
+  .pr {
+    --gut: 4.6rem;
+    --pad-x: 40px;
+    --pad-y: 22px;
+  }
+  .pr-l-code {
+    font-size: 15px;
+  }
+  .pr-last {
+    margin-left: 0.55em;
+  }
+  .pr-statement {
+    font-size: 1.65rem;
+    max-width: 28ch;
+  }
+  .pr-row[data-row="statement"] {
+    margin-top: 2rem;
+  }
+  .pr-proj-cell {
+    display: grid;
+    grid-template-columns: minmax(14rem, 1fr) 1.2fr;
+    align-items: baseline;
+    gap: 1.5rem;
+  }
+  .pr-proj-name {
+    font-size: 1.75rem;
+  }
+
+  .pr[data-style="cartel"] .pr-statement {
+    font-size: 15px;
+  }
+  .pr[data-style="nocturno"] .pr-last {
+    margin-left: auto;
+  }
+  .pr[data-style="indice"] .pr-hero .pr-row {
+    grid-template-columns: var(--gut) 10rem minmax(0, 1fr);
+    padding: 1rem 0 1.1rem;
+  }
+  .pr[data-style="indice"] .pr-statement {
+    font-size: 1.3rem;
+  }
+  .pr[data-style="indice"] .pr-label {
+    font-size: 10.5px;
+  }
+  .pr[data-style="indice"] .pr-last {
+    margin-left: 0;
+  }
+
+  /* blame en columna propia, como el blame real */
+  .pr[data-blame] .pr-hero .pr-row {
+    grid-template-columns: var(--gut) 16rem minmax(0, 1fr);
+    grid-template-areas: "gut blame cell";
+  }
+  .pr[data-blame][data-style="indice"] .pr-hero .pr-row {
+    grid-template-columns: var(--gut) 16rem minmax(0, 1fr);
+    grid-template-areas: "gut blame cell";
+  }
+  .pr[data-blame][data-style="indice"] .pr-label {
+    display: none;
+  }
+  .pr[data-blame][data-style="nocturno"] .pr-hero .pr-row {
+    grid-template-columns: var(--gut) minmax(0, 1fr) var(--gut);
+  }
+  .pr[data-blame][data-style="nocturno"] .pr-blame {
+    flex-direction: row;
+    margin-bottom: 0.4rem;
+  }
+  .pr-blame {
+    flex-direction: column;
+    gap: 0.35rem;
+    padding-right: 1.5rem;
+    margin: 0;
+    font-size: 10.5px;
+  }
+  .pr-who {
+    align-self: flex-start;
+  }
+}
+
+@media (min-width: 1200px) {
+  .pr {
+    --pad-x: 56px;
+  }
+  .pr-statement {
+    font-size: 1.9rem;
+  }
+}
+
+/* Puntero fino: hover de fila como en un diff, y el "+" anticipa el "−" */
+@media (hover: hover) and (pointer: fine) {
+  .pr-hero .pr-row::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -0.15rem 0 -0.15rem var(--gut);
+    background: color-mix(in oklab, var(--ink) 5%, transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .pr-hero .pr-row:hover::after {
+    opacity: 1;
+  }
+  .pr-hero .pr-row:hover .pr-n {
+    color: var(--ink);
+  }
+  .pr[data-style="cartel"] .pr-hero .pr-row:hover .pr-n {
+    color: var(--paper);
+  }
+  .pr-sign:not([aria-pressed="true"]):not(:disabled):hover .pr-plus::after {
+    transform: translateX(-50%) scaleY(0.35);
+  }
+  .pr-file:hover {
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+  }
+  .pr .pr-btn--ok:hover {
+    background: var(--add);
+    border-color: var(--add);
+    color: var(--paper);
+  }
+  .pr[data-style="nocturno"] .pr-btn--ok:hover {
+    color: #10110e;
+  }
+  .pr .pr-btn--no:hover {
+    background: var(--del-bg);
+    border-color: var(--del);
+    color: var(--del);
+  }
+  .pr-hunk:not(.pr-hunk--pending):hover code {
+    background: var(--add-bg);
+  }
+}
+
+/* ==========================================================================
+   View Transitions (loader → hero, y Rechazar)
+   ========================================================================== */
+
+:root:has(.pr)::view-transition-group(*) {
+  animation-duration: 0.56s;
+  animation-timing-function: cubic-bezier(0.2, 0.75, 0.1, 1);
+}
+:root:has(.pr)::view-transition-old(root),
+:root:has(.pr)::view-transition-new(root) {
+  animation-duration: 0.4s;
+}
+:root:has(.pr)::view-transition-old(*) {
+  animation-duration: 0.3s;
+}
+
+/* ==========================================================================
+   Keyframes
+   ========================================================================== */
+
+@keyframes pr-type {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes pr-sweep {
+  to {
+    background-size: 100% 100%;
+  }
+}
+@keyframes pr-strike {
+  to {
+    background-size: 100% 1.5px;
+  }
+}
+@keyframes pr-blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes pr-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes pr-show {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes pr-hide {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@keyframes pr-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.7rem);
+  }
+}
+@keyframes pr-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+/* ==========================================================================
+   Reduced motion: el diff aparece entero, quieto, y se funde en el hero.
+   Sin desplazamientos, sin barridos: sólo opacidad.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .pr-l-typed,
+  .pr-l-row.is-add,
+  .pr-l-strike {
+    animation: none;
+    clip-path: none;
+  }
+  .pr-l-row.is-add {
+    background-size: 100% 100%;
+  }
+  .pr-l-strike {
+    background-size: 100% 1.5px;
+  }
+  .pr-l-caret {
+    animation: none;
+    opacity: 1;
+  }
+  .pr-t,
+  .pr-plus,
+  .pr-plus::after,
+  .pr-links a {
+    transition-duration: 0s;
+  }
+  /* mismas entradas, pero sólo opacidad */
+  .pr .pr-hero .pr-row,
+  .pr .pr-rows::before,
+  .pr .pr-actions,
+  .pr .pr-round {
+    animation-name: pr-fade !important;
+  }
+  /* Sólo un fundido de toda la página: nada viaja por la pantalla */
+  .pr [style*="view-transition-name"] {
+    view-transition-name: none !important;
+  }
+}

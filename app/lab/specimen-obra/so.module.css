@@ -1,0 +1,2022 @@
+/* ==========================================================================
+   SPECIMEN × LA OBRA
+   Una hoja de muestra tipográfica que está en obra: letras variables
+   gigantes (Roboto Flex, wght + wdth) y una cuadrilla en pixel art que las
+   levanta, las ajusta y las repara. Dos formas en toda la página:
+     1. la VIGA  `_`  — horizontal, roja: el cursor, la viga que baja la grúa,
+        el subrayado de los links, la que corona cada escalera.
+     2. el ESCALÓN ▪ — el pixel/ladrillo cuadrado y su suma, la escalera:
+        bordes de sección, el punto final, viñetas, sombras duras, steps().
+   Todo lo pixelado se mide en --u (1 pixel del dibujo, entero).
+   ========================================================================== */
+
+/* Colores registrados: noche y plano interpolan la paleta entera, en escalones. */
+@property --bg-a { syntax: "<color>"; inherits: true; initial-value: #ece6d8; }
+@property --fg-a { syntax: "<color>"; inherits: true; initial-value: #1c1714; }
+@property --mute-a { syntax: "<color>"; inherits: true; initial-value: #5b5550; }
+@property --bg-b { syntax: "<color>"; inherits: true; initial-value: #1c1714; }
+@property --fg-b { syntax: "<color>"; inherits: true; initial-value: #ece6d8; }
+@property --mute-b { syntax: "<color>"; inherits: true; initial-value: #aaa298; }
+@property --red { syntax: "<color>"; inherits: true; initial-value: #e0371c; }
+/* Contadores del readout, sin JS. */
+@property --rw { syntax: "<integer>"; inherits: true; initial-value: 860; }
+@property --rd { syntax: "<integer>"; inherits: true; initial-value: 100; }
+/* Cuánto se levantó la escalera (0..1). */
+@property --rise { syntax: "<number>"; inherits: true; initial-value: 1; }
+
+.root {
+  --u: 2px;
+  --gutter: 16px;
+  --sh: 14px; /* alto de un escalón de borde */
+  --bg-a: #ece6d8; /* cal */
+  --fg-a: #1c1714; /* brea */
+  --mute-a: #5b5550;
+  --bg-b: #1c1714;
+  --fg-b: #ece6d8;
+  --mute-b: #aaa298;
+  --red: #e0371c;
+  --blue: #2b49c4; /* replanteo */
+  --casco: #f2b21b;
+  --wood: #8a5a2e;
+  --tile: var(--tile-day);
+  --mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  min-height: 100svh;
+  background: var(--bg-a);
+  color: var(--fg-a);
+  font-family: var(--font-flex), system-ui, sans-serif;
+  overflow-x: clip;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    --bg-a 720ms steps(4),
+    --fg-a 720ms steps(4),
+    --mute-a 720ms steps(4),
+    --bg-b 720ms steps(4),
+    --fg-b 720ms steps(4),
+    --mute-b 720ms steps(4),
+    --red 720ms steps(4);
+}
+@media (min-width: 600px) {
+  .root {
+    --u: 3px;
+    --sh: 18px;
+  }
+}
+@media (min-width: 1024px) {
+  .root {
+    --u: 4px;
+    --gutter: 32px;
+    --sh: 24px;
+  }
+}
+@media (min-width: 1600px) {
+  .root {
+    --u: 5px;
+    --sh: 28px;
+  }
+}
+
+.root[data-night="1"] {
+  --bg-a: #121630;
+  --fg-a: #efe7d6;
+  --mute-a: #aaa6bd;
+  --bg-b: #0a0c1d;
+  --fg-b: #efe7d6;
+  --mute-b: #9a97b0;
+  --red: #ff5a3c;
+  --tile: var(--tile-night);
+}
+.root[data-plano] {
+  --bg-a: #1f3fae;
+  --fg-a: #eaf0ff;
+  --mute-a: #c3cff7;
+  --bg-b: #17318c;
+  --fg-b: #eaf0ff;
+  --mute-b: #c3cff7;
+  --red: #ffd34d;
+}
+
+.root ::selection {
+  background: var(--red);
+  color: #fff;
+}
+.root :focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 4px;
+  border-radius: 0;
+}
+.root main {
+  display: block;
+}
+.root a {
+  color: inherit;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.skipLink {
+  position: absolute;
+  left: var(--gutter);
+  top: 8px;
+  z-index: 60;
+  padding: 8px 12px;
+  background: var(--fg-a);
+  color: var(--bg-a) !important;
+  font: 400 13px/1 var(--mono);
+  translate: 0 -200%;
+}
+.skipLink:focus-visible {
+  translate: none;
+}
+
+/* la viga: un `_` rojo apoyado en la línea de base */
+.us {
+  position: relative;
+  top: var(--usd, -0.16em);
+  color: var(--red);
+}
+/* el escalón: un pixel cuadrado */
+.sq {
+  display: inline-block;
+  width: calc(var(--u) * 3);
+  height: calc(var(--u) * 3);
+  background: var(--red);
+  box-shadow: var(--u) var(--u) 0 currentColor;
+  vertical-align: 0.05em;
+}
+
+/* links: el `_` se estira hasta donde apuntás (de Specimen) */
+.index a,
+.projLinks a,
+.elsewhere a,
+.up {
+  text-decoration: none;
+  font-variation-settings: "wght" 560, "wdth" 100;
+}
+.index a::after,
+.projLinks a::after,
+.elsewhere a::after,
+.up::after {
+  content: "_";
+  display: inline-block;
+  color: var(--red);
+  font-variation-settings: "wght" 560, "wdth" 25;
+  transition: font-variation-settings 0.35s var(--ease);
+}
+.index a:hover::after,
+.index a:focus-visible::after,
+.projLinks a:hover::after,
+.projLinks a:focus-visible::after,
+.elsewhere a:hover::after,
+.elsewhere a:focus-visible::after,
+.up:hover::after,
+.up:focus-visible::after {
+  font-variation-settings: "wght" 1000, "wdth" 151;
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ===================================================================== HERO */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  /* deja asomar la escalera: invita a bajar */
+  min-height: calc(100svh - var(--sh) * 2.5);
+  display: flex;
+  flex-direction: column;
+  padding: 14px var(--gutter) 22px;
+  background: var(--bg-a);
+  color: var(--fg-a);
+  overflow-x: clip;
+}
+
+.crew {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+.root:not([data-canvas]) .crew {
+  visibility: hidden;
+}
+
+.top {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mute-a);
+}
+.top p {
+  margin: 0;
+}
+.clock {
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.spec {
+  max-width: 15em;
+  text-align: right;
+}
+.nightOnly,
+.root[data-night="1"] .dayOnly {
+  display: none;
+}
+.root[data-night="1"] .nightOnly {
+  display: inline;
+}
+
+.name {
+  margin: clamp(72px, 21svh, 200px) 0 0;
+  display: flex;
+  flex-direction: column;
+  font-weight: 400;
+  line-height: 0.8;
+}
+.stage {
+  display: block;
+  font-size: max(4.25rem, min(24vw, 40svh));
+}
+.word {
+  /* estimado de arranque del fit (el JS lo ajusta al ancho exacto) */
+  --fit: 80;
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  white-space: nowrap;
+  line-height: 0.8;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.base {
+  display: inline-block;
+  width: 0;
+  height: 0;
+}
+
+.ch {
+  --w: 860;
+  --d: calc(var(--fit, 100) * (1 + 0.4 * (var(--lens, 0) - var(--lm, 0))));
+  display: inline-block;
+  position: relative;
+  font-variation-settings:
+    "wght" calc(var(--w) + 140 * var(--lens, 0)),
+    "wdth" var(--d);
+  transition:
+    font-variation-settings 0.5s var(--ease),
+    opacity 0.2s;
+  touch-action: manipulation;
+}
+.word[data-fitting] .ch,
+.root:not([data-stage="done"]) .ch {
+  transition: none;
+}
+.ch[data-fallen] {
+  z-index: 3;
+}
+.ch[data-alt] {
+  --w: 100;
+}
+/* la cuadrilla ajusta a martillazos: un golpe, un escalón de peso */
+.ch[data-tune="1"] {
+  --w: 910;
+}
+.ch[data-tune="2"] {
+  --w: 960;
+}
+.ch[data-tune="3"] {
+  --w: 1000;
+}
+.ch[data-tune] {
+  transition-duration: 0.18s;
+  transition-timing-function: steps(2, end);
+}
+.ch[data-swap] {
+  font-variation-settings: "wght" 100, "wdth" 25;
+  opacity: 0.25;
+  transition-duration: 0.16s;
+}
+
+/* la viga `_`: cuelga de la grúa, baja y queda apoyada en la vereda */
+.cur {
+  --w: 860;
+  top: var(--usd, -0.16em);
+  color: var(--red);
+  touch-action: none;
+  -webkit-touch-callout: none;
+}
+.root[data-empty] .cur {
+  animation: blink 1s steps(1) infinite;
+}
+.cable {
+  position: absolute;
+  left: 50%;
+  bottom: 0.12em;
+  width: max(2px, var(--u));
+  height: 120svh;
+  translate: -50% 0;
+  background: var(--fg-a);
+  transform-origin: 50% 0;
+  scale: 1 0;
+  pointer-events: none;
+}
+.cable::after {
+  /* gancho: tres pixeles */
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: calc(var(--u) * 4);
+  height: calc(var(--u) * 2);
+  translate: -50% 0;
+  background: var(--fg-a);
+}
+
+.vereda {
+  position: relative;
+  z-index: 1;
+  display: block;
+  height: calc(var(--u) * 8);
+  margin: -0.06em calc(var(--gutter) * -1) 0;
+  background: var(--tile) 0 0 / calc(var(--u) * 8) calc(var(--u) * 8) repeat-x;
+  image-rendering: pixelated;
+}
+
+.last {
+  margin-top: 0.3em;
+  font-size: clamp(1.4rem, 7.6vw, 6.5rem);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-variation-settings: "wght" 130, "wdth" 151;
+}
+.sup {
+  margin-left: 0.15em;
+  font-size: 0.45em;
+  vertical-align: top;
+  letter-spacing: 0;
+  font-variation-settings: "wght" 500, "wdth" 100;
+}
+
+.readout {
+  margin: 14px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--fg-a);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1.4em;
+  font: 400 11px/1.2 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--mute-a);
+  font-variant-numeric: tabular-nums;
+}
+.readout::before {
+  content: attr(data-c);
+  color: var(--fg-a);
+  min-width: 7ch;
+}
+.rw::after {
+  counter-reset: rw var(--rw);
+  content: counter(rw);
+}
+.rd::after {
+  counter-reset: rd var(--rd);
+  content: counter(rd);
+}
+
+.heroBody {
+  margin-top: auto;
+  padding-top: 32px;
+  display: grid;
+  gap: 20px;
+}
+.lede {
+  margin: 0;
+  max-width: 21em;
+  font-size: clamp(1.25rem, 5.6vw, 2.6rem);
+  line-height: 1.08;
+  font-variation-settings: "wght" 440, "wdth" 92;
+  text-wrap: pretty;
+}
+/* el punto final es un ladrillo rojo */
+.dot,
+.dotR {
+  color: var(--red);
+  font-variation-settings: "wght" 1000, "wdth" 100;
+}
+.dot {
+  display: inline-block;
+}
+.index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em 1.2em;
+  font-size: 1.1rem;
+}
+.foot {
+  margin: 0;
+  font: 400 11px/1.5 var(--mono);
+  color: var(--mute-a);
+}
+.inlineBtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg-a);
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* -------- NO MOLESTAR (de La Obra) -------- */
+.sign {
+  position: absolute;
+  z-index: 5;
+  display: none;
+  translate: -50% -100%;
+  padding-bottom: calc(var(--u) * 6);
+  pointer-events: none;
+}
+.sign::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - var(--u) / 2);
+  bottom: 0;
+  width: var(--u);
+  height: calc(var(--u) * 6);
+  background: var(--wood);
+}
+.sign[data-show="1"] {
+  display: block;
+  animation: plant 320ms steps(4, end) both;
+}
+.signBoard {
+  display: grid;
+  justify-items: center;
+  padding: 6px 10px 5px;
+  background: var(--casco);
+  color: #1c1714;
+  border: max(2px, calc(var(--u) / 2)) solid #1c1714;
+  box-shadow: var(--u) var(--u) 0 #1c1714;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.signBoard b {
+  font-weight: 400;
+  font-size: 18px;
+  font-variation-settings: "wght" 1000, "wdth" 40;
+  letter-spacing: 0.04em;
+}
+.signBoard small {
+  font: 400 10px/1.3 var(--mono);
+  text-transform: none;
+}
+.sign[data-shake="a"] .signBoard {
+  animation: shakeA 300ms steps(3, end);
+}
+.sign[data-shake="b"] .signBoard {
+  animation: shakeB 300ms steps(3, end);
+}
+
+/* ----------------------------------------------------------------- stages */
+
+.root[data-stage="boot"] .ch:not(.cur) {
+  opacity: 0;
+  font-variation-settings: "wght" 100, "wdth" 25;
+}
+.root[data-stage="boot"] .fade,
+.root[data-stage="boot"] .dot {
+  opacity: 0;
+}
+.root[data-stage="boot"] .cur {
+  translate: 0 -48svh;
+  animation: blink 0.9s steps(1) infinite;
+}
+.root[data-stage="boot"] .cable {
+  scale: 1 1;
+}
+
+/* run: primera visita. La grúa baja la viga, las letras se levantan por
+   hiladas (steps), y cada una viaja a su extremo antes de asentarse. */
+.root[data-stage="run"] .cur {
+  animation: lower 520ms cubic-bezier(0.3, 0.7, 0.35, 1.12) backwards;
+}
+.root[data-stage="run"] .cable {
+  animation: retract 860ms linear both;
+}
+.root[data-stage="run"] .ch:not(.cur) {
+  animation:
+    build 300ms steps(6, end) both,
+    sweep 760ms cubic-bezier(0.7, 0, 0.2, 1) both;
+  animation-delay: calc(60ms + var(--i) * 55ms), calc(220ms + var(--i) * 55ms);
+}
+.root[data-stage="run"] .fade {
+  animation: rise 400ms var(--ease) both;
+  animation-delay: calc(620ms + var(--o, 0) * 60ms);
+}
+.root[data-stage="run"] .readout {
+  animation:
+    rise 400ms var(--ease) 120ms both,
+    count 820ms cubic-bezier(0.7, 0, 0.2, 1) 220ms both;
+}
+.root[data-stage="run"] .dot {
+  animation: drop 260ms cubic-bezier(0.5, 0, 0.5, 1) 1000ms both;
+}
+
+/* enter: misma sesión. Versión corta de la misma idea. */
+.root[data-stage="enter"] .ch:not(.cur) {
+  animation: up 520ms var(--ease) both;
+  animation-delay: calc(var(--i) * 35ms);
+}
+.root[data-stage="enter"] .cur {
+  animation: lower 380ms var(--ease) backwards;
+}
+.root[data-stage="enter"] .cable {
+  animation: retract 600ms linear both;
+}
+.root[data-stage="enter"] .fade,
+.root[data-stage="enter"] .dot {
+  animation: rise 400ms var(--ease) both;
+  animation-delay: calc(150ms + var(--o, 2) * 60ms);
+}
+
+/* calm: reduced motion — sólo opacidad */
+.root[data-stage="calm"] .ch,
+.root[data-stage="calm"] .fade,
+.root[data-stage="calm"] .dot {
+  animation: fadein 500ms ease-out both;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes lower {
+  from {
+    translate: 0 -48svh;
+  }
+}
+@keyframes retract {
+  0%,
+  55% {
+    scale: 1 1;
+  }
+  100% {
+    scale: 1 0;
+  }
+}
+@keyframes build {
+  0% {
+    opacity: 1;
+    clip-path: inset(100% -20% 0 -20%);
+  }
+  100% {
+    opacity: 1;
+    clip-path: inset(-20% -20% -20% -20%);
+  }
+}
+@keyframes sweep {
+  0% {
+    font-variation-settings: "wght" 100, "wdth" 25;
+    transform: none;
+  }
+  45% {
+    font-variation-settings: "wght" var(--xw), "wdth" var(--xd);
+    transform: skewX(var(--xs, 0deg));
+  }
+  100% {
+    opacity: 1;
+    font-variation-settings:
+      "wght" calc(var(--w) + 140 * var(--lens, 0)),
+      "wdth" var(--d);
+    transform: none;
+  }
+}
+@keyframes up {
+  from {
+    opacity: 0;
+    translate: 0 0.22em;
+    font-variation-settings: "wght" 100, "wdth" 25;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 0.6rem;
+  }
+}
+@keyframes drop {
+  0% {
+    opacity: 0;
+    translate: 0 -1.4em;
+  }
+  60% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  80% {
+    translate: 0 -0.16em;
+  }
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes count {
+  from {
+    --rw: 100;
+    --rd: 25;
+  }
+}
+@keyframes plant {
+  from {
+    translate: -50% calc(-100% - var(--u) * 14);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  to {
+    translate: -50% -100%;
+    opacity: 1;
+  }
+}
+@keyframes shakeA {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  33% {
+    rotate: -4deg;
+  }
+  66% {
+    rotate: 4deg;
+  }
+}
+@keyframes shakeB {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  33% {
+    rotate: 4deg;
+  }
+  66% {
+    rotate: -4deg;
+  }
+}
+
+/* ================================================================ BORDES */
+
+/* --- Escalera: la sección de abajo se corta en N escalones (forma 2) --- */
+.stairs {
+  position: relative;
+  z-index: 2;
+  height: calc(var(--sh) * 6);
+  background: var(--from-c);
+}
+.stairs[data-from="a"] {
+  --from-c: var(--bg-a);
+}
+.stairs[data-from="b"] {
+  --from-c: var(--bg-b);
+}
+.stairs[data-to="a"] {
+  --to-c: var(--bg-a);
+}
+.stairs[data-to="b"] {
+  --to-c: var(--bg-b);
+}
+.stairFill {
+  position: absolute;
+  inset: 0;
+  /* un pelo de sobra abajo: sin costura con la sección siguiente */
+  bottom: -1px;
+  background: var(--to-c);
+}
+/* la viga (forma 1) apoyada en el escalón más alto */
+.beam,
+.beamDown {
+  position: absolute;
+  width: calc(100% / 6 * 0.72);
+  height: calc(var(--sh) * 0.42);
+  background: var(--red);
+  box-shadow: 0 calc(var(--u) * -1) 0 color-mix(in srgb, var(--red) 70%, #fff) inset;
+}
+.beam {
+  right: calc(100% / 6 * 0.14);
+  top: calc(var(--sh) * (6 - 6 * var(--rise)) - var(--sh) * 0.42);
+}
+/* en la bajada, la viga ya llegó al último escalón */
+.beamDown {
+  right: calc(100% / 6 * 0.14);
+  top: calc(var(--sh) * 5 - var(--sh) * 0.42);
+}
+.sitter,
+.walker {
+  position: absolute;
+  width: calc(var(--u) * 11);
+  height: calc(var(--u) * 10);
+}
+.sitter {
+  left: calc(100% / 6 * 3.5 - var(--u) * 5.5);
+  top: calc(var(--sh) * (6 - 4 * var(--rise)) - var(--u) * 10);
+}
+.walker {
+  left: calc(100% / 6 * 2 + 6px);
+  top: calc(var(--sh) * 2 - var(--u) * 10);
+}
+.walker g[data-f="1"] {
+  visibility: hidden;
+}
+
+/* --- Palabra-borde: mitad en cada sección (de Specimen) --- */
+.bw {
+  position: relative;
+  overflow: clip;
+  background: linear-gradient(var(--top-c) 50%, var(--bot-c) 50%);
+}
+.bw[data-from="a"] {
+  --top-c: var(--bg-a);
+}
+.bw[data-from="b"] {
+  --top-c: var(--bg-b);
+}
+.bw[data-to="a"] {
+  --bot-c: var(--bg-a);
+}
+.bw[data-to="b"] {
+  --bot-c: var(--bg-b);
+}
+.bwH {
+  margin: 0;
+  font-size: clamp(5.5rem, 31vw, 30rem);
+  line-height: 0.78;
+  font-weight: 400;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.bwRun {
+  position: relative;
+  display: block;
+  width: max-content;
+  padding-inline: var(--gutter);
+  font-variation-settings: "wght" 1000, "wdth" 151;
+}
+.bwLayer {
+  display: block;
+}
+.bwLayer[data-layer="1"] {
+  color: var(--bot-c);
+  clip-path: inset(0 0 50% 0);
+}
+.bwLayer[data-layer="2"] {
+  position: absolute;
+  inset: 0;
+  padding-inline: var(--gutter);
+  color: var(--top-c);
+  clip-path: inset(50% 0 0 0);
+}
+.bwCh,
+.bwUs {
+  display: inline-block;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.bwUs {
+  position: relative;
+  top: var(--usd, -0.16em);
+  color: var(--red);
+}
+/* tocás una letra y se hunde una hilada: steps, como si se asentara */
+.bwCh[data-sunk],
+.bwUs[data-sunk] {
+  animation: sink 640ms steps(4, end);
+}
+@keyframes sink {
+  0% {
+    translate: 0 0;
+  }
+  35% {
+    translate: 0 0.14em;
+  }
+  70% {
+    translate: 0 0.14em;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+
+/* ============================================================== SECCIONES */
+
+.sec {
+  position: relative;
+  padding: 40px var(--gutter) 72px;
+}
+.secA {
+  background: var(--bg-a);
+  color: var(--fg-a);
+}
+.secB {
+  background: var(--bg-b);
+  color: var(--fg-b);
+}
+.secA .kicker {
+  color: var(--mute-a);
+}
+.secB .kicker {
+  color: var(--mute-b);
+}
+
+/* --------------------------------------------------------------- SOBRE MÍ */
+.bio {
+  padding-top: 24px;
+}
+.bioH,
+.notesH {
+  margin: 0 0 32px;
+  font-size: clamp(2.6rem, 12vw, 8rem);
+  line-height: 0.88;
+  font-weight: 400;
+  font-variation-settings: "wght" 900, "wdth" 58;
+  text-wrap: balance;
+}
+.bioGrid {
+  display: grid;
+  gap: 36px;
+}
+.portrait {
+  position: relative;
+  display: block;
+  width: min(62vw, 360px);
+  aspect-ratio: 4 / 5;
+  padding: 0;
+  border: 0;
+  background: #000;
+  cursor: default;
+  /* esquinas en escalera: forma 2 */
+  clip-path: polygon(
+    0 calc(var(--u) * 9),
+    calc(var(--u) * 3) calc(var(--u) * 9),
+    calc(var(--u) * 3) calc(var(--u) * 6),
+    calc(var(--u) * 6) calc(var(--u) * 6),
+    calc(var(--u) * 6) calc(var(--u) * 3),
+    calc(var(--u) * 9) calc(var(--u) * 3),
+    calc(var(--u) * 9) 0,
+    100% 0,
+    100% calc(100% - var(--u) * 9),
+    calc(100% - var(--u) * 3) calc(100% - var(--u) * 9),
+    calc(100% - var(--u) * 3) calc(100% - var(--u) * 6),
+    calc(100% - var(--u) * 6) calc(100% - var(--u) * 6),
+    calc(100% - var(--u) * 6) calc(100% - var(--u) * 3),
+    calc(100% - var(--u) * 9) calc(100% - var(--u) * 3),
+    calc(100% - var(--u) * 9) 100%,
+    0 100%
+  );
+}
+.portrait:focus-visible {
+  outline-offset: -4px;
+}
+.photo,
+.pixel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo {
+  filter: grayscale(1) contrast(1.05);
+  transition: filter 0.4s;
+}
+.portrait:hover .photo {
+  filter: grayscale(1) contrast(1.25);
+}
+.pixel,
+.helmet,
+.tagPx {
+  display: none;
+}
+.portrait[aria-pressed="true"] .photo,
+.portrait[aria-pressed="true"] .tagDay {
+  display: none;
+}
+.portrait[aria-pressed="true"] .pixel {
+  display: block;
+  image-rendering: pixelated;
+  filter: grayscale(1) contrast(1.3);
+}
+.portrait[aria-pressed="true"] .tagPx {
+  display: inline;
+}
+.portrait[aria-pressed="true"] .helmet {
+  display: block;
+  position: absolute;
+  left: 23.5%;
+  top: 7%;
+  width: 59.4%;
+  animation: plantHelmet 320ms steps(4, end) both;
+}
+@keyframes plantHelmet {
+  from {
+    translate: 0 -60%;
+  }
+}
+.portraitTag {
+  position: absolute;
+  left: calc(var(--u) * 9);
+  bottom: 0;
+  padding: 4px 8px;
+  background: var(--red);
+  color: #fff;
+  font: 400 10px/1.2 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.bioText {
+  display: grid;
+  gap: 1em;
+  max-width: 36em;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  font-variation-settings: "wght" 400, "wdth" 96;
+}
+.bioText p {
+  margin: 0;
+}
+.bioLead {
+  font-size: clamp(1.3rem, 5vw, 2rem);
+  line-height: 1.15;
+  font-variation-settings: "wght" 520, "wdth" 88;
+}
+.avail strong {
+  font-weight: 400;
+  font-variation-settings: "wght" 850, "wdth" 100;
+}
+
+/* cartel de obra (La Obra) con tabla de specimen */
+.cartel {
+  align-self: start;
+  max-width: 30rem;
+  border: max(2px, calc(var(--u) / 2)) solid var(--fg-b);
+  box-shadow: calc(var(--u) * 2) calc(var(--u) * 2) 0 var(--red);
+}
+.cartelBand {
+  margin: 0;
+  padding: 8px 12px 6px;
+  background: var(--red);
+  color: #fff;
+  font-size: 1.3rem;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-variation-settings: "wght" 1000, "wdth" 40;
+}
+.cartel dl {
+  margin: 0;
+  padding: 4px 12px 8px;
+}
+.cartel dl > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+  padding: 8px 0 7px;
+  border-top: 1px dashed color-mix(in srgb, var(--fg-b) 30%, transparent);
+}
+.cartel dl > div:first-child {
+  border-top: 0;
+}
+.cartel dt {
+  font: 400 10px/1.3 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute-b);
+}
+.cartel dd {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+  font-variation-settings: "wght" 560, "wdth" 92;
+}
+.mats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+.mats span {
+  padding: 1px 6px;
+  border: 1px solid color-mix(in srgb, var(--fg-b) 35%, transparent);
+}
+
+/* -------------------------------------------------------------- PROYECTOS */
+.projects {
+  padding-top: 28px;
+}
+.projIntro,
+.notesIntro,
+.contactIntro {
+  margin: 0 0 28px;
+  max-width: 32em;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  font-variation-settings: "wght" 420, "wdth" 94;
+}
+.projList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.proj {
+  padding: 22px 0 44px;
+  border-top: 1px solid color-mix(in srgb, var(--fg-a) 25%, transparent);
+}
+.projMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 10px;
+  font: 400 11px/1.3 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mute-a);
+}
+.projName {
+  margin: 0 0 20px;
+  font-size: clamp(2.3rem, 10.5vw, 8rem);
+  line-height: 0.88;
+  font-weight: 400;
+  font-variation-settings: "wght" var(--w), "wdth" var(--d);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  transition: font-variation-settings 0.45s var(--ease);
+}
+.proj:hover .projName {
+  font-variation-settings: "wght" var(--w), "wdth" min(151, calc(var(--d) + 16));
+}
+.proj[data-wip] .projName {
+  text-decoration: underline dashed var(--blue);
+  text-decoration-thickness: max(2px, calc(var(--u) / 2));
+  text-underline-offset: 0.12em;
+}
+.thumb {
+  position: relative;
+  margin: 0 0 20px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--fg-a) 8%, var(--bg-a));
+  /* esquina superior izquierda en escalera */
+  clip-path: polygon(
+    0 calc(var(--u) * 6),
+    calc(var(--u) * 3) calc(var(--u) * 6),
+    calc(var(--u) * 3) calc(var(--u) * 3),
+    calc(var(--u) * 6) calc(var(--u) * 3),
+    calc(var(--u) * 6) 0,
+    100% 0,
+    100% 100%,
+    0 100%
+  );
+}
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transition: scale 0.6s var(--ease);
+}
+.proj:hover .thumb img {
+  scale: 1.03;
+}
+/* tapa que se retira por hiladas al entrar en pantalla (scroll) */
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bg-a);
+  transform-origin: 50% 0;
+  scale: 1 0;
+  pointer-events: none;
+}
+.isoWrap {
+  position: relative;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background-color: var(--bg-a);
+  background-image: radial-gradient(var(--blue) 0.9px, transparent 1.3px);
+  background-size: calc(var(--u) * 6) calc(var(--u) * 6);
+}
+.iso {
+  width: calc(var(--iw) * var(--u) * 1.6);
+  height: calc(var(--ih) * var(--u) * 1.6);
+  margin-top: -6%;
+}
+.isoWorker {
+  position: absolute;
+  left: calc(50% + var(--iw) * var(--u) * 0.8 - var(--u) * 4);
+  top: calc(50% + var(--ih) * var(--u) * 0.8 - var(--u) * 16);
+  width: calc(var(--u) * 11 * 1.6);
+  height: calc(var(--u) * 10 * 1.6);
+}
+.isoWorker g[data-f="1"] {
+  visibility: hidden;
+}
+.isoCap {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  font: 400 11px/1.3 var(--mono);
+  color: var(--blue);
+}
+.projBody {
+  display: grid;
+  gap: 12px;
+}
+.projText {
+  margin: 0;
+  max-width: 40em;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  font-variation-settings: "wght" 400, "wdth" 96;
+}
+.projStack {
+  margin: 0;
+  font: 400 11px/1.5 var(--mono);
+  letter-spacing: 0.03em;
+  color: var(--mute-a);
+}
+.projLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 4px 0 0;
+  font-size: 1.15rem;
+}
+.wipNote {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 4px 0 0;
+  font: 400 12px/1.4 var(--mono);
+  color: var(--mute-a);
+}
+.stampMini {
+  padding: 2px 6px 1px;
+  border: 2px solid var(--red);
+  color: var(--red);
+  font-family: var(--font-flex), system-ui, sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  font-variation-settings: "wght" 1000, "wdth" 40;
+  rotate: -4deg;
+}
+.planoNote {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+  font: 400 11px/1.4 var(--mono);
+  color: var(--mute-a);
+}
+.planoBtn {
+  display: inline-grid;
+  place-items: center;
+  width: calc(var(--u) * 12 + 8px);
+  height: calc(var(--u) * 8 + 8px);
+  padding: 4px;
+  border: 0;
+  background: none;
+  cursor: default;
+}
+.planoBtn svg {
+  width: calc(var(--u) * 12);
+  height: calc(var(--u) * 8);
+  transition: rotate 0.3s steps(3, end);
+}
+.planoBtn:hover svg {
+  rotate: -12deg;
+}
+
+/* ------------------------------------------------------------------ NOTAS */
+.notes {
+  padding-top: 24px;
+}
+.notesIntro {
+  color: var(--mute-b);
+}
+.posts {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.post {
+  position: relative;
+  padding: 22px 0 30px;
+  border-top: 1px dashed color-mix(in srgb, var(--fg-b) 35%, transparent);
+  outline-offset: 6px;
+}
+.postMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin: 0 0 10px;
+  padding-right: 112px;
+  font: 400 11px/1.3 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mute-b);
+}
+/* el título todavía es estructura: hairline comprimida. Al pasar, la cuadrilla
+   lo levanta un poco… y lo deja: el post no está terminado. */
+.postTitle {
+  margin: 0 0 12px;
+  font-size: clamp(2.1rem, 10vw, 6rem);
+  line-height: 0.92;
+  font-weight: 400;
+  font-variation-settings: "wght" 100, "wdth" 25;
+  text-wrap: balance;
+  transition: font-variation-settings 0.7s steps(5, end);
+}
+.post:hover .postTitle,
+.post:focus-visible .postTitle {
+  font-variation-settings: "wght" 520, "wdth" 62;
+}
+.postText {
+  margin: 0;
+  max-width: 38em;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  font-variation-settings: "wght" 400, "wdth" 96;
+  color: color-mix(in srgb, var(--fg-b) 88%, var(--bg-b));
+}
+.stamp {
+  position: absolute;
+  top: 16px;
+  right: 0;
+  padding: 4px 8px 2px;
+  border: 3px solid var(--red);
+  color: var(--red);
+  font-size: 1.1rem;
+  line-height: 1;
+  text-transform: uppercase;
+  font-variation-settings: "wght" 1000, "wdth" 40;
+  rotate: var(--r, -4deg);
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.stamp[data-hit] {
+  animation: restamp 260ms steps(3, end);
+}
+@keyframes restamp {
+  0% {
+    scale: 1.7;
+    opacity: 0;
+  }
+  60% {
+    scale: 0.94;
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+/* --------------------------------------------------------------- CONTACTO */
+.contact {
+  padding-top: 28px;
+}
+.mail {
+  display: block;
+  max-width: 100%;
+  margin: 0 0 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg-a);
+  text-align: left;
+  font-family: inherit;
+  font-size: clamp(1.3rem, 7.1vw, 6.5rem);
+  line-height: 1;
+  font-weight: 400;
+  font-variation-settings: "wght" 820, "wdth" 54;
+  cursor: copy;
+  overflow-wrap: anywhere;
+  transition: font-variation-settings 0.45s var(--ease);
+}
+.mail:hover,
+.mail:focus-visible {
+  font-variation-settings: "wght" 1000, "wdth" 64;
+}
+.mailEnd::before {
+  content: "_";
+  position: relative;
+  top: var(--usd, -0.16em);
+  color: var(--red);
+}
+.mail[data-copied] .mailEnd::before {
+  content: ".";
+  top: 0;
+}
+.mailHint {
+  display: block;
+  margin-top: 10px;
+  font: 400 11px/1.3 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mute-a);
+}
+.hintDone,
+.mail[data-copied] .hintIdle {
+  display: none;
+}
+.mail[data-copied] .hintDone {
+  display: inline;
+  color: var(--red);
+}
+.contactGrid {
+  display: grid;
+  gap: 40px;
+}
+.parte {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  max-width: 34rem;
+}
+.kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.kinds legend {
+  margin-bottom: 10px;
+  padding: 0;
+  font: 400 11px/1.3 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mute-a);
+}
+.kind input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.kind span {
+  display: inline-block;
+  padding: 7px 12px 6px;
+  border: 2px solid var(--fg-a);
+  font-size: 0.98rem;
+  font-variation-settings: "wght" 600, "wdth" 86;
+  cursor: pointer;
+  user-select: none;
+}
+.kind input:checked + span {
+  background: var(--fg-a);
+  color: var(--bg-a);
+  box-shadow: var(--u) var(--u) 0 var(--red);
+}
+.kind input:focus-visible + span {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+.bodyLabel {
+  margin-top: 8px;
+  font: 400 11px/1.3 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mute-a);
+}
+.bodyField {
+  width: 100%;
+  min-height: 7.5em;
+  padding: 10px 12px;
+  border: 2px solid var(--fg-a);
+  border-radius: 0;
+  background: transparent;
+  color: var(--fg-a);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+.bodyField::placeholder {
+  color: var(--mute-a);
+}
+.bodyField:focus-visible {
+  outline-offset: 2px;
+}
+.sendRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 4px;
+}
+.send {
+  padding: 12px 18px 10px;
+  border: 0;
+  background: var(--fg-a);
+  color: var(--bg-a);
+  font: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  text-transform: uppercase;
+  font-variation-settings: "wght" 950, "wdth" 50;
+  letter-spacing: 0.02em;
+  box-shadow: calc(var(--u) * 2) calc(var(--u) * 2) 0 var(--red);
+  cursor: pointer;
+  transition:
+    translate 0.15s steps(2, end),
+    box-shadow 0.15s steps(2, end);
+}
+.send:hover {
+  translate: calc(var(--u) * -1) calc(var(--u) * -1);
+  box-shadow: calc(var(--u) * 3) calc(var(--u) * 3) 0 var(--red);
+}
+.send:active {
+  translate: calc(var(--u) * 2) calc(var(--u) * 2);
+  box-shadow: 0 0 0 var(--red);
+}
+.sendNote {
+  font: 400 11px/1.4 var(--mono);
+  color: var(--mute-a);
+  max-width: 26em;
+}
+.runnerTrack {
+  position: relative;
+  display: block;
+  height: calc(var(--u) * 10);
+  overflow: hidden;
+  border-bottom: max(2px, calc(var(--u) / 2)) solid var(--fg-a);
+}
+.runner {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: calc(var(--u) * 11);
+  height: calc(var(--u) * 10);
+  translate: calc(var(--u) * -12) 0;
+}
+.runner svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.runner[data-run] {
+  animation: run 1.5s steps(30, end) both;
+}
+@keyframes run {
+  to {
+    left: 100%;
+    translate: 0 0;
+  }
+}
+.elsewhere {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  font-size: clamp(1.8rem, 8vw, 3.5rem);
+  line-height: 1.05;
+}
+.elsewhere a {
+  font-variation-settings: "wght" 700, "wdth" 70;
+}
+
+/* ----------------------------------------------------------------- FOOTER */
+.footer {
+  position: relative;
+  background: var(--bg-b);
+  color: var(--fg-b);
+}
+.footVereda {
+  position: relative;
+  height: calc(var(--u) * 8);
+  background: var(--tile) 0 0 / calc(var(--u) * 8) calc(var(--u) * 8) repeat-x;
+  image-rendering: pixelated;
+  /* cordón: un escalón de pixel contra la sección de arriba */
+  box-shadow: 0 calc(var(--u) * -2) 0 color-mix(in srgb, var(--fg-a) 55%, var(--bg-a));
+}
+.baldosa {
+  position: absolute;
+  top: 0;
+  left: calc(var(--u) * 8 * 5);
+  width: calc(var(--u) * 8);
+  height: calc(var(--u) * 8);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+.baldosa[data-splash] {
+  animation: wobble 400ms steps(4, end);
+}
+@keyframes wobble {
+  25% {
+    rotate: 4deg;
+  }
+  50% {
+    rotate: -3deg;
+  }
+  75% {
+    rotate: 2deg;
+  }
+}
+.drop {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  width: var(--u);
+  height: var(--u);
+  background: #8fb3d9;
+  opacity: 0;
+}
+.drop:nth-child(1) {
+  --dx: -6;
+  --dy: -9;
+}
+.drop:nth-child(2) {
+  --dx: -2;
+  --dy: -13;
+}
+.drop:nth-child(3) {
+  --dx: 3;
+  --dy: -11;
+}
+.drop:nth-child(4) {
+  --dx: 7;
+  --dy: -7;
+}
+.drop:nth-child(5) {
+  --dx: 0;
+  --dy: -16;
+  width: calc(var(--u) * 2);
+}
+.baldosa[data-splash] .drop {
+  animation: splash 700ms steps(7, end) both;
+}
+@keyframes splash {
+  0% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  60% {
+    opacity: 1;
+    translate: calc(var(--dx) * var(--u)) calc(var(--dy) * var(--u));
+  }
+  100% {
+    opacity: 0;
+    translate: calc(var(--dx) * var(--u) * 1.4) calc(var(--dy) * var(--u) * 0.2);
+  }
+}
+.mateGuy {
+  position: absolute;
+  right: 14%;
+  bottom: calc(100% + var(--u) * 2);
+  width: calc(var(--u) * 11);
+  height: calc(var(--u) * 10);
+}
+.footBody {
+  display: grid;
+  gap: 8px;
+  padding: 40px var(--gutter) 48px;
+}
+.footBody p {
+  margin: 0;
+}
+.footName {
+  font-size: clamp(2rem, 9vw, 4.5rem);
+  line-height: 0.95;
+  font-variation-settings: "wght" 900, "wdth" 60;
+}
+.footMono {
+  max-width: 44em;
+  font: 400 11px/1.5 var(--mono);
+  color: var(--mute-b);
+}
+.up {
+  justify-self: start;
+  margin-top: 12px;
+  font-size: 1.15rem;
+}
+
+/* ------------------------------------------------------------------ TOAST */
+.toast {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 50;
+  max-width: 34rem;
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--fg-a);
+  color: var(--bg-a);
+  font: 400 12px/1.45 var(--mono);
+  box-shadow: calc(var(--u) * 2) calc(var(--u) * 2) 0 var(--red);
+  pointer-events: none;
+}
+.toast:empty {
+  display: none;
+}
+
+/* ============================================================= MODO PLANO */
+.root[data-plano] .hero,
+.root[data-plano] .sec,
+.root[data-plano] .footer {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--fg-a) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--fg-a) 10%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.root[data-plano] .portrait {
+  background: transparent;
+}
+.root[data-plano] img,
+.root[data-plano] .crew,
+.root[data-plano] .iso {
+  opacity: 0.16;
+  filter: grayscale(1);
+}
+.root[data-plano] :is(h1, h2, h3, p, figure, li, form, nav, .cartel, .portrait) {
+  outline: 1px dashed color-mix(in srgb, var(--fg-a) 40%, transparent);
+  outline-offset: 3px;
+}
+.root[data-plano] .ch,
+.root[data-plano] .bwLayer,
+.root[data-plano] .projName,
+.root[data-plano] .bioH,
+.root[data-plano] .notesH {
+  color: transparent;
+  -webkit-text-stroke: max(1px, calc(var(--u) / 2)) var(--fg-a);
+}
+.root[data-plano]::after {
+  content: "PLANO · ESC 1:1 · Daniel Campuzano";
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 50;
+  padding: 4px 8px;
+  border: 1px solid var(--fg-a);
+  background: var(--bg-a);
+  color: var(--fg-a);
+  font: 400 10px/1.3 var(--mono);
+  letter-spacing: 0.06em;
+}
+
+/* ===================================================== SCROLL (sin JS) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* la escalera se levanta por escalones mientras entra */
+    .stairs[data-build] {
+      animation-name: riseStairs;
+      animation-timing-function: steps(6, end);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 55%;
+    }
+    /* la palabra-borde se comprime con el eje de ancho mientras pasa */
+    .bwRun {
+      animation-name: push;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 35%;
+    }
+    /* cada nombre de proyecto arranca como estructura y la cuadrilla lo aprieta */
+    .projName {
+      animation-name: tighten;
+      animation-timing-function: steps(8, end);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 38%;
+    }
+    .thumb::after {
+      animation-name: courses;
+      animation-timing-function: steps(6, end);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 40%;
+    }
+    /* el laburante baja la escalera con vos */
+    /* timeline con nombre en la escalera: el laburante (y sus frames, que
+       son <g> de SVG y no tienen caja propia) se mueven con ella */
+    .stairs[data-dir="down"] {
+      view-timeline-name: --bajada;
+    }
+    .walker {
+      animation-name: descend;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --bajada;
+      animation-range: cover 15% cover 85%;
+    }
+    .walker g[data-f="0"],
+    .walker g[data-f="1"] {
+      animation-timing-function: steps(1, end);
+      animation-iteration-count: 28;
+      animation-timeline: --bajada;
+      animation-range: cover 15% cover 85%;
+    }
+    .walker g[data-f="0"] {
+      animation-name: frameA;
+    }
+    .walker g[data-f="1"] {
+      animation-name: frameB;
+    }
+  }
+}
+@keyframes riseStairs {
+  from {
+    --rise: 0;
+  }
+  to {
+    --rise: 1;
+  }
+}
+@keyframes push {
+  from {
+    translate: 0 0;
+    font-variation-settings: "wght" 1000, "wdth" 151;
+  }
+  to {
+    translate: calc(-100% + 100vw) 0;
+    font-variation-settings: "wght" 1000, "wdth" 40;
+  }
+}
+@keyframes tighten {
+  from {
+    font-variation-settings: "wght" 100, "wdth" 25;
+  }
+}
+@keyframes courses {
+  from {
+    scale: 1 1;
+  }
+  to {
+    scale: 1 0;
+  }
+}
+@keyframes frameA {
+  50% {
+    visibility: hidden;
+  }
+}
+@keyframes frameB {
+  0% {
+    visibility: hidden;
+  }
+  50% {
+    visibility: visible;
+  }
+}
+/* el laburante camina cada escalón y baja al siguiente */
+@keyframes descend {
+  0.00% {
+    left: calc(100% / 6 * 0 + 4px);
+    top: calc(var(--sh) * 0 - var(--u) * 10);
+  }
+  16.07% {
+    left: calc(100% / 6 * 1 - var(--u) * 11 - 4px);
+    top: calc(var(--sh) * 0 - var(--u) * 10);
+  }
+  16.67% {
+    left: calc(100% / 6 * 1 + 4px);
+    top: calc(var(--sh) * 1 - var(--u) * 10);
+  }
+  32.73% {
+    left: calc(100% / 6 * 2 - var(--u) * 11 - 4px);
+    top: calc(var(--sh) * 1 - var(--u) * 10);
+  }
+  33.33% {
+    left: calc(100% / 6 * 2 + 4px);
+    top: calc(var(--sh) * 2 - var(--u) * 10);
+  }
+  49.40% {
+    left: calc(100% / 6 * 3 - var(--u) * 11 - 4px);
+    top: calc(var(--sh) * 2 - var(--u) * 10);
+  }
+  50.00% {
+    left: calc(100% / 6 * 3 + 4px);
+    top: calc(var(--sh) * 3 - var(--u) * 10);
+  }
+  66.07% {
+    left: calc(100% / 6 * 4 - var(--u) * 11 - 4px);
+    top: calc(var(--sh) * 3 - var(--u) * 10);
+  }
+  66.67% {
+    left: calc(100% / 6 * 4 + 4px);
+    top: calc(var(--sh) * 4 - var(--u) * 10);
+  }
+  82.73% {
+    left: calc(100% / 6 * 5 - var(--u) * 11 - 4px);
+    top: calc(var(--sh) * 4 - var(--u) * 10);
+  }
+  83.33% {
+    left: calc(100% / 6 * 5 + 4px);
+    top: calc(var(--sh) * 5 - var(--u) * 10);
+  }
+  99.40% {
+    left: calc(100% / 6 * 6 - var(--u) * 11 - 4px);
+    top: calc(var(--sh) * 5 - var(--u) * 10);
+  }
+  100% {
+    left: calc(100% - var(--u) * 11 - 4px);
+    top: calc(var(--sh) * 5 - var(--u) * 10);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .isoWorker g[data-f="0"] {
+    animation: frameA 560ms steps(1, end) infinite;
+  }
+  .isoWorker g[data-f="1"] {
+    animation: frameB 560ms steps(1, end) infinite;
+  }
+}
+
+/* ================================================================ DESKTOP */
+@media (min-width: 600px) {
+  .cartel dl > div {
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    gap: 12px;
+  }
+  .toast {
+    right: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    padding-top: 20px;
+    padding-bottom: 32px;
+  }
+  .word {
+    --fit: 93;
+  }
+  .top,
+  .readout,
+  .foot {
+    font-size: 12px;
+  }
+  .spec {
+    max-width: none;
+  }
+  .heroBody {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    align-items: end;
+    column-gap: 48px;
+  }
+  .lede {
+    grid-row: span 2;
+  }
+  .index {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 1.4rem;
+  }
+  .sec {
+    padding-top: 56px;
+    padding-bottom: 112px;
+  }
+  .bioGrid {
+    grid-template-columns: 360px minmax(0, 1fr) minmax(0, 0.9fr);
+    align-items: start;
+    column-gap: 48px;
+  }
+  .portrait {
+    width: 100%;
+  }
+  .proj {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 32px;
+    align-items: start;
+    padding: 32px 0 72px;
+  }
+  .projMeta,
+  .projName {
+    grid-column: 1 / -1;
+  }
+  .thumb {
+    grid-column: 1 / span 7;
+    margin: 0;
+  }
+  .projBody {
+    grid-column: 8 / -1;
+    padding-top: 4px;
+  }
+  .proj:nth-child(even) .projName {
+    text-align: right;
+  }
+  .proj:nth-child(even) .thumb {
+    grid-column: 6 / -1;
+    grid-row: 3;
+  }
+  .proj:nth-child(even) .projBody {
+    grid-column: 1 / span 5;
+    grid-row: 3;
+  }
+  .posts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 32px;
+  }
+  .postTitle {
+    font-size: clamp(2.4rem, 4.6vw, 5rem);
+  }
+  .contactGrid {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    column-gap: 64px;
+  }
+  .sign .signBoard b {
+    font-size: 26px;
+  }
+  .sign .signBoard small {
+    font-size: 12px;
+  }
+}
+
+/* ========================================================= REDUCED MOTION */
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .ch,
+  .projName,
+  .postTitle,
+  .mail,
+  .photo,
+  .thumb img,
+  .send,
+  .planoBtn svg,
+  .index a::after,
+  .projLinks a::after,
+  .elsewhere a::after,
+  .up::after {
+    transition: none;
+  }
+  .sign[data-show="1"],
+  .sign .signBoard,
+  .stamp[data-hit],
+  .bwCh[data-sunk],
+  .bwUs[data-sunk],
+  .baldosa[data-splash],
+  .runner[data-run],
+  .portrait[aria-pressed="true"] .helmet {
+    animation: none;
+  }
+  /* la baldosa salpica igual, pero las gotas aparecen quietas */
+  .baldosa[data-splash] .drop {
+    translate: calc(var(--dx) * var(--u)) calc(var(--dy) * var(--u));
+    animation: fadeOut 1.2s steps(1, end) both;
+  }
+}
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

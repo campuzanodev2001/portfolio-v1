@@ -1,0 +1,981 @@
+/* ==========================================================================
+   04 — Fanzine. Everything is scoped under .fz (the lab layout is shared).
+   Two spot inks, one sheet of paper, plates that don't quite line up.
+   ========================================================================== */
+
+.fz {
+  /* Riso inks (official swatches) + paper stocks */
+  --paper: #f2ecdf;
+  --pink: #ff48b0; /* Fluorescent Pink — decorative only (2.6:1 on paper) */
+  --blue: #3d5588; /* Federal Blue — all text (6.2:1 on paper) */
+  --yellow: #ffe800; /* the hidden third drum */
+  --tray: #d9d1bf;
+
+  /* misregistration of the pink plate (re-rolled by the registration marks) */
+  --mx: 3px;
+  --my: -2px;
+  --mr: -0.12deg;
+
+  --gut: 16px;
+  --ease-drum: cubic-bezier(0.55, 0.06, 0.45, 0.96);
+
+  --noise-stamp: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.4 0 0 0 -.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --noise-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .24 0 0 0 0 .18 1.7 0 0 0 -.72'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --cursor-stamp: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='%233D5588'%3E%3Ccircle cx='16' cy='6' r='5'/%3E%3Crect x='13' y='10' width='6' height='9'/%3E%3Crect x='6' y='19' width='20' height='5' rx='1'/%3E%3C/g%3E%3Crect x='5' y='25' width='22' height='4' fill='%23FF48B0'/%3E%3C/svg%3E");
+
+  position: relative;
+  min-height: 100svh;
+  overflow-x: clip;
+  background: var(--tray);
+  color: var(--blue);
+  font-family: var(--fz-display), "Arial Narrow", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.fz ::selection {
+  background: var(--pink);
+  color: #1b0f2b;
+}
+
+.fz :focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.fz-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.fz-press {
+  position: relative;
+  isolation: isolate;
+}
+
+/* ---------------------------------------------------------------- hero -- */
+
+.fz-hero {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+/* A plate = one ink separation. Both multiply onto the paper and each other. */
+.fz-plate {
+  mix-blend-mode: multiply;
+  padding: 52px var(--gut) 76px;
+}
+
+.fz-plate--b {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  color: var(--blue);
+}
+
+.fz-plate--p {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  pointer-events: none;
+  user-select: none;
+  transform: translate(var(--mx), var(--my)) rotate(var(--mr));
+  transition: transform 0.75s cubic-bezier(0.3, 1.7, 0.5, 1);
+}
+
+.fz-plate--y {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  color: var(--yellow);
+  pointer-events: none;
+  animation: fz-drum 620ms var(--ease-drum) both;
+}
+
+/* who gets ink */
+.fz-plate--p .i-pb,
+.fz-plate--p .i-p {
+  color: var(--pink);
+}
+.fz-plate--b .i-p {
+  color: transparent;
+}
+
+/* ------------------------------------------------- print run (loader) -- */
+/* data-boot is set before first paint by the inline script:
+   run → animate, done/absent → final state. The loader IS the hero. */
+
+.fz-drum {
+  display: none;
+}
+
+.fz[data-boot="run"] .fz-plate--p {
+  animation: fz-drum 540ms var(--ease-drum) 60ms both;
+}
+.fz[data-boot="run"] .fz-plate--b {
+  animation:
+    fz-drum 540ms var(--ease-drum) 620ms both,
+    fz-wobble 780ms cubic-bezier(0.3, 0.7, 0.4, 1) 620ms both;
+}
+
+.fz[data-boot="run"] .fz-drum {
+  display: block;
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  height: 22px;
+  pointer-events: none;
+  animation: fz-roll 540ms var(--ease-drum) 60ms both;
+}
+.fz[data-boot="run"] .fz-plate--b .fz-drum {
+  animation-delay: 620ms;
+}
+.fz-plate--p .fz-drum {
+  background: linear-gradient(to bottom, transparent, var(--pink));
+}
+.fz-plate--b .fz-drum {
+  background: linear-gradient(to bottom, transparent, var(--blue));
+}
+
+@keyframes fz-drum {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes fz-roll {
+  from {
+    top: -22px;
+    opacity: 0.9;
+  }
+  92% {
+    opacity: 0.9;
+  }
+  to {
+    top: calc(100% - 22px);
+    opacity: 0;
+  }
+}
+
+/* second pass: the sheet skews in the drum, then settles */
+@keyframes fz-wobble {
+  0% {
+    transform: translate(-7px, 5px) rotate(0.45deg);
+  }
+  55% {
+    transform: translate(2px, -1.5px) rotate(-0.12deg);
+  }
+  78% {
+    transform: translate(-0.8px, 0.5px) rotate(0.04deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes fz-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* the feed label (status of the print run) */
+.fz-feed {
+  display: none;
+}
+.fz[data-boot="run"] .fz-feed {
+  position: fixed;
+  z-index: 20;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 6px 12px 7px;
+  background: var(--paper);
+  border: 1.5px solid var(--blue);
+  color: var(--blue);
+  font: 11px/1.3 var(--fz-mono), "Courier New", monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fz-feed-out 200ms ease-in 1220ms both;
+}
+.fz-feed__a,
+.fz-feed__b {
+  grid-area: 1 / 1;
+}
+.fz-feed__skip {
+  opacity: 0.75;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.fz[data-boot="run"] .fz-feed__a {
+  animation: fz-swap-out 620ms steps(1, end) both;
+}
+.fz[data-boot="run"] .fz-feed__b {
+  animation: fz-swap-in 620ms steps(1, end) both;
+}
+@keyframes fz-swap-out {
+  to {
+    visibility: hidden;
+  }
+}
+@keyframes fz-swap-in {
+  from {
+    visibility: hidden;
+  }
+  to {
+    visibility: visible;
+  }
+}
+@keyframes fz-feed-out {
+  to {
+    opacity: 0;
+    translate: -50% 8px;
+  }
+}
+
+/* --------------------------------------------------------------- cover -- */
+
+.fz-cover {
+  position: relative;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.fz-mast,
+.fz-kicker,
+.fz-colophon,
+.fz-clock,
+.fz-jam,
+.fz-sheet__meta {
+  font-family: var(--fz-mono), "Courier New", monospace;
+}
+
+.fz-mast {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 5px 6px 6px;
+  /* knockout: hides this plate's own halftone under the masthead */
+  background: #fff;
+  border-bottom: 1.5px solid currentColor;
+  font-size: 11.5px;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fz-clock {
+  display: inline-block;
+  min-width: 5ch;
+  font-variant-numeric: tabular-nums;
+}
+
+/* halftone suns: the recurring dot, at planet scale */
+.fz-sun {
+  position: absolute;
+  display: block;
+  height: auto;
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+.fz-sun--p {
+  width: 96vw;
+  top: 4vw;
+  right: -34vw;
+}
+.fz-sun--b {
+  width: 44vw;
+  top: 18vw;
+  left: -22vw;
+}
+.fz-sun--y {
+  width: 70vw;
+  top: 46vw;
+  right: -6vw;
+}
+
+/* photo: amplitude-modulated halftone made by CSS (threshold via contrast) */
+.fz-photo {
+  position: relative;
+  isolation: isolate;
+  width: 60vw;
+  max-width: 400px;
+  aspect-ratio: 1;
+  margin: 22px 0 0 auto;
+  clip-path: polygon(1.5% 2.5%, 97% 0, 100% 96.5%, 3% 100%);
+  rotate: -2deg;
+}
+.fz-photo__screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff;
+  filter: contrast(14);
+}
+.fz-photo__screen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) var(--tone);
+}
+.fz-photo__screen::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(closest-side, #777, #fff) 0 0 / var(--cell) var(--cell);
+  mix-blend-mode: multiply;
+  rotate: var(--ang);
+}
+/* blue = key/shadows, coarse 45° screen */
+.fz-photo__screen--b {
+  --cell: 5px;
+  --ang: 45deg;
+  --tone: brightness(1.22) contrast(1.4);
+}
+/* pink = midtones, 15° screen → the two screens make a rosette */
+.fz-photo__screen--p {
+  --cell: 6px;
+  --ang: 15deg;
+  --tone: brightness(1.02) contrast(0.95);
+}
+.fz-photo__tint {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+}
+.fz-photo__tint--b {
+  background: var(--blue);
+}
+.fz-photo__tint--p {
+  background: var(--pink);
+}
+
+.fz-name {
+  position: relative;
+  margin-top: -3.4rem;
+}
+
+.fz-kicker {
+  max-width: 7rem;
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fz-h1 {
+  margin: 0;
+  font-size: clamp(3.1rem, 17.2vw, 16rem);
+  font-weight: 800;
+  font-variation-settings: "wdth" 75;
+  line-height: 0.84;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.fz-h1__l {
+  position: relative;
+  display: block;
+  width: fit-content;
+}
+
+.fz-datestamp {
+  --r: -9deg;
+  position: absolute;
+  left: calc(100% + 0.6rem);
+  top: 0.1em;
+  display: grid;
+  justify-items: center;
+  padding: 0.3em 0.5em 0.35em;
+  border: 3px solid currentColor;
+  border-radius: 6px;
+  outline: 1.5px solid currentColor;
+  outline-offset: -7px;
+  color: var(--pink);
+  font-size: 1rem;
+  font-variation-settings: normal;
+  letter-spacing: 0;
+  line-height: 1;
+  white-space: nowrap;
+  transform: rotate(var(--r));
+  mask: var(--noise-stamp) 30px 70px / 160px 160px;
+  -webkit-mask: var(--noise-stamp) 30px 70px / 160px 160px;
+  pointer-events: none;
+}
+.fz-datestamp__big {
+  font-size: 1.6rem;
+  font-weight: 800;
+  font-variation-settings: "wdth" 75;
+  line-height: 0.95;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.fz-datestamp__small {
+  font: 0.68rem/1.2 var(--fz-mono), "Courier New", monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fz[data-boot="run"] .fz-datestamp {
+  animation: fz-thunk 260ms cubic-bezier(0.2, 0.8, 0.3, 1.2) 1180ms both;
+}
+
+.fz-statement {
+  max-width: 21ch;
+  margin: 22px 0 0;
+  font-size: 1.45rem;
+  font-weight: 560;
+  font-variation-settings: "wdth" 88;
+  line-height: 1.12;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+/* pink plate lays a 25% halftone tint behind the punchline */
+.fz-plate--p .fz-hl {
+  background: radial-gradient(circle, var(--pink) 0 1.25px, transparent 1.7px) 0 0 / 4px 4px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.fz-hl {
+  padding: 0 0.12em;
+  margin: 0 -0.12em;
+}
+
+.fz-lines {
+  margin-top: 30px;
+  padding: 12px 12px 14px;
+  background: #fff; /* knockout panel */
+  border: 1.5px solid currentColor;
+  max-width: 34rem;
+}
+.fz-lines__h {
+  margin: 0 0 8px;
+  font-size: 1.9rem;
+  font-weight: 800;
+  font-variation-settings: "wdth" 75;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.fz-lines__ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 1rem;
+  line-height: 1.25;
+  font-variation-settings: "wdth" 92;
+}
+.fz-lines__ul > * {
+  position: relative;
+  padding-left: 22px;
+}
+.fz-lines__ul > *::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.fz-plate--p .fz-lines__ul > *::before {
+  background: var(--pink);
+}
+.fz-lines__ul b {
+  font-weight: 750;
+}
+
+.fz-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin: 28px 0 0;
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+.fz-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.2em;
+  overflow-wrap: anywhere;
+}
+/* pink plate prints a fat highlighter stroke under each link */
+.fz-plate--p .fz-link {
+  text-decoration-color: var(--pink);
+  text-decoration-thickness: 0.42em;
+  text-underline-offset: -0.08em;
+  text-decoration-skip-ink: none;
+}
+.fz-plate--b a.fz-link:hover {
+  text-decoration-thickness: 3px;
+}
+
+.fz-colophon {
+  max-width: 54ch;
+  margin: 30px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.fz-secret {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+.fz-secret[aria-pressed="true"] {
+  text-decoration-style: solid;
+}
+
+/* registration marks — print furniture that turns out to be a button */
+.fz-reg {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  width: 44px;
+  height: 44px;
+  padding: 9px;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+.fz-reg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.fz-plate--b .fz-reg {
+  cursor: pointer;
+  transition: rotate 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.fz-plate--b .fz-reg:hover {
+  rotate: 45deg;
+}
+.fz-reg--tl {
+  top: 2px;
+  left: 2px;
+}
+.fz-reg--br {
+  right: 2px;
+  bottom: 14px;
+}
+
+/* -------------------------------------------------------------- stamps -- */
+
+.fz-stamps {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.fz-stamp {
+  position: absolute;
+  translate: -50% -50%;
+  transform: rotate(var(--r));
+  padding: 0.32em 0.6em 0.26em;
+  border: 3px solid currentColor;
+  border-radius: 6px;
+  outline: 1.5px solid currentColor;
+  outline-offset: -7px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-variation-settings: "wdth" 75;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.9;
+  mask: var(--noise-stamp) var(--mp) / 160px 160px;
+  -webkit-mask: var(--noise-stamp) var(--mp) / 160px 160px;
+  animation: fz-thunk 200ms cubic-bezier(0.2, 0.8, 0.3, 1.25) both;
+}
+.fz-stamp--p {
+  color: var(--pink);
+}
+.fz-stamp--b {
+  color: var(--blue);
+}
+
+@keyframes fz-thunk {
+  from {
+    opacity: 0;
+    transform: rotate(var(--r)) scale(1.7);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(var(--r)) scale(0.94);
+  }
+  to {
+    transform: rotate(var(--r)) scale(1);
+  }
+}
+
+.fz-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: var(--noise-grain) 0 0 / 180px 180px;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fz-hero,
+  .fz-sheet {
+    cursor: var(--cursor-stamp) 16 29, crosshair;
+  }
+  .fz a,
+  .fz button {
+    cursor: pointer;
+  }
+}
+
+/* ----------------------------------------------------------------- jam -- */
+
+.fz-press[data-jam] .fz-hero {
+  animation: fz-jam 520ms cubic-bezier(0.3, 0.6, 0.4, 1) both;
+}
+.fz-press[data-jam] .fz-plate--p {
+  transform: translate(16px, 10px) rotate(1.1deg);
+}
+
+@keyframes fz-jam {
+  20% {
+    transform: translate(0, -6px) rotate(0.8deg);
+  }
+  40% {
+    transform: translate(-3px, 4px) rotate(-1.4deg);
+  }
+  to {
+    transform: translate(0, -14px) rotate(-2.2deg) skewX(-1deg);
+  }
+}
+
+.fz-jam {
+  position: fixed;
+  z-index: 30;
+  left: var(--gut);
+  right: var(--gut);
+  bottom: max(16px, env(safe-area-inset-bottom));
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 16px 16px 18px;
+  background: var(--paper);
+  border: 2px solid var(--blue);
+  box-shadow: 6px 6px 0 var(--pink);
+  color: var(--blue);
+  font-size: 13px;
+  line-height: 1.45;
+  animation: fz-slip 260ms ease-out both;
+}
+.fz-jam__t {
+  margin: 0 0 4px;
+  font: 800 2rem/1 var(--fz-display), sans-serif;
+  font-variation-settings: "wdth" 75;
+  text-transform: uppercase;
+}
+.fz-jam__d {
+  margin: 0 0 14px;
+}
+.fz-jam__b {
+  padding: 0.65em 1em;
+  border: 0;
+  background: var(--blue);
+  color: var(--paper);
+  font: 700 1rem/1 var(--fz-display), sans-serif;
+  transition: box-shadow 0.15s;
+}
+.fz-jam__b:hover {
+  box-shadow: 3px 3px 0 var(--pink);
+}
+@keyframes fz-slip {
+  from {
+    opacity: 0;
+    transform: translateY(24px) rotate(-1deg);
+  }
+}
+
+/* ------------------------------------------- the stack (next sheets) -- */
+
+.fz-stack {
+  position: relative;
+  z-index: 1;
+}
+
+.fz-sheet {
+  --sheet: var(--paper);
+  position: relative;
+  width: 106%;
+  margin: -12px 0 0 -3%;
+  padding: 34px calc(3% + var(--gut)) 46px;
+  background: var(--sheet);
+  color: var(--blue);
+}
+.fz-sheet--torn {
+  --sheet: #f9dce6;
+  rotate: -0.8deg;
+  margin-top: 0;
+}
+.fz-sheet--zigzag {
+  --sheet: #dfe6ec;
+  rotate: 0.6deg;
+}
+.fz-sheet--perf {
+  --sheet: #ece2c6;
+  rotate: -0.4deg;
+}
+.fz-sheet--pad {
+  --sheet: #f7f5f0;
+  rotate: 0.3deg;
+  padding-bottom: 96px;
+}
+
+.fz-sheet__in {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+.fz-sheet__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fz-sheet__h {
+  margin: 0;
+  font-size: clamp(3rem, 16vw, 9rem);
+  font-weight: 800;
+  font-variation-settings: "wdth" 75;
+  line-height: 0.86;
+  text-transform: uppercase;
+}
+.fz-sheet__p {
+  max-width: 40ch;
+  margin: 12px 0 0;
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+/* cut 1: hand-torn (SVG, white fibres poke out past the printed surface) */
+.fz-torn {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% - 1px);
+  display: block;
+  width: 100%;
+  height: 30px;
+}
+.fz-torn__fiber {
+  fill: #fffdf8;
+}
+.fz-torn__paper {
+  fill: var(--sheet);
+}
+
+/* cut 2: pinking shears */
+.fz-sheet--zigzag::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% - 1px);
+  height: 9px;
+  background: var(--sheet);
+  mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% / 18px 100%;
+  -webkit-mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% / 18px 100%;
+}
+
+/* cut 3: perforated — straight edge, a line of punched holes under it */
+.fz-sheet--perf::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12px;
+  height: 6px;
+  background: radial-gradient(circle, rgb(40 30 10 / 0.28) 2px, transparent 2.6px) 0 50% / 12px 6px repeat-x;
+}
+
+/* cut 4: ripped off a spiral notepad */
+.fz-sheet--pad::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% - 1px);
+  height: 10px;
+  background: var(--sheet);
+  mask: radial-gradient(circle 5.5px at 50% 0, #0000 95%, #000) 50% 0 / 22px 100%;
+  -webkit-mask: radial-gradient(circle 5.5px at 50% 0, #0000 95%, #000) 50% 0 / 22px 100%;
+}
+
+/* ------------------------------------------------------------- desktop -- */
+
+@media (min-width: 960px) {
+  .fz {
+    --gut: 48px;
+  }
+  .fz-plate {
+    padding: 60px var(--gut) 88px;
+  }
+  .fz-plate--y {
+    padding: 0;
+  }
+  .fz-cover {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+    grid-template-areas:
+      "mast    mast"
+      "name    photo"
+      "stmt    lines"
+      "contact lines"
+      "colo    lines";
+    column-gap: 5vw;
+    align-items: start;
+  }
+  .fz-mast {
+    grid-area: mast;
+    font-size: 12.5px;
+  }
+  .fz-photo {
+    grid-area: photo;
+    width: 100%;
+    margin: 56px 0 0;
+    justify-self: end;
+    rotate: 2deg;
+  }
+  .fz-name {
+    grid-area: name;
+    align-self: end;
+    z-index: 1;
+    margin-top: 0;
+  }
+  .fz-kicker {
+    max-width: none;
+    font-size: 13px;
+  }
+  .fz-h1 {
+    font-size: min(12.4vw, 15rem);
+  }
+  .fz-datestamp {
+    left: calc(100% + 1.2rem);
+    top: 0.18em;
+    font-size: 1.35rem;
+  }
+  .fz-statement {
+    grid-area: stmt;
+    margin-top: 34px;
+    font-size: clamp(1.8rem, 2.6vw, 2.6rem);
+  }
+  .fz-lines {
+    grid-area: lines;
+    margin-top: 40px;
+  }
+  .fz-contact {
+    grid-area: contact;
+    font-size: 1.25rem;
+  }
+  .fz-colophon {
+    grid-area: colo;
+  }
+  .fz-sun--p {
+    width: min(54vw, 820px);
+    top: 1vw;
+    right: -6vw;
+  }
+  .fz-sun--b {
+    width: 15vw;
+    top: 1.5vw;
+    left: 34vw;
+  }
+  .fz-sun--y {
+    width: 34vw;
+    top: 22vw;
+    right: 20vw;
+  }
+  .fz-stamp {
+    font-size: 1.7rem;
+  }
+  .fz-reg--tl {
+    top: 8px;
+    left: 8px;
+  }
+  .fz-reg--br {
+    right: 8px;
+    bottom: 20px;
+  }
+  .fz-sheet {
+    padding-top: 48px;
+    padding-bottom: 64px;
+  }
+  .fz-sheet--pad {
+    padding-bottom: 120px;
+  }
+}
+
+/* ------------------------------------------------------ reduced motion -- */
+/* No drum, no wobble, no thunk: the two inks simply arrive, one after the
+   other, already misregistered. Same print, held still. */
+
+@media (prefers-reduced-motion: reduce) {
+  .fz[data-boot="run"] .fz-plate--p {
+    animation: fz-fade 420ms ease-out both;
+  }
+  .fz[data-boot="run"] .fz-plate--b {
+    animation: fz-fade 420ms ease-out 280ms both;
+  }
+  .fz[data-boot="run"] .fz-drum,
+  .fz[data-boot="run"] .fz-feed {
+    display: none;
+  }
+  .fz[data-boot="run"] .fz-datestamp {
+    animation: fz-fade 300ms ease-out 700ms both;
+  }
+  .fz-stamp {
+    animation: fz-fade 140ms ease-out both;
+  }
+  .fz-plate--p,
+  .fz-plate--b .fz-reg {
+    transition: none;
+  }
+  .fz-plate--y {
+    animation: fz-fade 400ms ease-out both;
+  }
+  .fz-press[data-jam] .fz-hero {
+    animation: none;
+    transform: rotate(-1.2deg);
+  }
+  .fz-jam {
+    animation: none;
+  }
+}
