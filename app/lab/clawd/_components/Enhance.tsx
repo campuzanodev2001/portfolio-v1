@@ -89,7 +89,7 @@ export function Enhance() {
       for (const { el, steps } of scrubs) {
         const r = el.getBoundingClientRect();
         if (r.bottom < -vh || r.top > 2 * vh) continue;
-        const line = Number(el.dataset.scrub || 0.5) * vh;
+        const line = (Number(el.dataset.scrub) || 0.5) * vh;
         // data-span: recorrido en fracciones del viewport (si no, el alto propio).
         const span = el.dataset.span ? Number(el.dataset.span) * vh : r.height;
         const raw = "pin" in el.dataset ? -r.top / Math.max(1, r.height - vh) : (line - r.top) / span;

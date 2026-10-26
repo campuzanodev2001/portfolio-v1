@@ -546,45 +546,6 @@ html:has(.cl) {
   translate: 0 14px;
 }
 
-/* ---------------------------------------------------------------- hobbies */
-
-.cl-hobbies {
-  display: grid;
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.cl-hobby figure {
-  margin: 0;
-}
-.cl-photo {
-  position: relative;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 4 / 3;
-  border: 1px dashed var(--line);
-  border-radius: 16px;
-  background:
-    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.02) 0 10px, transparent 10px 20px),
-    var(--stage);
-  overflow: hidden;
-}
-.clw.cl-photo__clawd {
-  position: absolute;
-  right: 12px;
-  bottom: 8px;
-  width: 112px;
-}
-.cl-hobby figcaption {
-  margin-top: 12px;
-  color: var(--muted);
-}
-.cl-hobby strong {
-  color: var(--text);
-  font-weight: 600;
-}
-
 /* ---------------------------------------------------------------- notas */
 
 .cl-notes {
@@ -775,9 +736,6 @@ html:has(.cl) {
   }
   .cl-sec__clawd {
     width: 128px;
-  }
-  .cl-hobbies {
-    grid-template-columns: 1fr 1fr;
   }
   .cl-notes {
     grid-template-columns: 1fr 1fr;

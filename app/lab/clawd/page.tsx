@@ -2,7 +2,7 @@ import { About } from "./_components/About";
 import { ClawdStage } from "./_components/ClawdStage";
 import { AGENCY, LINKS, MAIL, NAV, NOTES } from "./_components/data";
 import { Enhance } from "./_components/Enhance";
-import { Pixel } from "./_components/Pixel";
+import { Hobbies } from "./_components/Hobbies";
 import { Projects } from "./_components/Projects";
 import { SectionHead } from "./_components/SectionHead";
 
@@ -83,36 +83,7 @@ export default function ClawdPage() {
           </div>
         </section>
 
-        {/* ------------------------------------------------------------ hobbies */}
-        <section className="cl-sec" id="hobbies" aria-labelledby="hobbies-t">
-          <SectionHead id="hobbies" title="Fuera del código" prompt="¿y fuera del código?" pose="idle" />
-          <p className="cl-intro">Lo que hago cuando no estoy programando.</p>
-          <ul className="cl-hobbies">
-            <li className="cl-hobby">
-              <figure>
-                <div className="cl-photo" role="img" aria-label="Daniel Campuzano pasando música en una consola de DJ">
-                  <span className="cl-pending">pendiente: foto DJ</span>
-                  <Pixel pose="dj" className="cl-photo__clawd" />
-                </div>
-                <figcaption>
-                  <strong>DJ.</strong> Armar un set tiene algo parecido a programar: leer qué está pasando y decidir
-                  qué viene después.
-                </figcaption>
-              </figure>
-            </li>
-            <li className="cl-hobby">
-              <figure>
-                <div className="cl-photo" role="img" aria-label="Daniel Campuzano jugando al vóley">
-                  <span className="cl-pending">pendiente: foto vóley</span>
-                  <Pixel pose="volley" className="cl-photo__clawd" />
-                </div>
-                <figcaption>
-                  <strong>Vóley.</strong> Es de los pocos lugares donde no pienso en código.
-                </figcaption>
-              </figure>
-            </li>
-          </ul>
-        </section>
+        <Hobbies />
 
         {/* ------------------------------------------------------------ notas */}
         <section className="cl-sec" id="notas" aria-labelledby="notas-t">
