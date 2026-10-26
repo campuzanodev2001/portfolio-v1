@@ -1,0 +1,329 @@
+/* ==========================================================================
+   Notas — la imprenta. Platina crema, renglones en tinta floja (tramado) que
+   se imprimen de a píxel, palanca de la prensa y la marca del corrector.
+   ========================================================================== */
+
+.np {
+  --paper: #efe7d8;
+  --loose: #7d7568;
+  --bulb: #ffd98a;
+}
+
+/* ---------------------------------------------------------------- entrada */
+
+.np-press {
+  position: relative;
+  container-type: inline-size;
+}
+/* La platina: la barra en la que se aplanó el disco. Baja, aprieta y se va. */
+.np-platen {
+  display: none;
+}
+.cl[data-js] .np-platen {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  z-index: 1;
+  display: block;
+  width: min(66vw, 420px);
+  height: 12px;
+  background: var(--paper);
+  translate: calc(50cqw - 50%) 0;
+  pointer-events: none;
+}
+.cl[data-js] .np-press[data-in] .np-platen {
+  animation: np-platen 1.5s cubic-bezier(0.6, 0, 0.3, 1) both;
+}
+@keyframes np-platen {
+  40% {
+    translate: 0 26px;
+    scale: 1.15 1;
+  }
+  48%,
+  58% {
+    translate: 0 40px; /* apretado contra el título */
+    scale: 1.15 0.6;
+  }
+  100% {
+    translate: 0 -10px;
+    scale: 1.15 1;
+    opacity: 0;
+  }
+}
+.cl[data-js] .np-press:not([data-in]) .cl-sec__title {
+  opacity: 0;
+}
+.cl[data-js] .np-press[data-in] .cl-sec__title {
+  animation: np-stamp 0.6s 0.72s steps(4) both;
+}
+@keyframes np-stamp {
+  from {
+    opacity: 0;
+    text-shadow: 0 0 0 transparent;
+  }
+  25% {
+    opacity: 1;
+    text-shadow: 2px 2px 0 rgb(239 231 216 / 0.25);
+  }
+}
+
+/* ---------------------------------------------------------------- renglones */
+
+.np-body {
+  display: grid;
+  grid-template-columns: 1fr 64px;
+  gap: 8px;
+}
+.np-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.np-note {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  padding: 24px 0 28px;
+  border-top: 1px dashed var(--line);
+}
+.np-note > :not(.np-n) {
+  grid-column: 2;
+}
+.np-n {
+  grid-row: span 3;
+  padding-top: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--faint);
+}
+
+.np-title {
+  display: grid;
+  margin: 0;
+  font-size: clamp(1.35rem, 5.6vw, 2.1rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+.np-title a {
+  display: grid;
+  text-decoration: none;
+}
+.np-ghost,
+.np-ink {
+  grid-area: 1 / 1;
+}
+/* Tinta floja: el mismo texto con una trama de 2×2. */
+.np-ghost {
+  color: transparent;
+  background: repeating-conic-gradient(var(--loose) 0 25%, transparent 0 50%) 0 0 / 2px 2px;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.np-ink {
+  color: var(--text);
+}
+.cl[data-js] .np-ink {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.9s steps(16);
+}
+.cl[data-js] .np-note[data-on] .np-ink {
+  clip-path: inset(0 0 0 0);
+}
+
+.np-text {
+  max-width: 54ch;
+  margin: 10px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+}
+.cl[data-js] .np-text {
+  opacity: 0.4;
+  transition: opacity 0.6s 0.7s;
+}
+.cl[data-js] .np-note[data-on] .np-text {
+  opacity: 1;
+}
+
+/* La marca del corrector, en el margen, un poco torcida. */
+.np-mark {
+  justify-self: start;
+  margin-top: 14px;
+  padding: 2px 7px;
+  border: 1.5px solid var(--coral);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--coral);
+  rotate: -3deg;
+}
+.np-mark--out {
+  border-color: #8db872;
+  color: #8db872;
+}
+.cl[data-js] .np-mark {
+  opacity: 0;
+  scale: 1.5;
+  transition:
+    opacity 0.2s 0.95s,
+    scale 0.35s 0.95s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.cl[data-js] .np-note[data-on] .np-mark {
+  opacity: 1;
+  scale: 1;
+}
+
+/* ---------------------------------------------------------------- la prensa */
+
+.np-rig {
+  position: sticky;
+  top: 42svh;
+  align-self: start;
+  padding-top: 24px;
+}
+.np-machine {
+  position: relative;
+}
+.np-lever {
+  position: absolute;
+  right: 22%; /* al alcance del brazo derecho de Clawd */
+  bottom: 12%;
+  width: 4px;
+  height: 62%;
+  background: #8a8170;
+  box-shadow: 0 -5px 0 0 var(--coral);
+  transform-origin: bottom center;
+  rotate: -18deg;
+}
+.np-lever::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: -5px;
+  width: 14px;
+  height: 8px;
+  background: #3a352e;
+}
+/* Cada renglón nuevo reinicia el tirón (dos nombres que se alternan). */
+.np-body[data-at="0"] .np-lever,
+.np-body[data-at="2"] .np-lever {
+  animation: np-pull-a 0.7s cubic-bezier(0.3, 0, 0.3, 1);
+}
+.np-body[data-at="1"] .np-lever,
+.np-body[data-at="3"] .np-lever {
+  animation: np-pull-b 0.7s cubic-bezier(0.3, 0, 0.3, 1);
+}
+@keyframes np-pull-a {
+  40% {
+    rotate: 40deg;
+  }
+}
+@keyframes np-pull-b {
+  40% {
+    rotate: 40deg;
+  }
+}
+.np-body[data-at="0"] .np-clawd,
+.np-body[data-at="2"] .np-clawd {
+  animation: np-tug-a 0.7s steps(3);
+}
+.np-body[data-at="1"] .np-clawd,
+.np-body[data-at="3"] .np-clawd {
+  animation: np-tug-b 0.7s steps(3);
+}
+@keyframes np-tug-a {
+  40% {
+    translate: 3px 2px;
+  }
+}
+@keyframes np-tug-b {
+  40% {
+    translate: 3px 2px;
+  }
+}
+
+/* ---------------------------------------------------------------- salida */
+
+.np-exit {
+  position: relative;
+  container-type: inline-size;
+  height: 132px;
+  margin-top: 32px;
+}
+/* El cable de la lámpara: se suelta apenas Clawd arranca. */
+.np-cord {
+  position: absolute;
+  top: 0;
+  left: 78px; /* sobre la lamparita (x 21–24 de 32) */
+  width: 2px;
+  height: 72px;
+  background: #57503f;
+  transform-origin: top;
+  scale: 1 calc(1 - clamp(0, var(--p, 1) * 5, 1));
+}
+.np-carrier {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 112px;
+  translate: calc(var(--p, 1) * (100cqw - 112px)) 0;
+}
+/* Cuando Clawd agarra la lámpara, deja la prensa: no hay dos Clawd a la vez. */
+.np-go {
+  position: absolute;
+  top: 0;
+}
+.np-rig {
+  transition: opacity 0.3s;
+}
+.np:has(.np-exit[data-at="0"]) .np-rig {
+  opacity: 0;
+}
+/* La luz que lleva: un halo cálido sobre la lamparita. */
+.np-carrier::before {
+  content: "";
+  position: absolute;
+  top: -60px;
+  left: calc(70% - 80px);
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 217 138 / 0.22), transparent 65%);
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .np-body {
+    grid-template-columns: 1fr 200px;
+    gap: 64px;
+  }
+  .np-note {
+    grid-template-columns: 56px 1fr;
+  }
+  .np-rig {
+    top: 36svh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cl[data-js] .np-ink {
+    clip-path: none;
+  }
+  .cl[data-js] .np-text,
+  .cl[data-js] .np-mark {
+    opacity: 1;
+    scale: 1;
+  }
+  .cl[data-js] .np-press .cl-sec__title {
+    opacity: 1;
+  }
+  .np-platen {
+    display: none !important;
+  }
+  .np-cord {
+    scale: 1 0;
+  }
+  .np-carrier {
+    translate: calc(100cqw - 112px) 0;
+  }
+}

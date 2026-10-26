@@ -546,48 +546,6 @@ html:has(.cl) {
   translate: 0 14px;
 }
 
-/* ---------------------------------------------------------------- notas */
-
-.cl-notes {
-  display: grid;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.cl-notes li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 16px;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--line);
-}
-.cl-notes__n {
-  grid-row: span 3;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--coral);
-  padding-top: 4px;
-}
-.cl-notes h3 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-.cl-notes p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-.cl-notes__soon {
-  justify-self: start;
-  margin-top: 6px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--faint);
-}
-
 /* ---------------------------------------------------------------- contacto + footer */
 
 .cl-contact .cl-big {
@@ -736,10 +694,6 @@ html:has(.cl) {
   }
   .cl-sec__clawd {
     width: 128px;
-  }
-  .cl-notes {
-    grid-template-columns: 1fr 1fr;
-    column-gap: 40px;
   }
   .cl-foot {
     padding: 40px;

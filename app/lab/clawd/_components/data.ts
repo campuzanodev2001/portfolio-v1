@@ -206,7 +206,9 @@ export const PROJECTS: Project[] = [
   },
 ];
 
-export const NOTES = [
+/** Notas del blog. Cuando una se publique, sumarle date y href: la marca de
+    prueba pasa a ser un sello con la fecha y el título, un link. */
+export const NOTES: { title: string; text: string; date?: string; href?: string }[] = [
   {
     title: "El estado vive en disco, no en el modelo",
     text: "Por qué un sistema de agentes tiene que poder retomar desde cero, sin contexto, y cómo lo armo.",

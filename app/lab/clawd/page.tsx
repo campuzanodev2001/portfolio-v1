@@ -1,8 +1,9 @@
 import { About } from "./_components/About";
 import { ClawdStage } from "./_components/ClawdStage";
-import { AGENCY, LINKS, MAIL, NAV, NOTES } from "./_components/data";
+import { AGENCY, LINKS, MAIL, NAV } from "./_components/data";
 import { Enhance } from "./_components/Enhance";
 import { Hobbies } from "./_components/Hobbies";
+import { Notes } from "./_components/Notes";
 import { Projects } from "./_components/Projects";
 import { SectionHead } from "./_components/SectionHead";
 
@@ -85,24 +86,7 @@ export default function ClawdPage() {
 
         <Hobbies />
 
-        {/* ------------------------------------------------------------ notas */}
-        <section className="cl-sec" id="notas" aria-labelledby="notas-t">
-          <SectionHead id="notas" title="Notas" prompt="¿qué estás escribiendo?" pose="write" />
-          <p className="cl-intro">
-            Lo que voy aprendiendo sobre desarrollo con agentes, escrito para ordenar las ideas. Todavía no hay notas
-            publicadas; estas son las primeras que tengo en mente.
-          </p>
-          <ol className="cl-notes">
-            {NOTES.map((n, i) => (
-              <li key={n.title} data-reveal style={{ "--i": i } as React.CSSProperties}>
-                <span className="cl-notes__n">{String(i + 1).padStart(2, "0")}</span>
-                <h3>{n.title}</h3>
-                <p>{n.text}</p>
-                <span className="cl-notes__soon">Próximamente</span>
-              </li>
-            ))}
-          </ol>
-        </section>
+        <Notes />
 
         {/* ------------------------------------------------------------ contacto */}
         <section className="cl-sec cl-contact" id="contacto" aria-labelledby="contacto-t">
