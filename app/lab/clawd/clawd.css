@@ -546,32 +546,6 @@ html:has(.cl) {
   translate: 0 14px;
 }
 
-/* ---------------------------------------------------------------- contacto + footer */
-
-.cl-contact .cl-big {
-  max-width: 28ch;
-}
-.cl-contact .cl-links {
-  flex-wrap: wrap;
-  margin-top: 24px;
-}
-.cl-foot {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 16px 48px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-.cl-foot p {
-  margin: 0 0 6px;
-}
-.cl-foot__small {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--faint);
-}
-
 /* ---------------------------------------------------------------- Clawd chico */
 
 .clw {
@@ -694,9 +668,6 @@ html:has(.cl) {
   }
   .cl-sec__clawd {
     width: 128px;
-  }
-  .cl-foot {
-    padding: 40px;
   }
 }
 

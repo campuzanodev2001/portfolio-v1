@@ -100,7 +100,12 @@ export function Enhance() {
           if (on !== s.hasAttribute("data-on")) s.toggleAttribute("data-on", on);
           if (on) at = i;
         });
-        if (el.dataset.at !== String(at)) el.dataset.at = String(at);
+        // data-prev: el estado anterior, para transiciones que dependen del
+        // sentido (p. ej. Clawd se despierta al volver a subir).
+        if (el.dataset.at !== String(at)) {
+          if (el.dataset.at !== undefined) el.dataset.prev = el.dataset.at;
+          el.dataset.at = String(at);
+        }
       }
     };
     const onScroll = () => {

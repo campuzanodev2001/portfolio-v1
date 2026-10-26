@@ -105,3 +105,19 @@ Copy: **"Criterio"** (`docs/portfolio-v3/copy/04-criterio.md`). Datos en `_compo
 **Easter eggs**: tocar cualquier Clawd → saltito + corazón · escribir `clawd` → todos festejan · mensaje en consola · "Copiar mail".
 
 **Pendiente de Daniel**: Inbox Radar, estado del pipeline laboral, qué hace la IA en leads, fotos de DJ y vóley, confirmar Barcelona.
+
+## Secciones v2: un estilo por sección, una sola historia
+
+Cada sección tiene entrada, scroll y salida, y la salida de una es la entrada de la siguiente. Clawd las recorre todas.
+
+| Sección | Estilo | Entrada | Scroll | Salida → |
+|---|---|---|---|---|
+| Sobre mí | `git log --reverse` | el piso del hero se pone de pie: riel con marcas cada 8 px | Clawd baja sticky por el riel; cada commit que pasa se asienta (capucha en el de Kali, C→JS en Lenguajes); valores como `git config`, TODOs | la rama `campuzano.studio` dobla en horizontal… |
+| Proyectos | las vías | …y se vuelve la vía: se tienden los durmientes | estaciones con swipe; la aguja es la decisión de Daniel; recién ahí entra el vagón y descarga la carga de la IA | la vía se vuelve la onda de un track… |
+| Fuera del código | Lado B | …que entra al disco | pineado: el vinilo sale y gira, el sobre se da vuelta (DJ → vóley) | el sobre se aplana en una barra crema… |
+| Notas | la imprenta | …que es la platina: baja y estampa el título | cada renglón se imprime de a píxel; Clawd tira de la palanca | Clawd descuelga la lámpara… |
+| Contacto + footer | apagá las luces | …y entra con ella a la sala que se oscurece | baja por el cable (el riel de Sobre mí, eléctrico) y prende cada fila; cuelga la lámpara sobre el CTA | la pantalla se apaga como un CRT y Clawd se duerme sobre el punto; si subís, se despierta |
+
+**Motor común (`Enhance.tsx`).** `[data-scrub]` recibe `--p` (0→1) con un solo rAF por scroll: según la línea de lectura (`data-scrub` = fracción del viewport, `data-span` para un recorrido fijo) o el recorrido pineado (`data-pin`). Sus `[data-step]` que cruzaron la línea quedan con `data-on`; el último cruzado es `data-at` y el anterior `data-prev`. Mientras se scrollea, `data-scrolling` hace caminar a los Clawd `.is-walker`. Todo lo demás es CSS.
+
+**Reduced motion.** Sin pineados ni viajes: el riel ya recorrido, las vías tendidas y descargadas, los dos lados del disco uno al lado del otro, las notas impresas y la pantalla prendida con Clawd dormido.

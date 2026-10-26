@@ -1,6 +1,7 @@
 import { About } from "./_components/About";
 import { ClawdStage } from "./_components/ClawdStage";
-import { AGENCY, LINKS, MAIL, NAV } from "./_components/data";
+import { Contact, Footer } from "./_components/Contact";
+import { MAIL, NAV } from "./_components/data";
 import { Enhance } from "./_components/Enhance";
 import { Hobbies } from "./_components/Hobbies";
 import { Notes } from "./_components/Notes";
@@ -88,49 +89,9 @@ export default function ClawdPage() {
 
         <Notes />
 
-        {/* ------------------------------------------------------------ contacto */}
-        <section className="cl-sec cl-contact" id="contacto" aria-labelledby="contacto-t">
-          <SectionHead id="contacto" title="Hablemos" prompt="pasales mi mail" pose="mail" />
-          <p className="cl-big">
-            Si estás construyendo algo con IA y necesitás a alguien que piense la estructura además de escribir el
-            código, escribime.
-          </p>
-          <div className="cl-actions">
-            <a className="cl-cta" href={`mailto:${MAIL}`}>
-              Contactame
-              <span className="cl-cta__arrow" aria-hidden="true">
-                →
-              </span>
-            </a>
-            <button type="button" className="cl-ghost" data-copy={MAIL}>
-              <span data-copy-label>Copiar mail</span>
-            </button>
-          </div>
-          <ul className="cl-links">
-            <li>
-              <a href={`mailto:${MAIL}`}>{MAIL}</a>
-            </li>
-            {LINKS.map((l) => (
-              <li key={l.label}>
-                <a href={l.href} target="_blank" rel="noreferrer">
-                  {l.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <Contact />
       </main>
-
-      <footer className="cl-foot">
-        <p>Diseñado y construido por Daniel Campuzano, con agentes de IA y bastante criterio.</p>
-        <p className="cl-foot__small">
-          © 2026 Daniel Campuzano · Barcelona · También en{" "}
-          <a href={AGENCY} target="_blank" rel="noreferrer">
-            campuzano.studio
-          </a>
-        </p>
-        <p className="cl-foot__small">Clawd es un homenaje de fan a la mascota de Claude Code.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

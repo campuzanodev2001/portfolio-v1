@@ -5,6 +5,7 @@ import "./_components/about.css";
 import "./_components/projects.css";
 import "./_components/hobbies.css";
 import "./_components/notes.css";
+import "./_components/contact.css";
 
 // Display + texto: Space Grotesk variable (un archivo). Geométrica, técnica,
 // con carácter en la "a" y la "g" sin volverse caprichosa.
