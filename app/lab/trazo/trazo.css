@@ -1,0 +1,348 @@
+/* ─────────────────────────────────────────────────────────────
+   Trazo — una sola línea.
+   Mobile-first. Todo el movimiento es transform/opacity o el `d`
+   de un único path (JS). Prefijo tz- para no pisar otros labs.
+   ───────────────────────────────────────────────────────────── */
+
+.tz {
+  --tz-bg: #0e0e0c;
+  --tz-ink: #ece7da;
+  --tz-muted: #9a958a;
+  --tz-faint: #4a4741;
+  --tz-accent: #ff5a36;
+
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: var(--tz-bg);
+  color: var(--tz-ink);
+  font-family: var(--tz-mono), ui-monospace, monospace;
+  overflow-x: clip;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tz ::selection {
+  background: var(--tz-accent);
+  color: var(--tz-bg);
+}
+
+.tz-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── barra superior */
+.tz-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tz-muted);
+}
+.tz-top__link {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 2px;
+}
+.tz-top__link:hover {
+  color: var(--tz-ink);
+}
+
+/* ── hero */
+.tz-hero {
+  flex: 1;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding-block: 12px 8px;
+}
+
+/* ── la línea */
+.tz-fig {
+  margin: 0;
+  position: relative;
+  min-width: 0;
+}
+.tz-stage {
+  display: block;
+  width: calc(100% + 32px);
+  margin-inline: -16px; /* la línea toca los bordes de la pantalla */
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.tz-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.tz-line {
+  fill: none;
+  stroke: url(#tz-ink);
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  /* entrada: la birome dibuja el primer dibujo (CSS puro → funciona antes de hidratar) */
+  animation: tz-draw 2.4s cubic-bezier(0.55, 0.1, 0.25, 1) 0.15s backwards;
+}
+@keyframes tz-draw {
+  from {
+    stroke-dasharray: 0 1;
+  }
+  to {
+    stroke-dasharray: 1 0;
+  }
+}
+.tz-halo,
+.tz-tail {
+  fill: none;
+  stroke: var(--tz-accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.tz-halo {
+  stroke-width: 7px;
+  stroke-opacity: 0.16;
+}
+.tz-tail {
+  stroke-width: 1.75px;
+  stroke-opacity: 0.9;
+}
+.tz-pen__core {
+  fill: #fff4ec;
+}
+.tz-svg.is-proof .tz-line {
+  stroke: var(--tz-ink);
+}
+
+/* ── pie de foto */
+.tz-cap {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  row-gap: 2px;
+  min-height: 2.6rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--tz-muted);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease;
+}
+.tz-cap[data-state="out"] {
+  opacity: 0;
+  transform: translateY(3px);
+}
+.tz-cap__count {
+  grid-row: span 2;
+  color: var(--tz-faint);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.tz-cap__when {
+  letter-spacing: 0.04em;
+}
+.tz-cap__what {
+  font-family: var(--tz-serif), Georgia, serif;
+  font-style: italic;
+  font-size: 1.0625rem;
+  color: var(--tz-ink);
+}
+
+.tz-proof {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 4px 0 8px 8px;
+  border: 0;
+  background: none;
+  color: var(--tz-faint);
+  font: inherit;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: color 0.2s;
+}
+.tz-proof:hover,
+.tz-proof[aria-pressed="true"] {
+  color: var(--tz-accent);
+}
+
+/* ── texto */
+.tz-copy {
+  display: grid;
+  gap: 14px;
+  padding-top: 8px;
+}
+.tz-name {
+  margin: 0;
+  font-family: var(--tz-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(3.25rem, 17vw, 6rem);
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+}
+.tz-word {
+  display: block;
+}
+.tz-word--1 {
+  font-style: italic;
+}
+.tz-ch {
+  display: inline-block;
+  animation: tz-breathe 7s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.2s - 7s);
+}
+@keyframes tz-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-0.04em);
+    opacity: 0.74;
+  }
+}
+
+.tz-role {
+  margin: 0;
+  font-family: var(--tz-serif), Georgia, serif;
+  font-size: clamp(1.375rem, 5.6vw, 1.75rem);
+  line-height: 1.15;
+}
+.tz-role__sep {
+  color: var(--tz-accent);
+}
+.tz-role__ai {
+  color: var(--tz-muted);
+  font-style: italic;
+}
+
+.tz-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin-top: 6px;
+}
+.tz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--tz-ink);
+  color: var(--tz-bg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.tz-btn svg {
+  width: 20px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  transition: transform 0.25s ease;
+}
+.tz-btn:hover {
+  background: var(--tz-accent);
+  color: #160a06;
+}
+.tz-btn:hover svg {
+  transform: translateX(3px);
+}
+.tz-link {
+  color: var(--tz-muted);
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-decoration-color: var(--tz-faint);
+  text-underline-offset: 4px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 2px;
+}
+.tz-link:hover {
+  color: var(--tz-ink);
+  text-decoration-color: var(--tz-accent);
+}
+
+/* ── foco */
+.tz :focus-visible {
+  outline: 2px solid var(--tz-accent);
+  outline-offset: 4px;
+}
+.tz-stage:focus-visible {
+  outline-offset: -2px;
+}
+
+/* ── desktop: texto a la izquierda, la línea grande a la derecha */
+@media (min-width: 960px) {
+  .tz {
+    padding: 28px 40px;
+  }
+  .tz-hero {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: center;
+    column-gap: 48px;
+  }
+  .tz-copy {
+    grid-column: 1;
+    grid-row: 1;
+    padding-top: 0;
+  }
+  .tz-fig {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .tz-stage {
+    width: calc(100% + 40px);
+    margin-inline: 0 -40px;
+  }
+  .tz-name {
+    font-size: clamp(4.5rem, 7.4vw, 8rem);
+  }
+  .tz-cap {
+    padding-left: 4px;
+  }
+}
+
+/* ── movimiento reducido: un dibujo quieto (se cambia tocando) */
+@media (prefers-reduced-motion: reduce) {
+  .tz-line,
+  .tz-ch {
+    animation: none;
+  }
+  .tz-cap,
+  .tz-btn,
+  .tz-btn svg {
+    transition: none;
+  }
+  .tz-proof {
+    display: none;
+  }
+}

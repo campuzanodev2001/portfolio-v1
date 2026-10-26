@@ -1,0 +1,396 @@
+/* ==========================================================================
+   Sobre mí — git log --reverse. Un riel vertical con marcas cada 8 px (el piso
+   del hero, de pie), commits como nodos cuadrados y Clawd sticky sobre el riel.
+   ========================================================================== */
+
+.ab {
+  --rail: 40px; /* columna del riel; la línea va en su centro (x = 19–21) */
+  --read: 55svh; /* línea de lectura: = data-scrub="0.55" del grafo */
+  --git: #8db872;
+}
+
+.ab-body {
+  display: grid;
+  gap: 40px;
+}
+.ab-intro p:not(.cl-big) {
+  max-width: 60ch;
+  margin: 0;
+  color: var(--muted);
+}
+
+.ab-cmd {
+  margin: 0 0 20px;
+  padding-left: var(--rail);
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+.ab-cmd span {
+  color: var(--faint);
+}
+
+/* ---------------------------------------------------------------- el grafo */
+
+.ab-graph {
+  display: grid;
+  grid-template-columns: var(--rail) 1fr;
+}
+.ab-rail {
+  position: relative;
+}
+/* Riel: línea de 2 px con una marca cada 8 px, como el piso del canvas. */
+.ab-rail::before,
+.ab-rail::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 19px;
+  width: 2px;
+  transform-origin: top;
+}
+.ab-rail::before {
+  background: repeating-linear-gradient(to bottom, #3a352e 0 6px, #57503f 6px 8px);
+  transition: scale 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+/* Lo recorrido: coral hasta donde está Clawd. */
+.ab-rail::after {
+  background: var(--coral);
+  scale: 1 var(--p, 1);
+}
+.cl[data-js] .ab-graph:not([data-in]) .ab-rail::before {
+  scale: 1 0;
+}
+
+.ab-rider {
+  position: sticky;
+  top: calc(var(--read) - 25px);
+  z-index: 1;
+  width: 80px; /* el cuerpo ocupa 12/32: ~30 px, centrado sobre el riel */
+  margin-left: -20px;
+  pointer-events: none;
+}
+
+.ab-log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ab-commit {
+  position: relative;
+  padding-bottom: 32px;
+}
+/* Nodo: un píxel grande, hueco hasta que Clawd lo pasa. */
+.ab-commit::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: calc(-1 * var(--rail) + 15px);
+  width: 10px;
+  height: 10px;
+  box-sizing: border-box;
+  border: 2px solid #57503f;
+  background: var(--bg);
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    scale 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.ab-commit[data-on]::before {
+  border-color: var(--coral);
+  background: var(--coral);
+  scale: 1.2;
+}
+
+.ab-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ab-hash {
+  color: var(--faint);
+  transition: color 0.4s;
+}
+.ab-commit[data-on] .ab-hash {
+  color: var(--coral-hi);
+}
+.ab-type {
+  color: var(--coral);
+}
+.ab-when {
+  margin: 6px 0 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.ab-text {
+  max-width: 54ch;
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+  transition: color 0.5s;
+}
+.ab-commit[data-on] .ab-text {
+  color: var(--text);
+}
+
+.ab-head {
+  padding: 0 6px;
+  border: 1px solid var(--coral);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--coral-hi);
+}
+.ab-commit:last-child {
+  padding-bottom: 40px;
+}
+/* El HEAD late despacito: es donde está hoy. */
+.ab-commit:last-child[data-on]::before {
+  animation: ab-head 2.4s ease-in-out infinite;
+}
+@keyframes ab-head {
+  50% {
+    box-shadow: 0 0 0 5px rgb(217 119 87 / 0.18);
+  }
+}
+
+/* 15 años: barritas de wifi que se conectan cuando Clawd llega. */
+.ab-wifi {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 11px;
+}
+.ab-wifi i {
+  width: 3px;
+  background: var(--faint);
+}
+.ab-wifi i:nth-child(1) {
+  height: 4px;
+}
+.ab-wifi i:nth-child(2) {
+  height: 7px;
+}
+.ab-wifi i:nth-child(3) {
+  height: 11px;
+}
+.ab-commit[data-on] .ab-wifi i {
+  animation: ab-wifi 1.6s steps(1) both;
+  animation-delay: calc(var(--d) * 0.2s);
+}
+.ab-wifi i:nth-child(1) {
+  --d: 1;
+}
+.ab-wifi i:nth-child(2) {
+  --d: 2;
+}
+.ab-wifi i:nth-child(3) {
+  --d: 3;
+}
+@keyframes ab-wifi {
+  0% {
+    background: var(--faint);
+  }
+  10%,
+  30% {
+    background: var(--git);
+  }
+  20% {
+    background: var(--faint);
+  }
+  40%,
+  100% {
+    background: var(--git);
+  }
+}
+/* Mientras pasa por ese commit, Clawd se pone la capucha. */
+.ab .clw-hood {
+  opacity: 0;
+}
+.ab-graph[data-at="3"] .clw-hood {
+  opacity: 1;
+}
+
+/* Lenguajes: el mensaje se reescribe, de C a JS, de a un lenguaje por paso. */
+.ab-langs {
+  display: inline-block;
+  height: 1.5em;
+  overflow: hidden;
+  vertical-align: bottom;
+  color: var(--coral-hi);
+}
+.ab-langs__reel {
+  display: block;
+  translate: 0 -9em; /* sin JS: queda en JS */
+}
+.ab-langs__reel span {
+  display: block;
+  height: 1.5em;
+}
+.cl[data-js] .ab-commit:not([data-on]) .ab-langs__reel {
+  translate: 0 0;
+}
+.cl[data-js] .ab-commit[data-on] .ab-langs__reel {
+  animation: ab-reel 2.8s steps(6) 0.3s both;
+}
+@keyframes ab-reel {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 -9em;
+  }
+}
+
+/* ---------------------------------------------------------------- working tree */
+
+/* Lo que todavía no se commiteó: el riel sigue, punteado. */
+.ab-tree {
+  position: relative;
+}
+.ab-tree::before {
+  content: "";
+  position: absolute;
+  inset: -12px auto 0 19px;
+  width: 2px;
+  background: repeating-linear-gradient(to bottom, #57503f 0 4px, transparent 4px 10px);
+}
+
+.ab-config {
+  margin: 0 0 36px;
+  padding-left: var(--rail);
+}
+.ab-config > div {
+  margin-bottom: 20px;
+}
+.ab-config dt {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--faint);
+  overflow-wrap: anywhere;
+}
+.ab-key {
+  color: var(--text);
+}
+.ab-true {
+  color: var(--git);
+}
+.ab-config dd {
+  max-width: 54ch;
+  margin: 4px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.ab-todo {
+  margin: 0;
+  padding: 0 0 8px var(--rail);
+  list-style: none;
+}
+.ab-todo li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 15px;
+  color: var(--text);
+}
+.ab-todo__k {
+  flex: none;
+  padding: 0 5px;
+  border: 1px dashed var(--coral);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--coral-hi);
+}
+
+/* ---------------------------------------------------------------- la rama */
+
+.ab-branch {
+  position: relative;
+  container-type: inline-size;
+  padding: 72px 0 0 var(--rail);
+}
+/* Baja desde el riel, dobla en ángulo recto (es píxel) y corre hasta el borde. */
+.ab-branch__line {
+  position: absolute;
+  top: 0;
+  left: 19px;
+  right: -100vw; /* hasta el borde: .cl recorta el desborde */
+  height: 40px;
+  box-sizing: border-box;
+  border-left: 2px solid var(--coral);
+  border-bottom: 2px solid var(--coral);
+  clip-path: inset(0 calc((1 - var(--p, 1)) * 100%) 0 0);
+}
+.ab-walker {
+  position: absolute;
+  top: -10px; /* los pies (fila 19 de 20) sobre la línea */
+  left: 0;
+  width: 80px;
+  translate: calc(var(--p, 1) * (100cqw - 40px)) 0;
+}
+.ab-branch__link {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+}
+.ab-branch__cmd {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--coral-hi);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.2s;
+}
+.ab-branch__link:hover .ab-branch__cmd {
+  text-decoration-color: currentColor;
+}
+.ab-branch__d {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* ---------------------------------------------------------------- desktop */
+
+@media (min-width: 900px) {
+  .ab-body {
+    grid-template-columns: 5fr 7fr;
+    column-gap: 72px;
+  }
+  .ab-intro {
+    position: sticky;
+    top: 120px;
+    align-self: start;
+  }
+  .ab-line {
+    font-size: 14px;
+  }
+  .ab-text {
+    font-size: 16px;
+  }
+  .ab-branch {
+    margin-left: calc(5 / 12 * (100% - 72px) + 72px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ab-rail::after {
+    scale: 1 1;
+  }
+  .ab-branch__line {
+    clip-path: none;
+  }
+  .ab-walker {
+    translate: calc(100cqw - 40px) 0;
+  }
+}

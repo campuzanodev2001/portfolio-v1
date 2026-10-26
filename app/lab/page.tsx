@@ -10,6 +10,13 @@ const prototypes = [
   { slug: "maquina", name: "La Máquina", note: "Rube Goldberg · hero" },
   { slug: "reglas", name: "Las Reglas", note: "Puzzle de reglas · hero" },
   { slug: "cuaderno", name: "El Cuaderno", note: "Cuaderno del que te lo explica · hero" },
+  { slug: "ladrillo-b", name: "Que Entre (Ladrillo B)", note: "Kinetic × Neobrutalismo · página completa" },
+  { slug: "ladrillo-a", name: "A presión (Ladrillo A)", note: "Neobrutalismo × Kinetic · página completa" },
+  { slug: "clawd", name: "Clawd", note: "El bichito de Claude · página completa" },
+  { slug: "despiece", name: "Despiece", note: "Vista explotada: cómo funciona por dentro · loop" },
+  { slug: "penrose", name: "Penrose", note: "Escalera imposible · loop" },
+  { slug: "trazo", name: "Trazo", note: "Una sola línea cuenta la historia · loop" },
+  { slug: "tokens", name: "Tokens", note: "Prompt → interfaz → prompt · loop" },
 ];
 
 export default function LabIndex() {

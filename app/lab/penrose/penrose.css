@@ -1,0 +1,250 @@
+/* ==========================================================================
+   Penrose — hero. Noche índigo, piedra marfil, cuatro acentos (uno por
+   estación del circuito). Todo el movimiento grande vive en el canvas;
+   el CSS solo mueve el nombre (sutil) y nada más.
+   ========================================================================== */
+
+.pz {
+  --bg: #14182a;
+  --bg-2: #1c2140;
+  --ink: #efe8dc; /* ~14:1 sobre --bg */
+  --ink-soft: #a9a6b8; /* ~7:1 */
+  --glint: #fff6e4;
+  --coral: #f08a6c;
+  --teal: #52c3b4;
+  --amber: #f2c14e;
+  --violet: #a092ff;
+  --display: var(--pz-display), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--pz-mono), ui-monospace, Menlo, monospace;
+  --gutter: 16px;
+
+  color-scheme: dark;
+  position: relative;
+  min-height: 100svh;
+  overflow-x: clip;
+  color: var(--ink);
+  font-family: var(--display);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 70% 55% at 62% 42%, rgb(160 146 255 / 0.1), transparent 70%),
+    radial-gradient(ellipse 90% 70% at 50% 50%, var(--bg-2), var(--bg) 75%);
+}
+
+/* trama isométrica muy tenue: la grilla sobre la que está dibujada la escalera */
+.pz::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(30deg, rgb(239 232 220 / 0.035) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(-30deg, rgb(239 232 220 / 0.035) 0 1px, transparent 1px 28px);
+  mask-image: radial-gradient(ellipse 80% 70% at 55% 45%, #000 20%, transparent 80%);
+}
+
+.pz ::selection { background: rgb(240 138 108 / 0.3); }
+
+.pz-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pz :focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* --- layout ---------------------------------------------------------------- */
+
+.pz-hero {
+  position: relative;
+  display: grid;
+  grid-template-areas: "stage" "copy";
+  align-content: center;
+  gap: 8px;
+  min-height: 100svh;
+  padding: 20px var(--gutter) 40px;
+  max-width: 1240px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.pz-stage { grid-area: stage; min-width: 0; }
+.pz-copy { grid-area: copy; min-width: 0; }
+
+@media (min-width: 900px) {
+  .pz { --gutter: 40px; }
+  .pz-hero {
+    grid-template-areas: "copy stage";
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    align-items: center;
+    gap: 24px;
+  }
+}
+
+/* --- máquina --------------------------------------------------------------- */
+
+.pz-machine {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.pz-canvas {
+  display: block;
+  width: 100%;
+  height: clamp(300px, 54svh, 480px);
+  font-family: var(--mono); /* el canvas lee esta familia para las etiquetas */
+  touch-action: pan-y; /* scroll vertical libre; el arrastre horizontal gira */
+  cursor: grab;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.pz-canvas:active { cursor: grabbing; }
+
+@media (min-width: 900px) {
+  .pz-canvas { height: min(72svh, 640px); }
+}
+
+.pz-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px 12px;
+  min-height: 3.2em;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  text-align: center;
+}
+.pz-caption__text { max-width: 44ch; transition: color 0.3s; }
+.pz-machine[data-broken] .pz-caption__text { color: var(--coral); }
+
+.pz-how {
+  appearance: none;
+  border: 1px solid rgb(239 232 220 / 0.22);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  padding: 6px 12px;
+  min-height: 32px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.pz-how:hover { border-color: var(--amber); background: rgb(242 193 78 / 0.08); }
+
+/* --- copy ------------------------------------------------------------------ */
+
+.pz-copy { text-align: center; }
+@media (min-width: 900px) {
+  .pz-copy { text-align: left; }
+}
+
+.pz-eyebrow {
+  margin: 0 0 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.pz-name {
+  margin: 0;
+  font-size: clamp(2.6rem, 12.5vw, 5.6rem);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+.pz-name__vis { display: block; }
+.pz-word { display: inline-block; white-space: nowrap; }
+.pz-word + .pz-word { margin-left: 0.24em; }
+
+/* La ola: cada letra sube un escalón y se aclara, una vez por vuelta del loop.
+   Mismo período que la escalera (--pz-loop, 11.16 s). */
+.pz-l {
+  display: inline-block;
+  animation: pz-step var(--pz-loop, 11160ms) cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  animation-delay: calc(var(--i) * 70ms + 400ms);
+  will-change: transform;
+}
+
+@keyframes pz-step {
+  0% { transform: translateY(0); color: var(--ink); }
+  4% { transform: translateY(-0.045em); color: var(--glint); text-shadow: 0 0 18px rgb(255 246 228 / 0.35); }
+  11%, 100% { transform: translateY(0); color: var(--ink); text-shadow: none; }
+}
+
+.pz[data-paused] .pz-l { animation-play-state: paused; }
+
+.pz-role {
+  margin: 14px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 2px 10px;
+  font-size: clamp(1.05rem, 4.4vw, 1.35rem);
+  color: var(--ink-soft);
+}
+.pz-role strong { color: var(--ink); font-weight: 500; }
+.pz-role__sep { color: var(--amber); }
+@media (min-width: 900px) {
+  .pz-role { justify-content: flex-start; }
+}
+
+.pz-actions {
+  margin-top: 26px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px 20px;
+}
+@media (min-width: 900px) {
+  .pz-actions { justify-content: flex-start; }
+}
+
+.pz-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 0 0 0 rgb(240 138 108 / 0);
+  transition: transform 0.2s, box-shadow 0.3s, background-color 0.2s;
+}
+.pz-cta:hover { background: var(--glint); box-shadow: 0 6px 24px -6px rgb(240 138 108 / 0.55); transform: translateY(-1px); }
+.pz-cta__icon { width: 14px; height: 14px; transition: transform 0.2s; }
+.pz-cta:hover .pz-cta__icon { transform: translate(2px, -2px); }
+
+.pz-link {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-color: rgb(169 166 184 / 0.4);
+  text-underline-offset: 4px;
+  padding: 8px 2px;
+}
+.pz-link:hover { color: var(--ink); text-decoration-color: var(--coral); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pz-l { animation: none; }
+  .pz-cta, .pz-cta__icon, .pz-how { transition: none; }
+}

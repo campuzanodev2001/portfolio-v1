@@ -1,0 +1,446 @@
+/* ==========================================================================
+   Despiece — vista explotada de cómo funcionan las cosas por dentro.
+   Plano técnico sobre grafito: trazo fino, una sola tinta de señal.
+   ========================================================================== */
+
+.dz {
+  --bg: #0d0f12;
+  --body: #1a1e24;
+  --plate: rgb(18 21 26 / 0.62);
+  --ink: #e8ecef;          /* ~16:1 sobre --bg */
+  --ink-soft: #a3acb4;     /* ~8:1 */
+  --line: rgb(214 222 230 / 0.62);
+  --line-soft: rgb(214 222 230 / 0.26);
+  --grid: rgb(214 222 230 / 0.045);
+  --grid-major: rgb(214 222 230 / 0.08);
+  --accent: #ff5a36;       /* ~6.4:1 */
+  --sans: var(--dz-sans), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--dz-mono), ui-monospace, Menlo, monospace;
+
+  color-scheme: dark;
+  min-height: 100svh;
+  overflow-x: clip;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+.dz ::selection { background: rgb(255 90 54 / 0.3); }
+.dz :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* --- barra de lámina ---------------------------------------------------- */
+.dz-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line-soft);
+  font: 500 11px/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* --- hero ---------------------------------------------------------------- */
+.dz-hero {
+  display: grid;
+  gap: 40px;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: 40px 16px 56px;
+}
+@media (min-width: 960px) {
+  .dz-hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 56px;
+    min-height: calc(100svh - 44px);
+    padding-block: 32px;
+    padding-inline: 40px;
+  }
+}
+
+.dz-copy { min-width: 0; }
+
+.dz-kicker {
+  margin: 0 0 18px;
+  font: 500 11px/1.4 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.dz-kicker b { color: var(--accent); font-weight: 500; }
+
+/* El nombre: texto real. Animación sutil = un brillo que lo recorre cada
+   9 s y un cursor de calibre que lo mide sobre la cota. */
+.dz-name {
+  margin: 0;
+  font-size: clamp(3rem, 14vw, 7.25rem);
+  font-weight: 600;
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+.dz-name > span { display: block; }
+.dz-name__ink {
+  background: linear-gradient(100deg, var(--ink) 0 41%, #fff 47%, #ffc9bb 50%, #fff 53%, var(--ink) 59% 100%);
+  background-size: 260% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: dz-shimmer 9s cubic-bezier(0.55, 0, 0.45, 1) infinite;
+}
+.dz-name__ink + .dz-name__ink { animation-delay: 0.4s; }
+@keyframes dz-shimmer {
+  0%, 35% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+.dz-cota {
+  position: relative;
+  display: block;
+  height: 14px;
+  margin-top: 14px;
+  max-width: 34rem;
+}
+.dz-cota::before { /* línea de cota con topes */
+  content: "";
+  position: absolute;
+  inset: 6px 0 auto;
+  height: 1px;
+  background: var(--line-soft);
+}
+.dz-cota__end {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 13px;
+  background: var(--line);
+}
+.dz-cota__end:last-of-type { right: 0; }
+.dz-cota__cursor {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border: 1px solid var(--accent);
+  transform: rotate(45deg);
+  animation: dz-caliper 9s cubic-bezier(0.55, 0, 0.45, 1) infinite;
+}
+@keyframes dz-caliper {
+  0%, 35% { left: 0; opacity: 0; }
+  42% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+.dz-role {
+  margin: 28px 0 0;
+  font-size: clamp(1.25rem, 4.6vw, 1.75rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.dz-role span { color: var(--ink-soft); }
+.dz-lede {
+  margin: 12px 0 0;
+  max-width: 34rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.dz-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 22px;
+  margin-top: 32px;
+}
+.dz-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #120806;
+  font: 600 15px/1 var(--sans);
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+.dz-cta:hover { background: transparent; color: var(--accent); }
+.dz-cta span { transition: transform 0.2s; }
+.dz-cta:hover span { transform: translateX(3px); }
+.dz-links {
+  display: flex;
+  gap: 18px;
+  font: 500 12px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.dz-links a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding-block: 8px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.dz-links a:hover { color: var(--ink); border-color: var(--ink); }
+
+/* --- figura -------------------------------------------------------------- */
+.dz-fig {
+  /* cuadro quieto (SSR / reduced-motion): despiece completo, sin zoom */
+  --rot: 1;
+  --e: 1;
+  --zs: 1;
+  --tx: 0deg;
+  --ty: 0deg;
+  --h0: 0; --h1: 0; --h2: 0; --h3: 0; --h4: 0; --h5: 0; --h6: 0;
+
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+@media (min-width: 960px) {
+  .dz-fig { width: min(44vw, (100svh - 150px) * 0.8, 600px); max-width: none; }
+}
+.dz-fig__stage {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+.dz-fig__stage:active { cursor: grabbing; }
+
+.dz-cap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  font: 400 11.5px/1.5 var(--mono);
+  color: var(--ink-soft);
+}
+.dz-cap__hint { display: none; }
+@media (hover: hover) and (pointer: fine) { .dz-cap__hint { display: inline; } }
+.dz-btn {
+  flex: none;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line-soft);
+  background: transparent;
+  color: var(--ink);
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.dz-btn:hover { border-color: var(--ink); }
+
+/* --- la lámina (se repite dentro de su propia pantalla) ------------------ */
+/* Todas las medidas en cqw: 1 unidad del plano = 1cqw de ESTA lámina. */
+.dz-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  container-type: inline-size;
+  overflow: hidden;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-major) 0.25cqw, transparent 0.25cqw),
+    linear-gradient(90deg, var(--grid-major) 0.25cqw, transparent 0.25cqw),
+    linear-gradient(var(--grid) 0.2cqw, transparent 0.2cqw),
+    linear-gradient(90deg, var(--grid) 0.2cqw, transparent 0.2cqw);
+  background-size: 12.5cqw 12.5cqw, 12.5cqw 12.5cqw, 2.5cqw 2.5cqw, 2.5cqw 2.5cqw;
+  background-position: 0 0;
+}
+.dz-stage:not([data-level="1"]) { pointer-events: none; }
+
+.dz-world {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+/* Solo la lámina exterior hace el zoom; las internas lo "son". */
+.dz-stage[data-level="1"] > .dz-world { transform: scale(var(--zs)); }
+
+.dz-sheet {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke-linecap: square;
+}
+.dz-frame { stroke: var(--line-soft); stroke-width: 0.2; }
+.dz-reg { stroke: var(--line); stroke-width: 0.3; }
+.dz-s {
+  fill: var(--ink-soft);
+  stroke: none;
+  font-family: var(--mono);
+  font-size: 1.9px;
+  letter-spacing: 0.08px;
+}
+.dz-s--strong { fill: var(--ink); font-weight: 500; }
+.dz-dim {
+  stroke: var(--line);
+  stroke-width: 0.2;
+  opacity: calc(1 - var(--rot) * 3);
+}
+.dz-dim text {
+  fill: var(--ink-soft);
+  stroke: none;
+  font-family: var(--mono);
+  font-size: 1.9px;
+}
+.dz-box { stroke: var(--line); stroke-width: 0.2; opacity: calc(1 - var(--e) * 0.55); }
+
+/* --- el teléfono en capas ------------------------------------------------ */
+.dz-device {
+  position: absolute;
+  left: 27cqw;
+  top: 33.5cqw;
+  width: 46cqw;
+  height: 61cqw;
+}
+.dz-rig {
+  /* isometría verdadera: atan(1/√2) = 35.264° → rotateX 54.7356° */
+  --X: calc(var(--rot) * (54.7356deg + var(--ty)));
+  --Z: calc(var(--rot) * (-45deg + var(--tx)));
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform:
+    translateX(calc(var(--rot) * -6cqw))
+    scale(calc(1 - 0.22 * var(--rot)))
+    rotateX(var(--X))
+    rotateZ(var(--Z));
+}
+.dz-plate {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  /* separadas 13cqw al despiezar, centradas; 0.35cqw de espesor armadas */
+  transform: translateZ(calc((var(--i) - 3) * 13cqw * var(--e) + var(--i) * 0.35cqw));
+}
+
+.dz-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transition: opacity 0.25s;
+}
+.dz-o { fill: var(--plate); stroke: var(--line); stroke-width: 0.25; }
+.dz-hl {
+  fill: rgb(255 90 54 / 0.07);
+  stroke: var(--accent);
+  stroke-width: 0.35;
+  opacity: var(--h);
+}
+.dz-body { fill: var(--body); stroke: var(--line); stroke-width: 0.25; }
+.dz-cam { fill: var(--line-soft); }
+.dz-home { fill: var(--line-soft); }
+.dz-l { fill: none; stroke: var(--line); stroke-width: 0.22; }
+.dz-dash { stroke-dasharray: 0.8 0.6; }
+.dz-acc-l { fill: none; stroke: var(--accent); stroke-width: 0.3; }
+.dz-t {
+  fill: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 2.3px;
+  letter-spacing: 0.12px;
+}
+.dz-code { font-size: 1.9px; letter-spacing: 0; }
+.dz-tiny { font-size: 1.7px; }
+.dz-acc { fill: var(--accent); }
+.dz-dim-t { fill: var(--line-soft); }
+
+/* Pantalla: exactamente 40 × 50 cqw, misma proporción 4:5 que la lámina, sin
+   radio ni borde → al ampliarla ×2.5 es la lámina. overflow:hidden la aplana. */
+.dz-screen {
+  position: absolute;
+  left: 3cqw;
+  top: 4cqw;
+  width: 40cqw;
+  height: 50cqw;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* Rótulos: "carteles" que deshacen la rotación del rig y miran al lector. */
+.dz-call {
+  position: absolute;
+  left: 100%;
+  top: 100%;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+  transform: rotateZ(calc(-1 * var(--Z))) rotateX(calc(-1 * var(--X)));
+  pointer-events: none;
+  opacity: calc((var(--e) - 0.55) * 2.4);
+}
+.dz-call__in {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 0.6em;
+  align-items: baseline;
+  padding-left: 3cqw;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: max(10.5px, 2.7cqw);
+  line-height: 1.25;
+  color: var(--ink);
+}
+.dz-call__in::before { /* línea de referencia */
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 2.4cqw;
+  height: 1px;
+  background: var(--line);
+}
+.dz-call__n { color: var(--ink-soft); font-size: 0.82em; }
+.dz-call__sub {
+  grid-column: 2;
+  color: var(--ink-soft);
+  font-size: 0.78em;
+}
+.dz-plate .dz-call__n { color: color-mix(in srgb, var(--accent) calc(var(--h) * 100%), var(--ink-soft)); }
+@container (max-width: 440px) {
+  .dz-call__sub { display: none; }
+}
+
+/* Aislar una capa (solo nivel 1, mouse). Se atenúan los hijos y no la capa:
+   opacity en .dz-plate aplanaría el 3D de los rótulos. */
+.dz-stage[data-level="1"] .dz-rig:has(> .dz-plate:hover) > .dz-plate:not(:hover) > .dz-art,
+.dz-stage[data-level="1"] .dz-rig:has(> .dz-plate:hover) > .dz-plate:not(:hover) > .dz-screen {
+  opacity: 0.12;
+}
+.dz-stage[data-level="1"] .dz-rig:has(> .dz-plate:hover) > .dz-plate:not(:hover) > .dz-call { opacity: 0.2; }
+.dz-stage[data-level="1"] .dz-plate:hover > .dz-art .dz-o { stroke: var(--accent); }
+.dz-screen { transition: opacity 0.25s; }
+
+/* --- accesibilidad ------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .dz-name__ink, .dz-cota__cursor { animation: none; }
+  .dz-cota__cursor { display: none; }
+  .dz-art, .dz-screen, .dz-cta, .dz-cta span { transition: none; }
+}
+@media (forced-colors: active) {
+  .dz-name__ink { background: none; color: CanvasText; }
+}
