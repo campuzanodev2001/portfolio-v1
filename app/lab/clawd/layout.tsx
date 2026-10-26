@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./clawd.css";
 import "./_components/about.css";
+import "./_components/projects.css";
 
 // Display + texto: Space Grotesk variable (un archivo). Geométrica, técnica,
 // con carácter en la "a" y la "g" sin volverse caprichosa.

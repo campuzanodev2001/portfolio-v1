@@ -6,6 +6,12 @@ import { Pixel } from "./_components/Pixel";
 import { Projects } from "./_components/Projects";
 import { SectionHead } from "./_components/SectionHead";
 
+// Onda del track de salida de Proyectos: alturas deterministas (0.2–1).
+const WAVE = Array.from({ length: 96 }, (_, i) => {
+  const v = Math.abs(Math.sin(i * 0.9) * 0.6 + Math.sin(i * 0.23) * 0.4);
+  return Math.round((0.2 + v * 0.8) * 100) / 100;
+});
+
 export default function ClawdPage() {
   return (
     <div className="cl">
@@ -62,13 +68,19 @@ export default function ClawdPage() {
         <About />
 
         {/* ------------------------------------------------------------ proyectos */}
-        <section className="cl-sec" id="proyectos" aria-labelledby="proyectos-t">
-          <SectionHead id="proyectos" title="Proyectos" prompt="mostrá los proyectos" pose="inspect" />
+        <section className="cl-sec pj-sec" id="proyectos" aria-labelledby="proyectos-t">
+          <SectionHead id="proyectos" title="Proyectos" prompt="tendé las vías" />
           <p className="cl-intro">
-            Sistemas que diseñé en el último tiempo. En todos, la IA hace una parte importante del trabajo. Lo que
-            muestro acá es lo que decidí yo: la estructura, las reglas y cómo se verifica el resultado.
+            La IA corre; yo pongo las vías. En cada proyecto, tocá la aguja: aparecen las decisiones que tomé yo, y
+            recién ahí Clawd entra con lo que hace la IA.
           </p>
           <Projects />
+          {/* Salida: el riel se vuelve la onda de un track (sigue Fuera del código). */}
+          <div className="pj-wave" data-scrub="1" data-span="0.7" aria-hidden="true">
+            {WAVE.map((h, i) => (
+              <i key={i} style={{ "--h": h } as React.CSSProperties} />
+            ))}
+          </div>
         </section>
 
         {/* ------------------------------------------------------------ hobbies */}
