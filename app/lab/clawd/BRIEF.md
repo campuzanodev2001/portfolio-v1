@@ -121,3 +121,21 @@ Cada sección tiene entrada, scroll y salida, y la salida de una es la entrada d
 **Motor común (`Enhance.tsx`).** `[data-scrub]` recibe `--p` (0→1) con un solo rAF por scroll: según la línea de lectura (`data-scrub` = fracción del viewport, `data-span` para un recorrido fijo) o el recorrido pineado (`data-pin`). Sus `[data-step]` que cruzaron la línea quedan con `data-on`; el último cruzado es `data-at` y el anterior `data-prev`. Mientras se scrollea, `data-scrolling` hace caminar a los Clawd `.is-walker`. Todo lo demás es CSS.
 
 **Reduced motion.** Sin pineados ni viajes: el riel ya recorrido, las vías tendidas y descargadas, los dos lados del disco uno al lado del otro, las notas impresas y la pantalla prendida con Clawd dormido.
+
+## Loader: «Buen día, Clawd» (~2.4 s)
+
+El final de la página al revés: allá la pantalla se apaga como un CRT y Clawd se duerme sobre el punto; acá la pantalla se prende desde ese punto y Clawd se despierta.
+
+| s | Pantalla (CSS) | Canvas | Prompt |
+|---|---|---|---|
+| 0–0.16 | un haz crema se estira de punto a línea | Clawd dormido, aplastado, con «z» que suben | — |
+| 0.16–0.58 | dos persianas se abren en vertical con un rebote; scanlines titilan | | |
+| 0.45–1.0 | | sigue durmiendo | `daniel › despertá` |
+| 1.0–1.6 | | guiña un ojo, lo cierra, abre los dos, «!» | |
+| 1.6–2.3 | | se estira (brazos arriba, bosteza), se sacude, saltito | ✓ a los 2.0 |
+| 2.4 | | = frame 0 del loop: arranca `armá el hero` sin corte | se borra |
+
+- Un script inline (dentro de `.cl`, antes del contenido) marca `.cl[data-intro]` antes del primer paint, solo en la primera visita de la sesión (`sessionStorage`) y sin reduced motion. Sin JS no hay loader.
+- El overlay es solo `translate`/`scale`, dura 0.7 s y no bloquea clics; el h1 se pinta desde el principio (no demora el LCP).
+- El despertar es un prefijo del motor: `draw(g, t, opts, wake)` con `wake ∈ [0, WAKE)` y `wakePoseAt(WAKE) ≡ poseAt(0)`.
+- Tap o tecla: salta al frame 0 y corta el overlay (`data-intro-skip`).

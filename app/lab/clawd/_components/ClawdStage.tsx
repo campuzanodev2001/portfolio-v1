@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { H, STILL_T, T, W, beatAt, createScene, promptAt, type DrawOpts } from "./engine";
+import { H, STILL_T, T, W, WAKE, beatAt, createScene, promptAt, wakePromptAt, type DrawOpts } from "./engine";
 
 /**
  * Isla cliente: un <canvas> de 128×84 escalado por un entero (pixel art nítido),
  * un único requestAnimationFrame y el prompt de Daniel como texto del DOM.
  * Se pausa con la pestaña oculta o el hero fuera de pantalla; con
  * prefers-reduced-motion dibuja un solo frame quieto.
+ *
+ * Loader: si el script inline de page.tsx marcó `.cl[data-intro]` (primera
+ * visita de la sesión), antes del loop corre el despertar de Clawd (WAKE s).
+ * Termina en el frame 0, así que el loop sigue sin corte. Tap o tecla: salta.
  */
 export function ClawdStage() {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -40,16 +44,33 @@ export function ClawdStage() {
     let lastPrompt = "";
     let lastBeat = "";
     const opts: DrawOpts = { point: null, react: 99 };
+    const root = wrap.closest<HTMLElement>(".cl");
+    // < 0: sin despertar (ya se vio, reduced motion o sin el script).
+    let wake = root && "intro" in root.dataset && !reduced ? 0 : -1;
+
+    const endWake = (skipped: boolean) => {
+      if (wake < 0) return;
+      wake = -1;
+      t = 0;
+      if (root && skipped) root.dataset.introSkip = "";
+      window.removeEventListener("keydown", skip);
+      window.removeEventListener("pointerdown", skip);
+    };
+    function skip() {
+      endWake(true);
+      if (!raf) frame(0, performance.now());
+    }
 
     const frame = (tt: number, now: number) => {
       opts.react = stillReact ?? (now - reactAt) / 1000;
-      scene.draw(g, tt, opts);
-      const p = reduced ? "armá el hero  ✓" : promptAt(tt);
+      const waking = wake >= 0;
+      scene.draw(g, tt, opts, waking ? wake : undefined);
+      const p = reduced ? "armá el hero  ✓" : waking ? wakePromptAt(wake) : promptAt(tt);
       if (p !== lastPrompt) {
         promptEl.textContent = p;
         lastPrompt = p;
       }
-      const b = reduced ? "" : beatAt(tt);
+      const b = reduced || waking ? "" : beatAt(tt);
       if (hero && b !== lastBeat) {
         hero.dataset.beat = b;
         lastBeat = b;
@@ -59,7 +80,12 @@ export function ClawdStage() {
     const loop = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000); // tras una pausa no salta
       last = now;
-      t = (t + dt) % T;
+      if (wake >= 0) {
+        wake += dt;
+        if (wake >= WAKE) endWake(false);
+      } else {
+        t = (t + dt) % T;
+      }
       frame(t, now);
       raf = requestAnimationFrame(loop);
     };
@@ -138,6 +164,10 @@ export function ClawdStage() {
     document.addEventListener("visibilitychange", onVis);
     mq.addEventListener("change", onMq);
     btn.addEventListener("click", poke);
+    if (wake >= 0) {
+      window.addEventListener("keydown", skip);
+      window.addEventListener("pointerdown", skip);
+    }
     cta?.addEventListener("pointerenter", aim);
     cta?.addEventListener("pointerleave", unaim);
     cta?.addEventListener("focus", aim);
@@ -152,6 +182,8 @@ export function ClawdStage() {
       document.removeEventListener("visibilitychange", onVis);
       mq.removeEventListener("change", onMq);
       btn.removeEventListener("click", poke);
+      window.removeEventListener("keydown", skip);
+      window.removeEventListener("pointerdown", skip);
       cta?.removeEventListener("pointerenter", aim);
       cta?.removeEventListener("pointerleave", unaim);
       cta?.removeEventListener("focus", aim);
