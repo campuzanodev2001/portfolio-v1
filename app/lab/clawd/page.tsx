@@ -14,10 +14,10 @@ const WAVE = Array.from({ length: 96 }, (_, i) => {
   return Math.round((0.2 + v * 0.8) * 100) / 100;
 });
 
-// Loader "Buen día, Clawd": corre antes del primer paint. Solo en la primera
-// visita de la sesión y sin reduced motion; marca .cl[data-intro] y el CSS
-// prende la pantalla como un CRT mientras el canvas despierta a Clawd.
-const INTRO_INLINE = `(function(){var r=document.currentScript.parentElement;try{if(sessionStorage.getItem("cl-intro")||matchMedia("(prefers-reduced-motion: reduce)").matches)return;sessionStorage.setItem("cl-intro","1")}catch(e){return}r.setAttribute("data-intro","")})()`;
+// Loader "Buen día, Clawd": corre antes del primer paint, en cada carga, salvo
+// con reduced motion; marca .cl[data-intro] y el CSS prende la pantalla como
+// un CRT mientras el canvas despierta a Clawd.
+const INTRO_INLINE = `(function(){if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;document.currentScript.parentElement.setAttribute("data-intro","")})()`;
 
 export default function ClawdPage() {
   return (

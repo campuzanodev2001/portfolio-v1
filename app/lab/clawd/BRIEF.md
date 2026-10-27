@@ -135,7 +135,7 @@ El final de la página al revés: allá la pantalla se apaga como un CRT y Clawd
 | 1.6–2.3 | | se estira (brazos arriba, bosteza), se sacude, saltito | ✓ a los 2.0 |
 | 2.4 | | = frame 0 del loop: arranca `armá el hero` sin corte | se borra |
 
-- Un script inline (dentro de `.cl`, antes del contenido) marca `.cl[data-intro]` antes del primer paint, solo en la primera visita de la sesión (`sessionStorage`) y sin reduced motion. Sin JS no hay loader.
+- Un script inline (dentro de `.cl`, antes del contenido) marca `.cl[data-intro]` antes del primer paint, en cada carga de la página, salvo con reduced motion. Sin JS no hay loader.
 - El overlay es solo `translate`/`scale`, dura 0.7 s y no bloquea clics; el h1 se pinta desde el principio (no demora el LCP).
 - El despertar es un prefijo del motor: `draw(g, t, opts, wake)` con `wake ∈ [0, WAKE)` y `wakePoseAt(WAKE) ≡ poseAt(0)`.
 - Tap o tecla: salta al frame 0 y corta el overlay (`data-intro-skip`).

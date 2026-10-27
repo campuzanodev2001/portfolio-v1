@@ -9,8 +9,8 @@ import { H, STILL_T, T, W, WAKE, beatAt, createScene, promptAt, wakePromptAt, ty
  * Se pausa con la pestaña oculta o el hero fuera de pantalla; con
  * prefers-reduced-motion dibuja un solo frame quieto.
  *
- * Loader: si el script inline de page.tsx marcó `.cl[data-intro]` (primera
- * visita de la sesión), antes del loop corre el despertar de Clawd (WAKE s).
+ * Loader: si el script inline de page.tsx marcó `.cl[data-intro]` (cada carga,
+ * salvo reduced motion), antes del loop corre el despertar de Clawd (WAKE s).
  * Termina en el frame 0, así que el loop sigue sin corte. Tap o tecla: salta.
  */
 export function ClawdStage() {
