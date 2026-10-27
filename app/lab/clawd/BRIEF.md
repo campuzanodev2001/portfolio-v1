@@ -95,7 +95,7 @@ Copy: **"Criterio"** (`docs/portfolio-v3/copy/04-criterio.md`). Datos en `_compo
 | Sección | Pose |
 |---|---|
 | Sobre mí | lee una hoja |
-| Proyectos | lupa; en cada tarjeta, lupa en "Qué decidí yo" y notebook en "Qué hace la IA" |
+| Proyectos | la torre | …y se vuelve la línea de suelo: arranca el plano punteado, Clawd con casco | un piso por proyecto; el dibujo queda sticky y cada piso que cruza la línea se construye (vigas crema = decisiones, ladrillos coral = la IA) y la cámara sube; tocar una decisión resalta su viga | en la terraza, un parlante y una red: del parlante sale la onda de un track… |
 | Hobbies | bandeja de DJ con auriculares (cabecea a 120 BPM) · vóley con la pelota |
 | Notas | escribe en una notebook |
 | Contacto | levanta un sobre |

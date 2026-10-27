@@ -196,6 +196,17 @@ function Prop({ pose }: { pose: Pose }) {
   }
 }
 
+// Casco de obra (Proyectos: la torre).
+function Helmet() {
+  return (
+    <g className="clw-helmet">
+      <R x={OX + 3} y={OY} w={10} h={2} f="#f2c14e" />
+      <R x={OX + 1} y={OY + 2} w={14} f="#d9a53a" />
+      <R x={OX + 7} y={OY - 1} w={2} f="#f2c14e" />
+    </g>
+  );
+}
+
 // Capucha de hacker: la sección que la usa decide cuándo se ve (.clw-hood).
 function Hood() {
   return (
@@ -211,10 +222,12 @@ function Hood() {
 export function Pixel({
   pose = "idle",
   hood = false,
+  helmet = false,
   className = "",
 }: {
   pose?: Pose;
   hood?: boolean;
+  helmet?: boolean;
   className?: string;
 }) {
   const [lx, ly] = LOOK[pose];
@@ -246,6 +259,7 @@ export function Pixel({
         </g>
         {pose === "dj" && <Headphones />}
         {hood && <Hood />}
+        {helmet && <Helmet />}
         <Arms pose={pose} />
         {!front && <Prop pose={pose} />}
       </g>

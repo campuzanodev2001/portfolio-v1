@@ -82,13 +82,13 @@ export default function ClawdPage() {
 
         {/* ------------------------------------------------------------ proyectos */}
         <section className="cl-sec pj-sec" id="proyectos" aria-labelledby="proyectos-t">
-          <SectionHead id="proyectos" title="Proyectos" prompt="tendé las vías" />
+          <SectionHead id="proyectos" title="Proyectos" prompt="levantá la obra" />
           <p className="cl-intro">
-            La IA corre; yo pongo las vías. En cada proyecto, tocá la aguja: aparecen las decisiones que tomé yo, y
-            recién ahí Clawd entra con lo que hace la IA.
+            Un piso por proyecto. Las vigas son las decisiones que tomé yo; los ladrillos, lo que hace la IA. Sin
+            vigas, los ladrillos no se sostienen.
           </p>
           <Projects />
-          {/* Salida: el riel se vuelve la onda de un track (sigue Fuera del código). */}
+          {/* Salida: la onda que sale del parlante de la terraza (sigue Fuera del código). */}
           <div className="pj-wave" data-scrub="1" data-span="0.7" aria-hidden="true">
             {WAVE.map((h, i) => (
               <i key={i} style={{ "--h": h } as React.CSSProperties} />

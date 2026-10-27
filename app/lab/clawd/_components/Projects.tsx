@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { PROJECTS, type Text } from "./data";
 import { Pixel } from "./Pixel";
 
 /**
- * Proyectos como vías. "La IA corre, yo pongo las vías": cada proyecto es una
- * estación sobre una vía horizontal (swipe con scroll-snap). Antes de cada
- * estación hay una aguja cerrada; al tocarla, Daniel tiende la vía (sus
- * decisiones se asientan en crema) y recién entonces Clawd entra con el vagón
- * y descarga sus cajas (lo que hace la IA, en coral). Sin tocarla, Clawd espera.
+ * Proyectos como una torre. Un edificio de píxeles, un proyecto por piso
+ * (abajo el primero). Las vigas crema son lo que decidió Daniel; los ladrillos
+ * coral, lo que hace la IA. El dibujo queda sticky y el texto pasa al lado: cada
+ * piso que cruza la línea de lectura se construye (de plano punteado a sólido:
+ * primero las vigas, después los ladrillos) y la cámara sube un piso. Clawd,
+ * con casco, sube con ella. Pasar o tocar una decisión resalta su viga.
+ * Arriba, en la terraza, hay un parlante y una red: la salida a Fuera del código.
+ *
+ * Los pisos y la cámara se manejan con data-at (Enhance): -1 plano, 0–3 pisos,
+ * 4 terraza.
  */
 
 /** Un texto del copy, o un dato que falta (se ve marcado, no se inventa). */
@@ -18,231 +23,152 @@ export function T({ v }: { v: Text }) {
   return <span className="cl-pending">pendiente: {v.pending}</span>;
 }
 
-const TRAVEL_MS = 1100;
+// Geometría en unidades del dibujo: 64 de ancho, 24 por piso, 16 de terraza.
+const FLOOR_H = 24;
+const ROOF_H = 16;
+const N = PROJECTS.length;
+const BUILD_H = ROOF_H + N * FLOOR_H;
+const top = (i: number) => ROOF_H + (N - 1 - i) * FLOOR_H;
 
-// El strip es position: relative, así que offsetLeft ya es relativo a él.
-const pad = (el: HTMLElement) => parseFloat(getComputedStyle(el).scrollPaddingLeft) || 0;
+type Hot = { f: number; j: number } | null;
 
-// Cajas sobre el vagón: dos a los costados de Clawd y una apilada.
-const CRATES = [
-  { x: 4, y: -3 },
-  { x: 24, y: -3 },
-  { x: 4, y: -7 },
-];
-
-// Vagón de 32×9 en la misma grilla que Clawd (viewBox con 8 filas arriba para
-// las cajas apiladas, que son la carga de la IA).
-function Wagon({ crates }: { crates: number }) {
+function Building({ hot }: { hot: Hot }) {
   return (
-    <svg className="pj-wagon" viewBox="0 -8 32 17" shapeRendering="crispEdges" aria-hidden="true">
-      {CRATES.slice(0, crates).map((c, i) => (
-        <g key={i} className="pj-crate">
-          <rect x={c.x} y={c.y} width={4} height={4} fill="#f2ad8e" />
-          <rect x={c.x} y={c.y + 3} width={4} height={1} fill="#ad5a3f" />
-          <rect x={c.x + 1} y={c.y + 1} width={2} height={1} fill="#d97757" />
+    <svg className="tw-svg" viewBox={`0 0 64 ${BUILD_H}`} shapeRendering="crispEdges" aria-hidden="true">
+      {/* Suelo: la rama de Sobre mí, hecha línea de obra. */}
+      <rect x={0} y={BUILD_H - 1} width={64} height={1} className="tw-ground" />
+
+      {PROJECTS.map((p, i) => {
+        const y = top(i);
+        return (
+          <g key={p.slug} data-floor={i} className="tw-floor-g">
+            {/* plano: contorno punteado */}
+            <rect x={2.25} y={y + 0.25} width={59.5} height={FLOOR_H - 0.5} className="tw-plan" />
+            <g className="tw-solid">
+              <rect x={2} y={y} width={60} height={2} className="tw-slab" />
+              <rect x={4} y={y + 2} width={2} height={FLOOR_H - 2} className="tw-col" />
+              <rect x={58} y={y + 2} width={2} height={FLOOR_H - 2} className="tw-col" />
+            </g>
+            {p.me.map((_, j) => (
+              <rect
+                key={j}
+                x={8}
+                y={y + 5 + j * 3}
+                width={48}
+                height={1}
+                className={hot && hot.f === i && hot.j === j ? "tw-beam is-hot" : "tw-beam"}
+                style={{ "--j": j } as React.CSSProperties}
+              />
+            ))}
+            {p.ai.map((v, k) => (
+              <g key={k} className="tw-brick" style={{ "--k": k } as React.CSSProperties}>
+                {typeof v === "string" ? (
+                  <>
+                    <rect x={9 + k * 8} y={y + 18} width={6} height={4} className="tw-brick__b" />
+                    <rect x={9 + k * 8} y={y + 18} width={6} height={1} className="tw-brick__t" />
+                  </>
+                ) : (
+                  <rect x={9.25 + k * 8} y={y + 18.25} width={5.5} height={3.5} className="tw-brick__pending" />
+                )}
+              </g>
+            ))}
+          </g>
+        );
+      })}
+
+      {/* Terraza: parlante a un lado, red al otro. */}
+      <g data-floor={N} className="tw-roof">
+        <g className="tw-speaker">
+          <rect x={6} y={6} width={8} height={10} className="tw-box" />
+          <rect x={8} y={8} width={4} height={4} className="tw-cone" />
+          <rect x={9} y={13} width={2} height={1} className="tw-cone" />
         </g>
-      ))}
-      <rect x={3} y={1} width={26} height={5} fill="#2e2a25" />
-      <rect x={3} y={1} width={26} height={1} fill="#ad5a3f" />
-      <rect x={1} y={4} width={2} height={1} fill="#57503f" />
-      <rect x={29} y={4} width={2} height={1} fill="#57503f" />
-      {[7, 22].map((x) => (
-        <g key={x} className="pj-wheel">
-          <rect x={x} y={6} width={3} height={3} fill="#f3efe6" />
-          <rect className="pj-spoke" x={x + 1} y={6} width={1} height={1} fill="#2a2622" />
-        </g>
-      ))}
+        <rect x={50} y={5} width={1} height={11} className="tw-col" />
+        <rect x={60} y={5} width={1} height={11} className="tw-col" />
+        {[5, 7, 9].map((ny) => (
+          <rect key={ny} x={51} y={ny} width={9} height={1} className="tw-net" />
+        ))}
+        {[53, 56].map((nx) => (
+          <rect key={nx} x={nx} y={5} width={1} height={5} className="tw-net" />
+        ))}
+      </g>
     </svg>
   );
 }
 
 export function Projects() {
-  const strip = useRef<HTMLOListElement>(null);
-  const [at, setAt] = useState(0);
-  const [open, setOpen] = useState(() => PROJECTS.map(() => false));
-  // Estación donde ya descargó (llegó con la aguja abierta).
-  const [unloaded, setUnloaded] = useState(() => PROJECTS.map(() => false));
-  const [moving, setMoving] = useState(false);
-
-  // Estación actual = la más cercana al borde izquierdo del strip.
-  useEffect(() => {
-    const el = strip.current;
-    if (!el) return;
-    let raf = 0;
-    const read = () => {
-      raf = 0;
-      const items = [...el.children] as HTMLElement[];
-      let best = 0;
-      let dist = Infinity;
-      items.forEach((it, i) => {
-        const d = Math.abs(it.offsetLeft - el.scrollLeft - pad(el));
-        if (d < dist) {
-          dist = d;
-          best = i;
-        }
-      });
-      setAt(best);
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(read);
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
-  // Con reduced motion: vías tendidas y carga descargada, sin viaje.
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const all = PROJECTS.map(() => true);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- preferencia del sistema, se lee una vez al montar
-      setOpen(all);
-      setUnloaded(all);
-    }
-  }, []);
-
-  // El vagón viaja; al llegar a una estación con la vía tendida, descarga.
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- el viaje arranca cuando cambia el destino
-    setMoving(true);
-    const t = window.setTimeout(() => {
-      setMoving(false);
-      if (open[at]) setUnloaded((u) => (u[at] ? u : u.map((v, i) => v || i === at)));
-    }, TRAVEL_MS);
-    return () => clearTimeout(t);
-  }, [at, open]);
-
-  const go = (i: number) => {
-    const el = strip.current;
-    const item = el?.children[i] as HTMLElement | undefined;
-    if (!el || !item) return;
-    el.scrollTo({ left: item.offsetLeft - pad(el) });
-  };
-
-  const docked = open[at];
-  const crates = docked && unloaded[at] ? 0 : Math.min(3, PROJECTS[at].ai.length);
+  const [hot, setHot] = useState<Hot>(null);
 
   return (
-    <div className="pj" data-moving={moving ? "" : undefined}>
-      <div className="pj-rail" data-reveal="custom">
-        <ol className="pj-strip" ref={strip} tabIndex={0} aria-label="Proyectos: deslizá para pasar de estación">
-          {PROJECTS.map((p, i) => (
-            <li
-              key={p.slug}
-              className="pj-station"
-              aria-label={`Estación ${i + 1} de ${PROJECTS.length}: ${p.name}`}
-              data-open={open[i] ? "" : undefined}
-              data-unloaded={unloaded[i] ? "" : undefined}
-              data-here={at === i ? "" : undefined}
-            >
-              {/* La escena: aguja + vía + andén. El vagón se dibuja aparte. */}
-              <div className="pj-scene">
-                <button
-                  type="button"
-                  className="pj-switch"
-                  aria-pressed={open[i]}
-                  onClick={() => setOpen((o) => o.map((v, j) => (j === i ? true : v)))}
-                  disabled={open[i]}
-                >
-                  <span className="pj-switch__lever" aria-hidden="true" />
-                  <span className="pj-switch__label">{open[i] ? "Vía tendida" : "Tender la vía"}</span>
-                </button>
-                <span className="pj-sign" aria-hidden="true">
-                  E{i + 1}
-                </span>
-                {at === i && (
-                  <div className="pj-train" data-wait={!open[i] ? "" : undefined}>
-                    <span className="pj-ask" aria-hidden="true">
-                      ?
-                    </span>
-                    <Pixel pose={open[i] ? "idle" : "inspect"} className="pj-clawd" />
-                    <Wagon crates={crates} />
-                  </div>
-                )}
-              </div>
-
-              <div className="pj-board">
-                <p className="pj-kicker">
-                  <span>{p.kicker}</span>
-                  <span className="pj-status">
-                    <T v={p.status} />
-                  </span>
-                </p>
-                <h3 className="pj-name">{p.name}</h3>
-                <p className="pj-one">
-                  <T v={p.oneLiner} />
-                </p>
-
-                <div className="pj-cols">
-                  <div className="pj-me">
-                    <h4 className="pj-h">Las vías · lo que decidí yo</h4>
-                    <ul>
-                      {p.me.map((v, j) => (
-                        <li key={j} style={{ "--j": j } as React.CSSProperties}>
-                          <T v={v} />
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="pj-ai">
-                    <h4 className="pj-h">La carga · lo que hace la IA</h4>
-                    <ul>
-                      {p.ai.map((v, j) => (
-                        <li key={j} style={{ "--j": j } as React.CSSProperties}>
-                          <T v={v} />
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="pj-more">
-                  {p.body.map((v, j) => (
-                    <p key={j}>
-                      <T v={v} />
-                    </p>
-                  ))}
-                  {p.note && <p className="pj-note">{p.note}</p>}
-                  <p className="pj-stack">{p.stack.join(" · ")}</p>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ol>
+    <div className="tw" data-scrub="0.5">
+      <div className="tw-graphic" aria-hidden="true">
+        <div className="tw-frame" data-reveal="custom">
+          <div className="tw-world">
+            <Building hot={hot} />
+            <div className="tw-clawd">
+              <Pixel pose="inspect" helmet className="is-walker" />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="pj-nav">
-        <button type="button" className="pj-nav__btn" onClick={() => go(at - 1)} disabled={at === 0} aria-label="Estación anterior">
-          ←
-        </button>
-        <ol className="pj-dots" aria-label="Estaciones">
-          {PROJECTS.map((p, i) => (
-            <li key={p.slug}>
-              <button
-                type="button"
-                aria-label={p.name}
-                aria-current={at === i ? "step" : undefined}
-                data-open={open[i] ? "" : undefined}
-                onClick={() => go(i)}
-              />
-            </li>
-          ))}
-        </ol>
-        <span className="pj-count" aria-live="polite">
-          {at + 1}/{PROJECTS.length}
-        </span>
-        <button
-          type="button"
-          className="pj-nav__btn"
-          onClick={() => go(at + 1)}
-          disabled={at === PROJECTS.length - 1}
-          aria-label="Estación siguiente"
-        >
-          →
-        </button>
-      </div>
+      <ol className="tw-floors" onPointerLeave={() => setHot(null)}>
+        {PROJECTS.map((p, i) => (
+          <li key={p.slug} className="tw-floor" data-step>
+            <p className="tw-kicker">
+              <span>
+                Piso {i + 1} · {p.kicker}
+              </span>
+              <span className="tw-status">
+                <T v={p.status} />
+              </span>
+            </p>
+            <h3 className="tw-name">{p.name}</h3>
+            <p className="tw-one">
+              <T v={p.oneLiner} />
+            </p>
+
+            <h4 className="tw-h tw-h--me">Las vigas · lo que decidí yo</h4>
+            <ul className="tw-me">
+              {p.me.map((v, j) => (
+                <li key={j}>
+                  <button
+                    type="button"
+                    className={hot && hot.f === i && hot.j === j ? "is-hot" : undefined}
+                    onPointerEnter={() => setHot({ f: i, j })}
+                    onFocus={() => setHot({ f: i, j })}
+                    onBlur={() => setHot(null)}
+                    onClick={() => setHot({ f: i, j })}
+                  >
+                    <T v={v} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <h4 className="tw-h tw-h--ai">Los ladrillos · lo que hace la IA</h4>
+            <ul className="tw-ai">
+              {p.ai.map((v, j) => (
+                <li key={j}>
+                  <T v={v} />
+                </li>
+              ))}
+            </ul>
+
+            <div className="tw-more">
+              {p.body.map((v, j) => (
+                <p key={j}>
+                  <T v={v} />
+                </p>
+              ))}
+              {p.note && <p className="tw-note">{p.note}</p>}
+              <p className="tw-stack">{p.stack.join(" · ")}</p>
+            </div>
+          </li>
+        ))}
+        {/* La terraza: un tramo sin texto para que la cámara llegue arriba. */}
+        <li className="tw-roof-step" data-step aria-hidden="true" />
+      </ol>
     </div>
   );
 }
