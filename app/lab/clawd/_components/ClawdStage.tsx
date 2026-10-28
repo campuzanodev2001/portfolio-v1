@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { H, STILL_T, T, W, WAKE, beatAt, createScene, promptAt, wakePromptAt, type DrawOpts } from "./engine";
+import { H, STILL_T, T, W, beatAt, createScene, logAt, promptAt, type DrawOpts } from "./engine";
 
 /**
  * Isla cliente: un <canvas> de 128×84 escalado por un entero (pixel art nítido),
@@ -9,22 +9,24 @@ import { H, STILL_T, T, W, WAKE, beatAt, createScene, promptAt, wakePromptAt, ty
  * Se pausa con la pestaña oculta o el hero fuera de pantalla; con
  * prefers-reduced-motion dibuja un solo frame quieto.
  *
- * Loader: si el script inline de page.tsx marcó `.cl[data-intro]` (cada carga,
- * salvo reduced motion), antes del loop corre el despertar de Clawd (WAKE s).
- * Termina en el frame 0, así que el loop sigue sin corte. Tap o tecla: salta.
+ * Si corre la intro (`.cl[data-intro]`), el loop espera quieto en el frame 0
+ * hasta que la intro avisa con el evento "clawd:ready".
  */
 export function ClawdStage() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const promptRef = useRef<HTMLSpanElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
+  const logRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;
     const promptEl = promptRef.current;
     const btn = btnRef.current;
-    if (!wrap || !canvas || !promptEl || !btn) return;
+    const logEl = logRef.current;
+    if (!wrap || !canvas || !promptEl || !btn || !logEl) return;
+    const logRows = [...logEl.children] as HTMLElement[];
     const g = canvas.getContext("2d", { alpha: false });
     if (!g) return;
 
@@ -43,34 +45,36 @@ export function ClawdStage() {
     let stillReact: number | null = null;
     let lastPrompt = "";
     let lastBeat = "";
+    let lastLog = "";
     const opts: DrawOpts = { point: null, react: 99 };
     const root = wrap.closest<HTMLElement>(".cl");
-    // < 0: sin despertar (ya se vio, reduced motion o sin el script).
-    let wake = root && "intro" in root.dataset && !reduced ? 0 : -1;
-
-    const endWake = (skipped: boolean) => {
-      if (wake < 0) return;
-      wake = -1;
+    // La intro de página completa arma el hero; el loop arranca cuando termina.
+    let held = !!root && "intro" in root.dataset && !("introDone" in root.dataset) && !reduced;
+    const release = () => {
+      held = false;
       t = 0;
-      if (root && skipped) root.dataset.introSkip = "";
-      window.removeEventListener("keydown", skip);
-      window.removeEventListener("pointerdown", skip);
+      sync();
     };
-    function skip() {
-      endWake(true);
-      if (!raf) frame(0, performance.now());
-    }
 
     const frame = (tt: number, now: number) => {
       opts.react = stillReact ?? (now - reactAt) / 1000;
-      const waking = wake >= 0;
-      scene.draw(g, tt, opts, waking ? wake : undefined);
-      const p = reduced ? "armá el hero  ✓" : waking ? wakePromptAt(wake) : promptAt(tt);
+      scene.draw(g, tt, opts);
+      const p = reduced ? "armá el hero  ✓" : held ? "" : promptAt(tt);
       if (p !== lastPrompt) {
         promptEl.textContent = p;
         lastPrompt = p;
       }
-      const b = reduced || waking ? "" : beatAt(tt);
+      const lines = held ? [] : logAt(reduced ? 15 : tt);
+      const key = lines.map((l) => l.kind + l.text + l.live).join("|");
+      if (key !== lastLog) {
+        lastLog = key;
+        logRows.forEach((row, i) => {
+          const l = lines[i];
+          row.textContent = l ? l.text : "";
+          row.className = l ? `cl-log__${l.kind}${l.live ? " is-live" : ""}` : "";
+        });
+      }
+      const b = reduced || held ? "" : beatAt(tt);
       if (hero && b !== lastBeat) {
         hero.dataset.beat = b;
         lastBeat = b;
@@ -80,18 +84,13 @@ export function ClawdStage() {
     const loop = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000); // tras una pausa no salta
       last = now;
-      if (wake >= 0) {
-        wake += dt;
-        if (wake >= WAKE) endWake(false);
-      } else {
-        t = (t + dt) % T;
-      }
+      t = (t + dt) % T;
       frame(t, now);
       raf = requestAnimationFrame(loop);
     };
 
     const sync = () => {
-      const run = !reduced && visible && onscreen;
+      const run = !reduced && !held && visible && onscreen;
       if (run && !raf) {
         last = performance.now();
         raf = requestAnimationFrame(loop);
@@ -164,10 +163,7 @@ export function ClawdStage() {
     document.addEventListener("visibilitychange", onVis);
     mq.addEventListener("change", onMq);
     btn.addEventListener("click", poke);
-    if (wake >= 0) {
-      window.addEventListener("keydown", skip);
-      window.addEventListener("pointerdown", skip);
-    }
+    window.addEventListener("clawd:ready", release);
     cta?.addEventListener("pointerenter", aim);
     cta?.addEventListener("pointerleave", unaim);
     cta?.addEventListener("focus", aim);
@@ -182,8 +178,7 @@ export function ClawdStage() {
       document.removeEventListener("visibilitychange", onVis);
       mq.removeEventListener("change", onMq);
       btn.removeEventListener("click", poke);
-      window.removeEventListener("keydown", skip);
-      window.removeEventListener("pointerdown", skip);
+      window.removeEventListener("clawd:ready", release);
       cta?.removeEventListener("pointerenter", aim);
       cta?.removeEventListener("pointerleave", unaim);
       cta?.removeEventListener("focus", aim);
@@ -193,7 +188,7 @@ export function ClawdStage() {
   }, []);
 
   return (
-    <figure className="cl-stage">
+    <figure className="cl-stage" data-build="stage">
       <div className="cl-stage__screen" ref={wrapRef}>
         <button ref={btnRef} type="button" className="cl-stage__btn" aria-label="Saludar a Clawd">
           <canvas ref={canvasRef} width={W} height={H} className="cl-stage__canvas" aria-hidden="true" />
@@ -205,6 +200,12 @@ export function ClawdStage() {
         <span ref={promptRef} className="cl-prompt__text" />
         <span className="cl-prompt__caret" />
       </p>
+      {/* Lo que responde Clawd: tres renglones fijos (sin saltos de layout). */}
+      <ol ref={logRef} className="cl-log" aria-hidden="true">
+        <li />
+        <li />
+        <li />
+      </ol>
       <figcaption className="cl-stage__cap">
         <span className="cl-sr">
           Animación en loop: Clawd, un personaje de píxeles, arma una versión en miniatura de esta

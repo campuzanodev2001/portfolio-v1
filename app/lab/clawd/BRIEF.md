@@ -95,7 +95,7 @@ Copy: **"Criterio"** (`docs/portfolio-v3/copy/04-criterio.md`). Datos en `_compo
 | Sección | Pose |
 |---|---|
 | Sobre mí | lee una hoja |
-| Proyectos | la torre | …y se vuelve la línea de suelo: arranca el plano punteado, Clawd con casco | un piso por proyecto; el dibujo queda sticky y cada piso que cruza la línea se construye (vigas crema = decisiones, ladrillos coral = la IA) y la cámara sube; tocar una decisión resalta su viga | en la terraza, un parlante y una red: del parlante sale la onda de un track… |
+| Proyectos | la torre | …y se vuelve la línea de suelo: arranca el plano punteado, Clawd con casco | un piso por proyecto (11, cronológico: de las webs para clientes abajo a los agentes arriba, Diano en el último; N genérico vía --at/--f y calc()); narra Clawd en primera persona, Daniel en tercera; links "Ver sitio ↗ / Código ↗" y captura chica cuando hay; el dibujo queda sticky y cada piso que cruza la línea se construye (vigas crema = decisiones, ladrillos coral = la IA) y la cámara sube; tocar una decisión resalta su viga | en la terraza, un parlante y una red: del parlante sale la onda de un track… |
 | Hobbies | bandeja de DJ con auriculares (cabecea a 120 BPM) · vóley con la pelota |
 | Notas | escribe en una notebook |
 | Contacto | levanta un sobre |
@@ -116,26 +116,22 @@ Cada sección tiene entrada, scroll y salida, y la salida de una es la entrada d
 | Proyectos | las vías | …y se vuelve la vía: se tienden los durmientes | estaciones con swipe; la aguja es la decisión de Daniel; recién ahí entra el vagón y descarga la carga de la IA | la vía se vuelve la onda de un track… |
 | Fuera del código | Lado B | …que entra al disco | pineado: el vinilo sale y gira, el sobre se da vuelta (DJ → vóley) | el sobre se aplana en una barra crema… |
 | Notas | la imprenta | …que es la platina: baja y estampa el título | cada renglón se imprime de a píxel; Clawd tira de la palanca | Clawd descuelga la lámpara… |
-| Contacto + footer | apagá las luces | …y entra con ella a la sala que se oscurece | baja por el cable (el riel de Sobre mí, eléctrico) y prende cada fila; cuelga la lámpara sobre el CTA | la pantalla se apaga como un CRT y Clawd se duerme sobre el punto; si subís, se despierta |
+| Contacto + footer | apagá las luces | al entrar la sala (una vez, por tiempo, no por scroll) pasa fila por fila y sube cada llave; cuelga la lámpara sobre el CTA | se va caminando a su cuarto (cama, mesita con velador, cuadro con su esposa y la gatita) y se acuesta con zzz; queda dormido aunque subas. El footer es corto y normal |
 
 **Motor común (`Enhance.tsx`).** `[data-scrub]` recibe `--p` (0→1) con un solo rAF por scroll: según la línea de lectura (`data-scrub` = fracción del viewport, `data-span` para un recorrido fijo) o el recorrido pineado (`data-pin`). Sus `[data-step]` que cruzaron la línea quedan con `data-on`; el último cruzado es `data-at` y el anterior `data-prev`. Mientras se scrollea, `data-scrolling` hace caminar a los Clawd `.is-walker`. Todo lo demás es CSS.
 
 **Reduced motion.** Sin pineados ni viajes: el riel ya recorrido, las vías tendidas y descargadas, los dos lados del disco uno al lado del otro, las notas impresas y la pantalla prendida con Clawd dormido.
 
-## Loader: «Buen día, Clawd» (~2.4 s)
+## Intro: «Clawd, armá el portfolio» (~18 s, salteable)
 
-El final de la página al revés: allá la pantalla se apaga como un CRT y Clawd se duerme sobre el punto; acá la pantalla se prende desde ese punto y Clawd se despierta.
+Pantalla completa (`Intro.tsx`). Al principio solo está la consola, con Clawd dormido arriba. Daniel tipea la orden, Clawd se despierta sobresaltado («!» y salto), levanta un pulgar exagerado y responde «¡A la orden!». Después arma el hero desde cero: cada herramienta que usa queda en la consola como en Claude Code (`⏺ CrearTítulo(…)`, `⎿ resultado`, `✻ Pensando…`) y la pieza que crea (`[data-build]`: barra, título, subtítulo, bajada, botones, escena) sale volando de él hasta su lugar real (FLIP con WAAPI). Al final la consola se mete en la del hero y el canvas arranca su loop (evento `clawd:ready`).
 
-| s | Pantalla (CSS) | Canvas | Prompt |
-|---|---|---|---|
-| 0–0.16 | un haz crema se estira de punto a línea | Clawd dormido, aplastado, con «z» que suben | — |
-| 0.16–0.58 | dos persianas se abren en vertical con un rebote; scanlines titilan | | |
-| 0.45–1.0 | | sigue durmiendo | `daniel › despertá` |
-| 1.0–1.6 | | guiña un ojo, lo cierra, abre los dos, «!» | |
-| 1.6–2.3 | | se estira (brazos arriba, bosteza), se sacude, saltito | ✓ a los 2.0 |
-| 2.4 | | = frame 0 del loop: arranca `armá el hero` sin corte | se borra |
+- Script inline: marca `.cl[data-intro]` antes del primer paint en cada carga, salvo con reduced motion o si se entra con un `#ancla`. Mientras dura: scroll bloqueado y el resto de la página oculto. Failsafe CSS a los 30 s.
+- Cualquier tecla o un toque la saltea; el aviso cambia según `(hover: none)`.
+- En mobile la consola sube sobre la escena mientras arma, para no tapar el texto.
 
-- Un script inline (dentro de `.cl`, antes del contenido) marca `.cl[data-intro]` antes del primer paint, en cada carga de la página, salvo con reduced motion. Sin JS no hay loader.
-- El overlay es solo `translate`/`scale`, dura 0.7 s y no bloquea clics; el h1 se pinta desde el principio (no demora el LCP).
-- El despertar es un prefijo del motor: `draw(g, t, opts, wake)` con `wake ∈ [0, WAKE)` y `wakePoseAt(WAKE) ≡ poseAt(0)`.
-- Tap o tecla: salta al frame 0 y corta el overlay (`data-intro-skip`).
+**Consola del hero.** Debajo del prompt del canvas, tres renglones con lo que responde Clawd (`logAt(t)` en `engine.ts`), a tiempo con el dibujo: «Armando el hero…», BuscarEnLaWeb, «Pensando qué título poner», CrearTítulo, CentrarTítulo, PonerSubtítulo, CrearBotón, «Uy. Se me cayó el título.», AlinearTítulo, Deploy.
+
+**Voz.** Toda la página la narra Clawd: él escribe el código, Daniel decide. Cada sección arranca con el prompt de Daniel y la respuesta de Clawd (`SectionHead reply`). Prompts: «contá quién soy», «mostrá mi trabajo», «contá qué hago además de codear», «mostrá lo que vengo escribiendo», «clawd, conseguime clientes».
+
+**Scrollspy.** En desktop, el link de la sección actual se aclara con un punto coral (`aria-current`, desde `Enhance`).

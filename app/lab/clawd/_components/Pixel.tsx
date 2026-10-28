@@ -5,7 +5,7 @@
  * steps(), así que se mueve de a píxel entero como el del hero.
  */
 
-export type Pose = "idle" | "read" | "inspect" | "dj" | "volley" | "write" | "mail" | "lamp";
+export type Pose = "idle" | "read" | "inspect" | "dj" | "volley" | "write" | "mail" | "lamp" | "thumbs";
 
 const C = {
   coral: "#d97757",
@@ -36,6 +36,7 @@ const LOOK: Record<Pose, [number, number]> = {
   write: [1, 1],
   mail: [1, 0],
   lamp: [1, -1],
+  thumbs: [0, 0],
 };
 
 function Arms({ pose }: { pose: Pose }) {
@@ -61,6 +62,13 @@ function Arms({ pose }: { pose: Pose }) {
         <>
           <R x={l} y={OY + 5} h={2} f={C.coral} />
           <R x={r} y={OY - 1} h={6} f={C.coral} />
+        </>
+      );
+    case "thumbs":
+      return (
+        <>
+          <R x={l} y={OY + 5} h={2} f={C.coral} />
+          <R x={r} y={OY} h={6} f={C.coral} />
         </>
       );
     case "mail":
@@ -180,6 +188,17 @@ function Prop({ pose }: { pose: Pose }) {
           <R x={24} y={OY - 3} f={C.ink} />
           <R x={25} y={OY - 2} w={3} f={C.ink} />
           <R x={28} y={OY - 3} f={C.ink} />
+        </g>
+      );
+    case "thumbs":
+      // Pulgar para arriba: puño de 4×3 con el pulgar parado.
+      return (
+        <g className="clw-thumb">
+          <R x={OX + 13} y={OY - 3} w={4} h={3} f={C.coral} />
+          <R x={OX + 13} y={OY - 3} w={4} f={C.light} />
+          <R x={OX + 14} y={OY - 7} w={2} h={4} f={C.coral} />
+          <R x={OX + 14} y={OY - 7} w={2} f={C.light} />
+          <R x={OX + 16} y={OY - 2} h={2} f={C.dark} />
         </g>
       );
     case "lamp":

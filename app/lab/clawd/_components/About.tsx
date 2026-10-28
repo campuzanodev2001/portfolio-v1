@@ -26,8 +26,7 @@ function Subject({ commit, index }: { commit: string; index: number }) {
   const text = rest.join(": ");
   return (
     <span className="ab-subject">
-      <span className="ab-type">{type}:</span>{" "}
-      {text}
+      <span className="ab-type">{type}:</span> {text}
       {index === LANGS && (
         <>
           {" "}
@@ -49,15 +48,25 @@ export function About() {
   const last = STORY.length - 1;
   return (
     <section className="cl-sec ab" id="sobre-mi" aria-labelledby="sobre-mi-t">
-      <SectionHead id="sobre-mi" title="Sobre mí" prompt="contá de dónde vengo" />
+      <SectionHead
+        id="sobre-mi"
+        title="Sobre mí"
+        prompt="contá quién soy"
+        reply="Va. Te lo cuento desde el principio."
+      />
 
       <div className="ab-body">
         <div className="ab-intro">
-          <p className="cl-big">Soy Daniel, desarrollador fullstack. Nací en Argentina en 2001 y hoy vivo en Barcelona.</p>
+          <p className="cl-big">
+            Él es Daniel, desarrollador fullstack. Nació en Argentina en 2001 y
+            hoy vive en Barcelona.
+          </p>
           <p>
-            Trabajo con agentes de IA todos los días: ellos escriben buena parte del código, y mi trabajo es que ese
-            código tenga sentido. Elegir la arquitectura, aplicar patrones de diseño cuando hacen falta (y no cuando
-            no), sostener principios como SOLID y armar el contexto para que el modelo haga lo correcto.
+            Trabajamos juntos todos los días: yo y otros agentes escribimos
+            buena parte del código, y su trabajo es que ese código tenga
+            sentido. Elegir la arquitectura, aplicar patrones de diseño cuando
+            hacen falta (y no cuando no), sostener principios como SOLID y
+            armarme el contexto para que haga lo correcto.
           </p>
         </div>
 
@@ -65,7 +74,7 @@ export function About() {
           <p className="ab-cmd" aria-hidden="true">
             <span>$</span> git log --reverse
           </p>
-          <h3 className="cl-sr">Cómo llegué</h3>
+          <h3 className="cl-sr">Cómo llegó</h3>
           <div className="ab-graph" data-scrub="0.55" data-reveal="custom">
             <div className="ab-rail" aria-hidden="true">
               <div className="ab-rider">
@@ -98,12 +107,17 @@ export function About() {
             <p className="ab-cmd" aria-hidden="true">
               <span>$</span> git config --list
             </p>
-            <h3 className="cl-sr">Lo que sostengo</h3>
+            <h3 className="cl-sr">Lo que sostiene</h3>
             <dl className="ab-config">
               {VALUES.map((v, i) => (
-                <div key={v.key} data-reveal style={{ "--i": i } as React.CSSProperties}>
+                <div
+                  key={v.key}
+                  data-reveal
+                  style={{ "--i": i } as React.CSSProperties}
+                >
                   <dt>
-                    <span className="ab-key">{v.key}</span> = <span className="ab-true">true</span>
+                    <span className="ab-key">{v.key}</span> ={" "}
+                    <span className="ab-true">true</span>
                     <span className="cl-sr">: {v.title}</span>
                   </dt>
                   <dd>{v.text}</dd>
@@ -114,10 +128,14 @@ export function About() {
             <p className="ab-cmd" aria-hidden="true">
               <span>$</span> grep -r TODO
             </p>
-            <h3 className="cl-sr">Qué busco</h3>
+            <h3 className="cl-sr">Qué busca</h3>
             <ul className="ab-todo">
               {NEXT.map((t, i) => (
-                <li key={t} data-reveal style={{ "--i": i } as React.CSSProperties}>
+                <li
+                  key={t}
+                  data-reveal
+                  style={{ "--i": i } as React.CSSProperties}
+                >
                   <span className="ab-todo__k" aria-hidden="true">
                     TODO
                   </span>
@@ -135,9 +153,16 @@ export function About() {
         <div className="ab-walker" aria-hidden="true">
           <Pixel pose="idle" className="is-walker" />
         </div>
-        <a className="ab-branch__link" href={AGENCY} target="_blank" rel="noreferrer">
+        <a
+          className="ab-branch__link"
+          href={AGENCY}
+          target="_blank"
+          rel="noreferrer"
+        >
           <span className="ab-branch__cmd">git switch campuzano.studio ↗</span>
-          <span className="ab-branch__d">Mi agencia: webs a medida para pequeñas empresas y profesionales.</span>
+          <span className="ab-branch__d">
+            Su agencia: webs a medida para pequeñas empresas y profesionales.
+          </span>
         </a>
       </div>
     </section>

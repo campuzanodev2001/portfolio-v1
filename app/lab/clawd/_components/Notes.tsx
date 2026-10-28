@@ -28,11 +28,17 @@ export function Notes() {
     <section className="cl-sec np" id="notas" aria-labelledby="notas-t">
       <div className="np-press" data-reveal="custom">
         <span className="np-platen" aria-hidden="true" />
-        <SectionHead id="notas" title="Notas" prompt="componé las notas" />
+        <SectionHead
+          id="notas"
+          title="Notas"
+          prompt="mostrá lo que vengo escribiendo"
+          reply="Todavía son borradores, pero te los paso."
+        />
       </div>
       <p className="cl-intro">
-        Lo que voy aprendiendo sobre desarrollo con agentes, escrito para ordenar las ideas. Todavía no hay notas
-        publicadas; estas son las primeras que tengo en mente.
+        Lo que Daniel va aprendiendo sobre desarrollo con agentes (o sea, sobre
+        trabajar conmigo), escrito para ordenar las ideas. Todavía no publicó
+        ninguna; estas son las primeras que tiene en mente.
       </p>
 
       <div className="np-body" data-scrub="0.6">
@@ -69,7 +75,12 @@ export function Notes() {
       </div>
 
       {/* Salida: la lámpara de la prensa se va con Clawd hacia Contacto. */}
-      <div className="np-exit" data-scrub="0.9" data-span="0.5" aria-hidden="true">
+      <div
+        className="np-exit"
+        data-scrub="0.9"
+        data-span="0.5"
+        aria-hidden="true"
+      >
         <i className="np-go" data-step />
         <span className="np-cord" />
         <div className="np-carrier">

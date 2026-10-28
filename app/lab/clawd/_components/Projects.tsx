@@ -1,20 +1,24 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { PROJECTS, type Text } from "./data";
 import { Pixel } from "./Pixel";
 
 /**
  * Proyectos como una torre. Un edificio de píxeles, un proyecto por piso
- * (abajo el primero). Las vigas crema son lo que decidió Daniel; los ladrillos
- * coral, lo que hace la IA. El dibujo queda sticky y el texto pasa al lado: cada
+ * (abajo el primero, en orden cronológico: de las webs para clientes a los
+ * agentes). Narra Clawd: las vigas crema son lo que decidió Daniel; los
+ * ladrillos coral, lo que hice yo (la IA). El dibujo queda sticky y el texto pasa al lado: cada
  * piso que cruza la línea de lectura se construye (de plano punteado a sólido:
  * primero las vigas, después los ladrillos) y la cámara sube un piso. Clawd,
  * con casco, sube con ella. Pasar o tocar una decisión resalta su viga.
  * Arriba, en la terraza, hay un parlante y una red: la salida a Fuera del código.
  *
- * Los pisos y la cámara se manejan con data-at (Enhance): -1 plano, 0–3 pisos,
- * 4 terraza.
+ * Los pisos y la cámara se manejan con --at (Enhance): -1 plano, 0…N-1 pisos,
+ * N terraza. Cada piso lleva --f (su índice) y el CSS calcula con calc() si
+ * está construido, a qué altura va la cámara y dónde se para Clawd, para
+ * cualquier cantidad de pisos (--n, --bh = alto del dibujo).
  */
 
 /** Un texto del copy, o un dato que falta (se ve marcado, no se inventa). */
@@ -41,7 +45,7 @@ function Building({ hot }: { hot: Hot }) {
       {PROJECTS.map((p, i) => {
         const y = top(i);
         return (
-          <g key={p.slug} data-floor={i} className="tw-floor-g">
+          <g key={p.slug} data-floor={i} className="tw-floor-g" style={{ "--f": i } as React.CSSProperties}>
             {/* plano: contorno punteado */}
             <rect x={2.25} y={y + 0.25} width={59.5} height={FLOOR_H - 0.5} className="tw-plan" />
             <g className="tw-solid">
@@ -77,7 +81,7 @@ function Building({ hot }: { hot: Hot }) {
       })}
 
       {/* Terraza: parlante a un lado, red al otro. */}
-      <g data-floor={N} className="tw-roof">
+      <g data-floor={N} className="tw-roof" style={{ "--f": N } as React.CSSProperties}>
         <g className="tw-speaker">
           <rect x={6} y={6} width={8} height={10} className="tw-box" />
           <rect x={8} y={8} width={4} height={4} className="tw-cone" />
@@ -100,10 +104,10 @@ export function Projects() {
   const [hot, setHot] = useState<Hot>(null);
 
   return (
-    <div className="tw" data-scrub="0.5">
+    <div className="tw" data-scrub="0.5" style={{ "--n": N, "--bh": BUILD_H } as React.CSSProperties}>
       <div className="tw-graphic" aria-hidden="true">
         <div className="tw-frame" data-reveal="custom">
-          <div className="tw-world">
+          <div className="tw-world" style={{ aspectRatio: `64 / ${BUILD_H}` }}>
             <Building hot={hot} />
             <div className="tw-clawd">
               <Pixel pose="inspect" helmet className="is-walker" />
@@ -114,7 +118,7 @@ export function Projects() {
 
       <ol className="tw-floors" onPointerLeave={() => setHot(null)}>
         {PROJECTS.map((p, i) => (
-          <li key={p.slug} className="tw-floor" data-step>
+          <li key={p.slug} className={p.tags.length ? "tw-floor" : "tw-floor tw-floor--s"} data-step>
             <p className="tw-kicker">
               <span>
                 Piso {i + 1} · {p.kicker}
@@ -127,8 +131,11 @@ export function Projects() {
             <p className="tw-one">
               <T v={p.oneLiner} />
             </p>
+            {p.img && (
+              <Image className="tw-shot" src={p.img} alt="" width={160} height={100} sizes="160px" loading="lazy" />
+            )}
 
-            <h4 className="tw-h tw-h--me">Las vigas · lo que decidí yo</h4>
+            <h4 className="tw-h tw-h--me">Las vigas · lo que decidió Daniel</h4>
             <ul className="tw-me">
               {p.me.map((v, j) => (
                 <li key={j}>
@@ -146,7 +153,7 @@ export function Projects() {
               ))}
             </ul>
 
-            <h4 className="tw-h tw-h--ai">Los ladrillos · lo que hace la IA</h4>
+            <h4 className="tw-h tw-h--ai">Los ladrillos · lo que hice yo (la IA)</h4>
             <ul className="tw-ai">
               {p.ai.map((v, j) => (
                 <li key={j}>
@@ -162,7 +169,23 @@ export function Projects() {
                 </p>
               ))}
               {p.note && <p className="tw-note">{p.note}</p>}
-              <p className="tw-stack">{p.stack.join(" · ")}</p>
+              {p.stack.length > 0 && <p className="tw-stack">{p.stack.join(" · ")}</p>}
+              {(p.href || p.repo) && (
+                <p className="tw-links">
+                  {typeof p.href === "string" ? (
+                    <a href={p.href} target="_blank" rel="noreferrer">
+                      Ver sitio ↗
+                    </a>
+                  ) : (
+                    p.href && <T v={p.href} />
+                  )}
+                  {p.repo && (
+                    <a href={p.repo} target="_blank" rel="noreferrer">
+                      Código ↗
+                    </a>
+                  )}
+                </p>
+              )}
             </div>
           </li>
         ))}

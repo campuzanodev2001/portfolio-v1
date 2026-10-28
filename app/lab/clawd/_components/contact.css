@@ -1,7 +1,8 @@
 /* ==========================================================================
-   Contacto + footer — apagá las luces. La sala se oscurece, Clawd baja con la
-   lámpara por un cable y prende cada fila; el CTA queda como único foco. El
-   footer se apaga como un CRT y Clawd se duerme sobre el punto.
+   Contacto — apagá las luces. Al entrar la sala (una vez, por tiempo), Clawd
+   prende fila por fila, cuelga la lámpara sobre el CTA y se va a dormir a su
+   cuarto. La base es el estado final (sin JS / reduced-motion); la secuencia
+   son animaciones con delay, en pausa hasta que Enhance pone data-in.
    ========================================================================== */
 
 .ct,
@@ -24,63 +25,13 @@
 }
 
 .ct-room {
+  --t0: 0.3s; /* arranca */
+  --gap: 0.75s; /* fila por fila */
+  --tw: calc(var(--t0) + var(--n, 4) * var(--gap) + 1.2s); /* se va caminando */
+  --ts: calc(var(--tw) + 1.6s); /* se acuesta */
   display: grid;
-  grid-template-columns: 48px 1fr;
+  gap: 56px;
   margin-top: 8px;
-}
-
-/* El cable: el riel de Sobre mí, eléctrico. Tibio hasta donde llegó Clawd. */
-.ct-cable {
-  position: relative;
-}
-.ct-cable::before,
-.ct-cable::after {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 23px;
-  width: 2px;
-  transform-origin: top;
-}
-.ct-cable::before {
-  background: #2e2a25;
-}
-.ct-cable::after {
-  background: linear-gradient(var(--coral), var(--bulb));
-  scale: 1 var(--p, 1);
-  box-shadow: 0 0 8px rgb(255 217 138 / 0.4);
-}
-.ct-rider {
-  position: sticky;
-  top: calc(55svh - 30px);
-  z-index: 1;
-  width: 88px;
-  margin-left: -20px;
-  pointer-events: none;
-}
-/* Halo de la lámpara: se mueve con Clawd y alumbra lo que tiene al lado. */
-.ct-rider::before {
-  content: "";
-  position: absolute;
-  top: -90px;
-  left: -60px;
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--warm), transparent 62%);
-  transition: opacity 0.6s;
-}
-.ct-without {
-  position: absolute;
-  inset: 0 0 auto;
-  opacity: 0;
-}
-/* En el CTA deja la lámpara colgada y sigue sin ella. */
-.ct-room[data-at="4"] .ct-with,
-.ct-room[data-at="4"] .ct-rider::before {
-  opacity: 0;
-}
-.ct-room[data-at="4"] .ct-without {
-  opacity: 1;
 }
 
 .ct-rows {
@@ -103,6 +54,7 @@
   list-style: none;
 }
 .ct-row {
+  --d: calc(var(--t0) + var(--i, 0) * var(--gap)); /* cuándo pasa Clawd */
   position: relative;
   display: grid;
   grid-template-columns: 22px 1fr; /* mobile: la etiqueta arriba del valor */
@@ -114,14 +66,9 @@
 .ct-row::before {
   content: "";
   position: absolute;
-  inset: 0 -16px 0 -48px;
+  inset: 0 -16px;
   z-index: -1;
   background: radial-gradient(80% 140% at 0 50%, var(--warm), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.8s;
-}
-.ct-row[data-on]::before {
-  opacity: 1;
 }
 /* La llave de luz: una tecla de píxeles que sube al prenderse. */
 .ct-switch {
@@ -138,13 +85,6 @@
   left: 2px;
   width: 6px;
   height: 6px;
-  background: #57503f;
-  top: 10px;
-  transition:
-    top 0.25s steps(2),
-    background 0.25s;
-}
-.ct-row[data-on] .ct-switch::after {
   top: 2px;
   background: var(--bulb);
   box-shadow: 0 0 6px var(--bulb);
@@ -154,10 +94,6 @@
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--faint);
-  transition: color 0.6s;
-}
-.ct-row[data-on] .ct-k {
   color: var(--coral-hi);
 }
 .ct-v {
@@ -169,16 +105,11 @@
   overflow-wrap: anywhere;
 }
 .ct-v a {
-  color: var(--muted);
+  color: var(--text);
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 4px;
-  transition:
-    color 0.6s,
-    text-decoration-color 0.3s;
-}
-.ct-row[data-on] .ct-v a {
-  color: var(--text);
+  transition: text-decoration-color 0.3s;
 }
 .ct-v a:hover {
   text-decoration-color: var(--coral);
@@ -205,13 +136,14 @@
 /* ---------------------------------------------------------------- el foco */
 
 .ct-final {
+  --d: calc(var(--t0) + var(--n, 4) * var(--gap));
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   padding-top: 72px;
 }
-/* La lámpara colgada: cable + lamparita. Aparece cuando Clawd llega. */
+/* La lámpara colgada: cable + lamparita. */
 .ct-bulb {
   position: absolute;
   top: 0;
@@ -222,11 +154,6 @@
     linear-gradient(#57503f, #57503f) 5px 0 / 2px 46px no-repeat,
     linear-gradient(#8a8170, #8a8170) 2px 46px / 8px 4px no-repeat,
     linear-gradient(var(--bulb), var(--bulb)) 0 50px / 12px 12px no-repeat;
-  opacity: 0;
-  translate: 0 -24px;
-  transition:
-    opacity 0.3s,
-    translate 0.6s cubic-bezier(0.3, 1.5, 0.5, 1);
 }
 /* El cono de luz, tramado como el resto de la página. */
 .ct-bulb::after {
@@ -242,11 +169,6 @@
     repeating-conic-gradient(rgb(255 217 138 / 0.06) 0 25%, transparent 0 50%) 0 0 / 4px 4px;
   mask-image: radial-gradient(ellipse 50% 80% at 50% 0, #000 30%, transparent 75%);
   pointer-events: none;
-}
-.ct-final[data-on] .ct-bulb {
-  opacity: 1;
-  translate: 0 0;
-  animation: ct-flicker 1.2s 0.3s steps(1) both;
 }
 @keyframes ct-flicker {
   0%,
@@ -264,119 +186,287 @@
   min-height: 56px;
   padding: 0 28px;
   font-size: 18px;
-}
-.ct-final[data-on] .ct-cta {
   box-shadow: 0 0 40px -6px rgb(255 217 138 / 0.45);
 }
 
-/* ---------------------------------------------------------------- footer CRT */
+
+/* Clawd de visita: aparece en cada llave (y en el CTA) y sigue. Solo existe
+   durante la secuencia; en el estado final ya está en la cama. */
+.ct-visit {
+  position: absolute;
+  top: -12px;
+  left: -14px;
+  z-index: 1;
+  width: 40px;
+  opacity: 0;
+  pointer-events: none;
+}
+.ct-visit--cta {
+  top: 44px;
+  left: 37px;
+}
+
+/* ---------------------------------------------------------------- el cuarto */
+
+.ct-bedroom {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 96 / 56;
+  overflow: hidden;
+  background: linear-gradient(#16140f, #110f0d);
+  border: 1px solid #1f1c18;
+}
+.ct-bed-svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* El velador alumbra la pared (la grilla 96×56: lámpara en 13,25). */
+.ct-glow {
+  position: absolute;
+  top: 45%;
+  left: 13.5%;
+  width: 130%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 217 138 / 0.16), transparent 55%);
+}
+.ct-shade {
+  fill: var(--bulb);
+}
+/* Mismo tamaño de píxel que el cuarto: 32 de 96 de ancho, pies en el piso. */
+.ct-walker {
+  position: absolute;
+  top: 51.8%;
+  left: 22%;
+  width: 33.333%;
+  opacity: 0;
+}
+.ct-z {
+  position: absolute;
+  top: 36%;
+  left: 45%;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+.ct-z--2 {
+  top: 24%;
+  left: 50%;
+  font-size: 11px;
+}
+
+/* ---------------------------------------------------------------- footer */
 
 .ft {
-  --sy: clamp(0, (var(--p, 0) - 0.42) / 0.2, 1); /* se achica a una línea */
-  --sx: clamp(0, (var(--p, 0) - 0.62) / 0.14, 1); /* la línea a un punto */
-  --fade: clamp(0, (var(--p, 0) - 0.78) / 0.12, 1);
-  position: relative;
-  height: 220svh;
+  display: grid;
+  gap: 12px;
+  padding: 56px max(16px, calc((100% - 1200px) / 2 + 16px)) 28px;
   background: var(--night);
+  border-top: 1px solid #1c1a17;
 }
 .ft-mark {
-  position: absolute;
-  top: 71%;
-  width: 1px;
-  height: 1px;
-}
-.ft-stage {
-  position: sticky;
-  top: 0;
-  display: grid;
-  place-items: center;
-  height: 100svh;
-  padding: 72px 16px 24px;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-.ft-screen {
-  position: relative;
-  display: grid;
-  align-content: center;
-  gap: 16px;
-  width: min(100%, 880px);
-  height: min(52svh, 420px);
-  padding: 28px;
-  box-sizing: border-box;
-  border-radius: 20px;
-  background:
-    repeating-linear-gradient(transparent 0 2px, rgb(0 0 0 / 0.22) 2px 3px),
-    radial-gradient(120% 90% at 50% 40%, #26221d, #141210);
-  scale: calc(1 - var(--sx) * 0.985) calc(1 - var(--sy) * 0.992);
-  opacity: calc(1 - var(--fade) * 0.45); /* queda un punto tibio */
-}
-/* Al apagarse se pone blanca: la línea y el punto brillan. */
-.ft-screen::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--paper, #efe7d8);
-  box-shadow: 0 0 40px 8px rgb(239 231 216 / 0.5);
-  opacity: var(--sy);
-}
-.ft-mark-dc {
   margin: 0;
   font-family: var(--mono);
   font-size: 14px;
   color: var(--coral);
 }
 .ft-line {
-  max-width: 22ch;
+  max-width: 26ch;
   margin: 0;
-  font-size: clamp(1.5rem, 6.4vw, 3rem);
-  line-height: 1.1;
-  letter-spacing: -0.025em;
+  font-size: clamp(1.15rem, 4.8vw, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   font-weight: 600;
 }
-
-/* Clawd duerme sobre el punto. */
-.ft-bed {
-  position: absolute;
-  top: calc(50% + 24px);
-  left: 50%;
-  width: 96px;
-  translate: -50% 0;
-  opacity: 0;
-  transition: opacity 0.6s;
-}
-.ft[data-at="0"] .ft-bed,
-.ft[data-prev="0"] .ft-bed {
-  opacity: 1;
-}
-.ft[data-prev="0"][data-at="-1"] .ft-bed {
-  transition-delay: 0.9s; /* se despierta, mira y recién ahí se va */
-  opacity: 0;
-}
-.ft[data-at="0"] .ft-clawd .clw-eyes {
-  scale: 1 0.25;
-  animation: none;
-}
-.ft[data-at="0"] .ft-clawd .clw-body {
-  animation-duration: 3.2s; /* respira lento */
-}
-.ft-z {
-  position: absolute;
-  top: -8px;
-  right: 6px;
+.ft-credits {
+  display: grid;
+  gap: 4px;
+  margin-top: 20px;
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: 11px;
+  color: var(--faint);
+}
+.ft-credits p {
+  margin: 0;
+}
+.ft-credits a {
   color: var(--muted);
-  opacity: 0;
 }
-.ft[data-at="0"] .ft-z {
-  animation: ft-z 3.2s linear infinite;
+
+@media (min-width: 900px) {
+  .ct-room {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+    align-items: end;
+    gap: 64px;
+  }
+  .ct-row {
+    grid-template-columns: 22px 120px 1fr;
+    gap: 10px;
+    padding: 18px 0;
+  }
+  .ct-switch {
+    grid-row: auto;
+  }
+  .ft {
+    padding: 72px max(40px, calc((100% - 1200px) / 2 + 40px)) 32px;
+  }
 }
-.ft[data-at="0"] .ft-z--2 {
-  animation-delay: 1.6s;
+
+/* ---------------------------------------------------------------- la secuencia
+   Todo con fill "backwards": durante el delay se ve apagado, al terminar
+   vuelve a la base (= estado final). En pausa hasta que la sala entra. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .cl[data-js] .ct-room:not([data-in]) *,
+  .cl[data-js] .ct-room:not([data-in]) *::before,
+  .cl[data-js] .ct-room:not([data-in]) *::after {
+    animation-play-state: paused;
+  }
+
+  .cl[data-js] .ct-visit {
+    animation: ct-visit var(--gap) steps(6) var(--d) backwards;
+  }
+  .cl[data-js] .ct-visit--cta {
+    animation-duration: 1.2s;
+  }
+  .cl[data-js] .ct-switch::after {
+    animation: ct-flip 0.2s steps(2) calc(var(--d) + 0.35s) backwards;
+  }
+  .cl[data-js] .ct-row::before {
+    animation: ct-from0 0.6s ease calc(var(--d) + 0.4s) backwards;
+  }
+  .cl[data-js] .ct-k {
+    animation: ct-k 0.4s calc(var(--d) + 0.35s) backwards;
+  }
+  .cl[data-js] .ct-v a {
+    animation: ct-a 0.5s calc(var(--d) + 0.4s) backwards;
+  }
+  .cl[data-js] .ct-bulb {
+    animation:
+      ct-drop 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) calc(var(--d) + 0.4s) backwards,
+      ct-flicker 1.2s steps(1) calc(var(--d) + 1s) backwards;
+  }
+  .cl[data-js] .ct-cta {
+    animation: ct-cta 0.6s calc(var(--d) + 1s) backwards;
+  }
+
+  /* Se va caminando al cuarto, prende el velador y se acuesta. */
+  .cl[data-js] .ct-walker {
+    animation: ct-walk 1.6s steps(14) var(--tw) backwards;
+  }
+  .cl[data-js] .ct-walker .clw-leg-a,
+  .cl[data-js] .ct-walker .clw-leg-b {
+    animation: clw-step 0.24s steps(1) var(--tw) 7;
+  }
+  .cl[data-js] .ct-walker .clw-leg-b {
+    animation-delay: calc(var(--tw) + 0.12s);
+  }
+  .cl[data-js] .ct-shade {
+    animation: ct-shade 0.6s steps(1) calc(var(--tw) + 1.1s) backwards;
+  }
+  .cl[data-js] .ct-shade-hi,
+  .cl[data-js] .ct-glow {
+    animation: ct-from0 0.6s steps(3) calc(var(--tw) + 1.1s) backwards;
+  }
+  .cl[data-js] .ct-sleeper {
+    animation: ct-from0 0.01s var(--ts) backwards;
+  }
+
+  /* Dormido: respira y tira zetas (también sin JS). */
+  .ct-breath {
+    animation: ct-breath 3.2s steps(1) infinite;
+  }
+  .ct-z {
+    animation: ct-z 3.2s linear var(--zd, 0s) infinite backwards;
+  }
+  .ct-z--2 {
+    --zd: 1.6s;
+  }
+  .cl[data-js] .ct-z {
+    --zd: calc(var(--ts) + 0.6s);
+  }
+  .cl[data-js] .ct-z--2 {
+    --zd: calc(var(--ts) + 2.2s);
+  }
 }
-@keyframes ft-z {
+
+@keyframes ct-from0 {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes ct-visit {
+  0% {
+    opacity: 0;
+    translate: 0 -6px;
+  }
+  20%,
+  80% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  100% {
+    opacity: 0;
+    translate: 0 0;
+  }
+}
+@keyframes ct-flip {
+  from {
+    top: 10px;
+    background: #57503f;
+    box-shadow: none;
+  }
+}
+@keyframes ct-k {
+  from {
+    color: var(--faint);
+  }
+}
+@keyframes ct-a {
+  from {
+    color: var(--muted);
+  }
+}
+@keyframes ct-drop {
+  from {
+    opacity: 0;
+    translate: 0 -24px;
+  }
+}
+@keyframes ct-cta {
+  from {
+    box-shadow: 0 0 40px -6px transparent;
+  }
+}
+@keyframes ct-walk {
+  0% {
+    left: -34%;
+    opacity: 1;
+  }
+  95% {
+    left: 22%;
+    opacity: 1;
+  }
+  100% {
+    left: 22%;
+    opacity: 0;
+  }
+}
+@keyframes ct-shade {
+  from {
+    fill: #3a352e;
+  }
+}
+@keyframes ct-breath {
+  50% {
+    transform: translateY(1px);
+  }
+}
+@keyframes ct-z {
   0% {
     opacity: 0;
     translate: 0 0;
@@ -387,99 +477,5 @@
   100% {
     opacity: 0;
     translate: 14px -36px;
-  }
-}
-.ft-bang {
-  position: absolute;
-  top: -22px;
-  left: 50%;
-  font-family: var(--mono);
-  font-weight: 500;
-  font-size: 18px;
-  color: var(--coral-hi);
-  opacity: 0;
-}
-.ft[data-prev="0"][data-at="-1"] .ft-bang {
-  animation: ft-bang 0.9s cubic-bezier(0.3, 1.6, 0.5, 1) both;
-}
-@keyframes ft-bang {
-  0% {
-    opacity: 0;
-    translate: 0 6px;
-  }
-  30%,
-  80% {
-    opacity: 1;
-    translate: 0 0;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-.ft-credits {
-  position: absolute;
-  inset: auto 16px 20px;
-  display: grid;
-  gap: 4px;
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--faint);
-}
-.ft-credits p {
-  margin: 0;
-}
-
-@media (min-width: 900px) {
-  .ct-room {
-    grid-template-columns: 64px minmax(0, 760px);
-  }
-  .ct-cable::before,
-  .ct-cable::after {
-    left: 31px;
-  }
-  .ct-rider {
-    margin-left: -12px;
-  }
-  .ct-row {
-    grid-template-columns: 22px 120px 1fr;
-    gap: 10px;
-    padding: 18px 0;
-  }
-  .ct-switch {
-    grid-row: auto;
-  }
-  .ft-credits {
-    inset: auto 40px 28px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ct-cable::after {
-    scale: 1 1;
-  }
-  .ft {
-    height: auto;
-  }
-  .ft-stage {
-    position: relative;
-    height: auto;
-    min-height: 80svh;
-  }
-  .ft-screen {
-    scale: none;
-    opacity: 1;
-  }
-  .ft-screen::after {
-    opacity: 0;
-  }
-  .ft-bed {
-    position: relative;
-    top: auto;
-    left: auto;
-    translate: none;
-    margin-top: 24px;
-    opacity: 1;
   }
 }

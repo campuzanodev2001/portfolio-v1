@@ -81,11 +81,21 @@ export function Enhance() {
       el,
       steps: [...el.querySelectorAll<HTMLElement>("[data-step]")],
     }));
+    // Scrollspy: el link de la sección que cruzó el 40 % del viewport.
+    const spies = [...root.querySelectorAll<HTMLElement>("[data-spy]")]
+      .map((a) => ({ a, sec: document.getElementById(a.dataset.spy ?? "") }))
+      .filter((x): x is { a: HTMLElement; sec: HTMLElement } => !!x.sec);
     let raf = 0;
     let still = 0;
     const update = () => {
       raf = 0;
       const vh = window.innerHeight;
+      let cur: HTMLElement | null = null;
+      for (const { a, sec } of spies) if (sec.getBoundingClientRect().top < vh * 0.4) cur = a;
+      for (const { a } of spies) {
+        if (a === cur) a.setAttribute("aria-current", "location");
+        else a.removeAttribute("aria-current");
+      }
       for (const { el, steps } of scrubs) {
         const r = el.getBoundingClientRect();
         if (r.bottom < -vh || r.top > 2 * vh) continue;
@@ -105,6 +115,7 @@ export function Enhance() {
         if (el.dataset.at !== String(at)) {
           if (el.dataset.at !== undefined) el.dataset.prev = el.dataset.at;
           el.dataset.at = String(at);
+          el.style.setProperty("--at", String(at));
         }
       }
     };

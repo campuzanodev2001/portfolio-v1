@@ -111,6 +111,32 @@ html:has(.cl) {
 .cl-nav a:hover {
   color: var(--text);
 }
+/* Scrollspy: la sección actual, con un punto coral que se prende abajo. */
+.cl-nav a {
+  position: relative;
+}
+.cl-nav a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  background: var(--coral);
+  opacity: 0;
+  scale: 0;
+  transition:
+    opacity 0.3s,
+    scale 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.cl-nav a[aria-current] {
+  color: var(--text);
+}
+.cl-nav a[aria-current]::after {
+  opacity: 1;
+  scale: 1;
+}
 .cl-top__cta {
   padding: 8px 14px;
   border: 1px solid var(--line);
@@ -305,7 +331,6 @@ html:has(.cl) {
   padding: 0 14px;
   border: 1px solid var(--line);
   border-top: 0;
-  border-radius: 0 0 16px 16px;
   background: #141210;
   font-family: var(--mono);
   font-size: 13px;
@@ -330,6 +355,52 @@ html:has(.cl) {
 }
 @keyframes cl-caret {
   50% { opacity: 0; }
+}
+
+/* La consola de Clawd: lo que dice (verde), lo que piensa (coral) y las
+   herramientas que usa (⏺, la que corre titila) con su resultado (⎿). */
+.cl-log {
+  height: calc(3 * 1.6em + 20px);
+  margin: 0;
+  padding: 10px 14px;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-top: 1px dashed var(--line);
+  border-radius: 0 0 16px 16px;
+  background: #141210;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.cl-log li {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cl-log__say::before {
+  content: "clawd › ";
+  color: #8db872;
+}
+.cl-log__say {
+  color: var(--text);
+}
+.cl-log__think {
+  color: var(--coral);
+}
+.cl-log__tool::before {
+  content: "⏺ ";
+  color: #8db872;
+}
+.cl-log__tool.is-live::before {
+  animation: cl-caret 0.6s steps(1) infinite;
+}
+.cl-log__out {
+  padding-left: 2ch;
+  color: var(--faint);
+}
+.cl-log__out::before {
+  content: "⎿  ";
 }
 
 .cl-stage__cap {
@@ -487,6 +558,55 @@ html:has(.cl) {
 }
 @keyframes cl-fade {
   from { opacity: 0; }
+}
+
+/* La respuesta de Clawd: un "pensando" breve y después se escribe. */
+.cl-sec__reply {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  margin: -4px 0 14px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+.cl-sec__reply .cl-prompt__sep {
+  white-space: pre;
+}
+.cl-reply__who {
+  color: #8db872;
+}
+.cl[data-js] .cl-sec__reply:not([data-in]) {
+  opacity: 0;
+}
+.cl[data-js] .cl-sec__reply[data-in] {
+  --at: calc(var(--wait) * 42ms + 0.45s);
+  animation: cl-fade 0.15s var(--at) both;
+}
+.cl[data-js] .cl-sec__reply[data-in] .cl-sec__said {
+  animation: cl-said calc(var(--n) * 28ms) calc(var(--at) + 0.5s) steps(var(--n)) both;
+}
+.cl[data-js] .cl-sec__reply[data-in]::after {
+  content: "✻ pensando…";
+  position: absolute;
+  top: 0;
+  left: 8ch;
+  color: var(--coral);
+  white-space: nowrap;
+  animation: cl-gone 0s calc(var(--at) + 0.5s) both;
+}
+@keyframes cl-said {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+@keyframes cl-gone {
+  to {
+    visibility: hidden;
+  }
 }
 
 .cl-sec__row {
@@ -657,98 +777,357 @@ html:has(.cl) {
   100% { opacity: 0; transform: translateY(-4px); }
 }
 
-/* ---------------------------------------------------------------- loader: CRT */
+/* ---------------------------------------------------------------- intro */
 
-/* La pantalla se prende desde el punto donde Clawd se durmió al final:
-   punto → línea horizontal → se abre en vertical con un rebote → scanlines.
-   Dos persianas oscuras se abren y un haz crema hace de línea. ~0.55 s. */
-.cl-crt {
+/* "Clawd arma el portfolio". Mientras corre: scroll bloqueado, el resto de la
+   página escondido y las piezas del hero ([data-build]) esperan a que Clawd
+   las tire a su lugar. Si el JS nunca llega, a los 30 s todo aparece igual. */
+html:has(.cl[data-intro]:not([data-intro-done])) {
+  overflow: hidden;
+}
+.cl[data-intro]:not([data-intro-done]) [data-build]:not([data-built]) {
+  opacity: 0;
+  animation: cl-failsafe 0s 30s forwards;
+}
+.cl[data-intro]:not([data-intro-done]) main > :not(.cl-hero) {
+  visibility: hidden;
+}
+@keyframes cl-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
+.in {
   display: none;
 }
-.cl[data-intro]:not([data-intro-skip]) .cl-crt {
+.cl[data-intro] .in {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 60;
   display: block;
   pointer-events: none;
-  animation: cl-crt-off 0s 0.7s forwards;
+  animation: cl-gone 0s 30s forwards;
 }
-.cl-crt__top,
-.cl-crt__bottom {
-  position: absolute;
-  inset: 0 0 50%;
-  background: #0c0b0a;
-  animation: cl-crt-top 0.42s 0.16s cubic-bezier(0.3, 1.25, 0.5, 1) both;
+.cl[data-intro] .in[data-out="skip"] {
+  opacity: 0;
+  transition: opacity 0.25s;
 }
-.cl-crt__bottom {
-  inset: 50% 0 0;
-  animation-name: cl-crt-bottom;
+.cl[data-intro][data-intro-done] .in {
+  visibility: hidden;
 }
-.cl-crt__beam {
-  position: absolute;
-  top: calc(50% - 1px);
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: #f3efe6;
-  box-shadow: 0 0 24px 6px rgb(243 239 230 / 0.55);
-  animation: cl-crt-beam 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-/* Scanlines que titilan al terminar de abrirse. */
-.cl-crt::after {
+/* Fondo: oscuro mientras solo está la consola; se aclara cuando arranca a armar. */
+.in::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(transparent 0 2px, rgb(0 0 0 / 0.28) 2px 3px);
-  opacity: 0;
-  animation: cl-crt-scan 0.7s steps(1) both;
+  background: var(--bg);
+  transition: opacity 0.8s;
 }
-@keyframes cl-crt-beam {
+.in[data-phase="build"]::before,
+.in[data-out]::before {
+  opacity: 0;
+}
+
+/* La consola: centrada al principio, abajo mientras arma. */
+.in-term {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  width: min(640px, calc(100% - 32px));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgb(20 18 16 / 0.94);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.5);
+  font-family: var(--mono);
+  font-size: 13px;
+  translate: -50% calc(-50svh + 50% + 40px);
+  transform-origin: top left;
+  transition: translate 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.in[data-phase="build"] .in-term {
+  translate: -50% 0;
+}
+/* En mobile el texto del hero va abajo: mientras arma, la consola sube y se
+   apoya sobre la escena (que se arma última). */
+@media (max-width: 899px) {
+  .in[data-phase="build"] .in-term {
+    translate: -50% calc(-100svh + 100% + 160px);
+  }
+}
+.in-log {
+  margin: 0;
+  padding: 0 14px;
+  list-style: none;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.in-log:not(:empty) {
+  padding-top: 12px;
+}
+.in-log li {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  animation: cl-fade 0.2s both;
+}
+.in-you::before {
+  content: "daniel › ";
+  color: var(--coral);
+}
+.in-you {
+  color: var(--text);
+}
+.in-say::before {
+  content: "clawd › ";
+  color: #8db872;
+}
+.in-say {
+  color: var(--text);
+}
+.in-think {
+  color: var(--coral);
+}
+.in-tool::before {
+  content: "⏺ ";
+  color: #8db872;
+}
+.in-tool.is-live::before {
+  animation: cl-caret 0.6s steps(1) infinite;
+}
+.in-out {
+  padding-left: 2ch;
+  color: var(--faint);
+}
+.in-out::before {
+  content: "⎿  ";
+}
+.in-prompt {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  margin: 0;
+  padding: 0 14px;
+  white-space: pre;
+}
+.in-typed {
+  color: var(--text);
+}
+
+/* Clawd duerme arriba de la consola. */
+.in-clawd {
+  position: absolute;
+  bottom: calc(100% - 9px);
+  left: 18px;
+  width: 112px;
+  aspect-ratio: 32 / 20;
+}
+.in-c {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  visibility: hidden;
+}
+.in-c--throw .clw-ball {
+  display: none;
+}
+.in[data-mood="sleep"] .in-c--idle,
+.in[data-mood="startle"] .in-c--idle,
+.in[data-mood="work"] .in-c--idle,
+.in[data-mood="thumbs"] .in-c--thumbs,
+.in[data-mood="throw"] .in-c--throw {
+  visibility: visible;
+}
+/* Dormido: aplastado, ojos cerrados (los ojos a medio alto, abajo). */
+.in[data-mood="sleep"] .in-c--idle .clw-body {
+  transform-box: view-box;
+  transform-origin: 50% 85%;
+  scale: 1.08 0.78;
+  animation: in-snore 2.4s steps(2) infinite;
+}
+.in[data-mood="sleep"] .clw-eyes {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  scale: 1 0.5;
+}
+@keyframes in-snore {
+  50% {
+    scale: 1.12 0.72;
+  }
+}
+.in-z {
+  position: absolute;
+  top: 6px;
+  left: 66%;
+  color: var(--text);
+  font-weight: 600;
+  opacity: 0;
+}
+.in[data-mood="sleep"] .in-z {
+  animation: in-z 1.8s linear infinite;
+}
+.in-z--2 {
+  animation-delay: 0.9s !important;
+}
+@keyframes in-z {
   0% {
-    scale: 0.004 1;
+    opacity: 0;
+    translate: 0 0;
   }
-  26% {
-    scale: 1 1;
+  25% {
     opacity: 1;
-  }
-  60% {
-    scale: 1 40;
-    opacity: 0.25;
   }
   100% {
-    scale: 1 60;
     opacity: 0;
+    translate: 14px -26px;
   }
 }
-@keyframes cl-crt-top {
-  to {
-    translate: 0 -101%;
-  }
+/* Sobresalto: "!" y un salto con estirón. */
+.in-bang {
+  position: absolute;
+  top: -30px;
+  left: 46%;
+  color: var(--text);
+  font-size: 26px;
+  font-weight: 700;
+  opacity: 0;
 }
-@keyframes cl-crt-bottom {
-  to {
-    translate: 0 101%;
-  }
+.in[data-mood="startle"] .in-bang {
+  animation: in-bang 0.75s steps(4) both;
 }
-@keyframes cl-crt-scan {
-  0%,
-  55% {
+.in[data-mood="startle"] .in-c--idle {
+  animation: in-jump 0.75s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+.in[data-mood="startle"] .clw-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: 1.6;
+}
+@keyframes in-bang {
+  0% {
     opacity: 0;
+    scale: 0.4;
   }
-  62%,
-  78% {
+  30%,
+  85% {
     opacity: 1;
+    scale: 1.2;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes in-jump {
+  0% {
+    scale: 1.15 0.8;
+    transform-origin: bottom;
+  }
+  35% {
+    translate: 0 -38px;
+    scale: 0.88 1.18;
   }
   70% {
-    opacity: 0.4;
+    translate: 0 0;
+    scale: 1.12 0.88;
+  }
+  100% {
+    scale: 1;
+  }
+}
+/* Pulgar para arriba, exagerado: crece de golpe con un estallido detrás. */
+.in[data-mood="thumbs"] .in-c--thumbs {
+  transform-origin: 50% 100%;
+  animation: in-thumbs 0.9s cubic-bezier(0.3, 1.8, 0.5, 1) both;
+}
+@keyframes in-thumbs {
+  0% {
+    scale: 0.7;
+  }
+  45% {
+    scale: 1.75;
+    rotate: -6deg;
+  }
+  100% {
+    scale: 1.35;
+    rotate: 0deg;
+  }
+}
+.in-burst {
+  position: absolute;
+  inset: -40% -30%;
+  background: repeating-conic-gradient(rgb(242 173 142 / 0.28) 0 8deg, transparent 8deg 24deg);
+  mask: radial-gradient(closest-side, #000 40%, transparent);
+  opacity: 0;
+}
+.in[data-mood="thumbs"] .in-burst {
+  animation: in-burst 1.1s ease-out both;
+}
+@keyframes in-burst {
+  0% {
+    opacity: 0;
+    scale: 0.3;
+  }
+  30% {
+    opacity: 1;
   }
   100% {
     opacity: 0;
+    scale: 1.4;
+    rotate: 40deg;
   }
 }
-@keyframes cl-crt-off {
-  to {
-    visibility: hidden;
+/* Trabajando: tipea (rebota de a píxel). Al tirar una pieza, brazos arriba. */
+.in[data-mood="work"] .in-c--idle {
+  animation: in-work 0.3s steps(1) infinite;
+}
+@keyframes in-work {
+  50% {
+    translate: 0 -2px;
+  }
+}
+.in[data-mood="throw"] .in-c--throw {
+  animation: in-throw 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+@keyframes in-throw {
+  40% {
+    translate: 0 -10px;
+    scale: 0.94 1.08;
+  }
+}
+
+.in-skip {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+  animation: cl-fade 0.4s 0.8s both;
+}
+.in[data-out] .in-skip {
+  opacity: 0;
+}
+.in-skip--tap {
+  display: none;
+}
+@media (hover: none) {
+  .in-skip--tap {
+    display: inline;
+  }
+  .in-skip--key {
+    display: none;
+  }
+}
+@media (min-width: 900px) {
+  .in-term {
+    font-size: 14px;
+  }
+  .in-clawd {
+    width: 144px;
   }
 }
 
@@ -780,7 +1159,11 @@ html:has(.cl) {
   .cl[data-js] .cl-sec__prompt .cl-sec__typed {
     width: calc(var(--n) * 1ch) !important;
   }
-  .cl[data-js] .cl-sec__prompt .cl-sec__ok {
+  .cl[data-js] .cl-sec__prompt .cl-sec__ok,
+  .cl[data-js] .cl-sec__reply {
     opacity: 1 !important;
+  }
+  .cl[data-js] .cl-sec__reply::after {
+    content: none !important;
   }
 }

@@ -5,7 +5,20 @@ import { Pixel, type Pose } from "./Pixel";
  * Daniel en la terminal del hero; Clawd la ejecuta (se tipea al entrar).
  * Sin `pose`, el Clawd de la sección vive en la escena y no en el título.
  */
-export function SectionHead({ id, title, prompt, pose }: { id: string; title: string; prompt: string; pose?: Pose }) {
+export function SectionHead({
+  id,
+  title,
+  prompt,
+  reply,
+  pose,
+}: {
+  id: string;
+  title: string;
+  prompt: string;
+  /** La respuesta de Clawd, que se tipea después del prompt. */
+  reply?: string;
+  pose?: Pose;
+}) {
   return (
     <header className="cl-sec__head">
       <p className="cl-sec__prompt" data-reveal style={{ "--n": prompt.length } as React.CSSProperties}>
@@ -16,6 +29,16 @@ export function SectionHead({ id, title, prompt, pose }: { id: string; title: st
           ✓
         </span>
       </p>
+      {reply && (
+        <p
+          className="cl-sec__reply"
+          data-reveal style={{ "--n": reply.length, "--wait": prompt.length } as React.CSSProperties}
+        >
+          <span className="cl-reply__who">clawd</span>
+          <span className="cl-prompt__sep"> › </span>
+          <span className="cl-sec__said">{reply}</span>
+        </p>
+      )}
       <div className="cl-sec__row">
         <h2 className="cl-sec__title" id={`${id}-t`}>
           {title}

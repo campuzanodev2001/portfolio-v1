@@ -257,50 +257,6 @@ function poseAt(t: number): Pose {
   };
 }
 
-/* ---------------------------------------------------------------- despertar */
-
-/**
- * Loader: Clawd se despierta (el reverso del final de la página, donde se
- * duerme sobre el punto del CRT). Es un prefijo del loop: w ∈ [0, WAKE) y el
- * último estado es exactamente poseAt(0) — mismo x, ojos abiertos, sin squash.
- */
-export const WAKE = 2.4;
-
-function wakePoseAt(w: number): Pose {
-  const p = poseAt(0);
-  p.lookY = 0;
-  if (w < 1.6) {
-    // Dormido: aplastado y ancho, respira lento.
-    p.sx = 1;
-    p.sy = Math.floor(w / 0.8) % 2 ? -3 : -2;
-    p.eyes = w < 1.0 ? "closed" : w < 1.2 ? "wink" : w < 1.35 ? "closed" : "open";
-    p.bang = within(w, 1.4, 1.75);
-  } else if (w < 1.85) {
-    // Se estira: brazos arriba, más alto y finito, ojos cerrados (bosteza).
-    p.arms = "up";
-    p.sx = -1;
-    p.sy = 2;
-    p.eyes = "closed";
-  } else if (w < 2.0) {
-    // Se sacude.
-    p.x += Math.floor(w / 0.04) % 2 ? 1 : -1;
-    p.sy = -1;
-  } else {
-    p.lift = hop(w, 2.0, 2.3, 4);
-    if (within(w, 2.3, 2.38)) p.sy = -1; // aterriza
-  }
-  return p;
-}
-
-const WAKE_PROMPT: [number, number, number, number, string] = [0.45, 1.0, 2.0, WAKE, "despertá"];
-export function wakePromptAt(w: number) {
-  const [a, b, ok, end, s] = WAKE_PROMPT;
-  if (w < a || w >= end) return "";
-  return s.slice(0, Math.round(prog(w, a, b) * s.length)) + (w >= ok ? "  ✓" : "");
-}
-
-const ZED = ["1111", "0010", "0100", "1111"];
-
 /** Geometría del cuerpo para una pose (la usan el dibujo y los bloques en mano). */
 function body(p: Pose) {
   const bw = 12 + 2 * p.sx;
@@ -369,6 +325,47 @@ export function promptAt(t: number) {
     }
   }
   return "";
+}
+
+/**
+ * Lo que responde Clawd, como la consola de Claude Code: dice algo, piensa,
+ * usa herramientas (⏺) y cada una devuelve un resultado (⎿). Va a tiempo con
+ * el dibujo: cada herramienta arranca justo cuando pasa lo que describe.
+ */
+export type LogKind = "say" | "think" | "tool" | "out";
+export type LogLine = { kind: LogKind; text: string; live: boolean };
+
+const LOG: [number, LogKind, string][] = [
+  [1.35, "say", "Armando el hero…"],
+  [1.55, "tool", "BuscarEnLaWeb(“títulos de portfolio sin humo”)"],
+  [1.8, "think", "Pensando qué título poner"],
+  [2.05, "tool", "CrearTítulo(“Daniel Campuzano”)"],
+  [3.45, "tool", "CentrarTítulo()"],
+  [4.45, "tool", "PonerSubtítulo(“Fullstack · construye con IA”)"],
+  [6.0, "tool", "CrearBotón(“Contactame”)"],
+  [6.95, "tool", "ConectarBotón(mailto)"],
+  [7.2, "out", "listo: el botón manda un mail"],
+  [8.45, "say", "Uy. Se me cayó el título."],
+  [10.0, "say", "Perdón, ya lo enderezo."],
+  [10.3, "tool", "AlinearTítulo(0°)"],
+  [11.3, "out", "alineado"],
+  [12.8, "tool", "Deploy(vercel --prod)"],
+  [14.6, "out", "publicado ✓"],
+];
+const LOG_LINES = 3;
+const SPIN = ["·", "✢", "✳", "✶", "✻", "✽"];
+
+export function logAt(t: number): LogLine[] {
+  const i = LOG.findLastIndex(([at]) => at <= t);
+  if (i < 0 || t >= 15.4) return [];
+  return LOG.slice(Math.max(0, i - LOG_LINES + 1), i + 1).map(([, kind, text], j, a) => {
+    const live = j === a.length - 1;
+    if (kind === "think") {
+      const glyph = live ? SPIN[Math.floor(t / 0.12) % SPIN.length] : "✻";
+      return { kind, text: `${glyph} ${text}${live ? "…" : ""}`, live };
+    }
+    return { kind, text, live };
+  });
 }
 
 /** Señal para el h1 real: brillo cuando el título encaja, inclinación cuando se golpea. */
@@ -598,9 +595,8 @@ function drawClawd(g: Ctx, t: number, p: Pose, o: DrawOpts) {
 export function createScene() {
   const bm = buildBitmaps();
 
-  /** `wake` (0 → WAKE): dibuja el despertar sobre el frame 0 del loop. */
-  function draw(g: Ctx, t: number, o: DrawOpts, wake?: number) {
-    t = wake === undefined ? ((t % T) + T) % T : 0;
+  function draw(g: Ctx, t: number, o: DrawOpts) {
+    t = ((t % T) + T) % T;
     g.imageSmoothingEnabled = false;
     px(g, C.bg, 0, 0, W, H);
 
@@ -618,7 +614,7 @@ export function createScene() {
       if ((((x - Math.round(shift)) % 8) + 8) % 8 < 2) px(g, C.floorTick, x, FLOOR + 3);
     }
 
-    const pose = wake === undefined ? poseAt(t) : wakePoseAt(wake);
+    const pose = poseAt(t);
     if (o.react < 0.6) pose.lift += Math.sin((Math.PI * o.react) / 0.6) * 6;
     const b = drawClawd(g, t, pose, o);
 
@@ -629,20 +625,6 @@ export function createScene() {
       const y1 = SLOT.btn.y + SLOT.btn.h;
       const sy = Math.round(lerp(y0, y1, p));
       px(g, C.spark, b.left + b.bw, sy, 1, 2);
-    }
-
-    // zzz: dos "z" que suben mientras duerme
-    if (wake !== undefined && wake < 1.0) {
-      [0, 0.4].forEach((off) => {
-        const q = ((wake + off) % 0.8) / 0.8;
-        const zx = b.cx + 6 + Math.round(q * 3);
-        const zy = b.top - 5 - Math.round(q * 7);
-        ZED.forEach((r, j) =>
-          [...r].forEach((c, i) => {
-            if (c === "1") px(g, C.cream, zx + i, zy + j);
-          }),
-        );
-      });
     }
 
     dust(g, t, 8.4, b.cx - 5, FLOOR - 1, 4);
